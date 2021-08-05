@@ -1,0 +1,20 @@
+**New Commands**:
+---- Added Many many commands.
+---- For Example:
+-------- Changelogs -> view changelogs
+-------- Massban -> Allows you to do multiple bans at once
+-------- NSFW -> NSFW command <:heheboi:807490635459985428>
+---- and much more!
+
+**Updates**:
+---- many commands got updated:
+---- Some of them are:
+-------- Embed -> You can now pass in flags like `-flag` and make yourself a custom rich embed
+-------- Help -> Fully reformatted and paginated the help command
+-------- DM -> Now you can opt out of the DM command and also it now sends the DM as an embed to the user
+---- Use the bot and find out about the other updates!
+
+**Extra**:
+---- Now You can just edit a message and reinvoke a command incase if you made a typo!
+---- Warn commands coming soon.
+---- Error messages now reformatted UwU

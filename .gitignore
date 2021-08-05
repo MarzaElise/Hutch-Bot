@@ -1,0 +1,8 @@
+assets
+__pycache__
+.env
+passwords.env
+databases
+main.py
+tests
+cogs/__pycache__
