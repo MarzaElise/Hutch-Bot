@@ -129,9 +129,11 @@ class Context(commands.Context):
                 em.set_image(url=image)
             else:
                 img = f"https://{image}"
-                print('Image name does not start with {!r}, changed the URL for closest match')
-                print('original -> changed')
-                print(image, '->', img)
+                print(
+                    "Image name does not start with {!r}, changed the URL for closest match"
+                )
+                print("original -> changed")
+                print(image, "->", img)
                 em.set_image(url=img)
         return em
 
