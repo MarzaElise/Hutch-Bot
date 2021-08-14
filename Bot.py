@@ -281,8 +281,12 @@ class MyBot(commands.Bot):
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         author: discord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
-        if (before.content != after.content) and not (author.bot):
+        await self.process_commands(after)
+        if (before.content != after.content) and (author.bot == False) and (after.author.id == self.owner_id):
             await self.invoke(ctx)
+    
+    def get_command(self, name):
+        return super().get_command(name)
 
     def get_all_commands(
         self,
@@ -290,7 +294,7 @@ class MyBot(commands.Bot):
         lis: list = list(),
     ):
         """
-        Gets all of the bot's commands as a list which is converted
+        Gets all of the bot's commands or a group's commands as a list which is converted
         to a set before hand to remove any repeated command names
         """
         cmds = cmds or self.commands
@@ -360,3 +364,35 @@ class MyBot(commands.Bot):
                 # ik this is messy but one of the log channel would be NoneType
                 # when using each of the bots and I didnt find any better way than this.
                 # any help to make this better will be appreciated. : )
+    
+    def get_docs(self, entity: Optional[Union[commands.Command, commands.Group, commands.Cog]] = None, *, error=True) -> str:
+        """
+        Get the documentation link for a given category or a command (including group commands)
+        
+        Takes in one ``entity`` argument that you need the documentation link for. Returns the home page if no entity given
+        
+        Raises:
+            :class:`NotDocumented`: Requested entity is not documented
+        """
+        # base = "https://hutch-bot.readthedocs.io"
+        base = "http://127.0.0.1:8000"
+        if not entity:
+            if error:
+                raise NotDocumented("No entity was given to get the documentation link for. Are you sure you spelt it correctly?")
+            name = "/home"
+        if isinstance(entity, commands.Cog):
+            name = "/commands/" + str(entity.qualified_name).lower()
+        if isinstance(entity, (commands.Command, commands.Group)):
+            cmd = str(entity.qualified_name).lower().replace(" ", "-")
+            if not entity.cog:
+                if error:
+                    raise NotDocumented(f"Command {entity.qualified_name} is not documented yet.")
+                return False
+            category = entity.cog.qualified_name.lower()
+            name = "/commands" + f"/{category}" + f"/#{cmd}"
+        final = base + name
+        if url_exists(final):
+            return final
+        if error:
+            raise NotDocumented(f"{entity.qualified_name} was not found in the documentation.")
+        return False

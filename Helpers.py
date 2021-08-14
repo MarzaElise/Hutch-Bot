@@ -12,7 +12,18 @@ import contextlib
 from typing import List, Union, Optional
 import io
 import asyncio
+import requests
 
+def url_exists(url: str):
+    """
+    Helper function to make sure a URL exists and returns a status code in the 2xx-3xx range
+    """
+    response = requests.get(url)
+    code = str(response.status_code)
+    return code.startswith("2") or code.startswith("3")
+
+class NotDocumented(commands.CommandError):
+    pass
 
 class EmbedCreationError(commands.CommandError):
     pass
