@@ -95,6 +95,14 @@ class Context(commands.Context):
         g: discord.Guild = self.message.guild
         return g
 
+    @property
+    def reference(self):
+        """shorthand method for `ctx.message.reference`"""
+        if self.message.reference:
+            ref: discord.MessageReference = self.message.reference
+            return ref
+        return None
+
     @discord.utils.cached_property
     def author(self):
         r"""Union[:class:`~discord.User`, :class:`.Member`]:
@@ -140,7 +148,7 @@ class Context(commands.Context):
     async def send_help(self, *args):
         return await super().send_help(*args)
 
-    def embed(self, description=None, *args, **kwargs):
+    def embed(self, description=None, *args, **kwargs):  # i think i should remove this
         colors = [
             0xF3FF00,
             0x00FFFF,

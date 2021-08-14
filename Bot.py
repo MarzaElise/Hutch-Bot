@@ -173,7 +173,8 @@ class MyBot(commands.Bot):
         self.warns = Database("./databases/warns.sqlite")
 
     async def get_context(self, message: discord.Message, *, cls=Context):
-        return await super().get_context(message, cls=Context)
+        ctx: Context = await super().get_context(message, cls=Context)
+        return ctx
 
     async def on_ready(self):
         self.logs: List[discord.TextChannel] = [
@@ -310,6 +311,7 @@ class MyBot(commands.Bot):
             pass
 
     async def on_command_error(self, ctx: Context, error: commands.CommandError):
+        error = getattr(error, "original", error)
         if isinstance(error, commands.CommandNotFound):
             return
         if isinstance(error, commands.CommandOnCooldown):
@@ -318,7 +320,9 @@ class MyBot(commands.Bot):
         if isinstance(error, commands.DisabledCommand):
             desc = "This Command is disabled throughout the bot, please wait patiently until it is enabled again"
             return await ctx.to_error(desc)
-        if not isinstance(error, commands.CommandInvokeError):
+        if not isinstance(
+            error, commands.CommandInvokeError
+        ):  # handling method copied and modified from https://github.com/TechStruck/TechStruck-Bot/
             ctx.command.reset_cooldown(ctx)
             title = " ".join(
                 re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__)
@@ -331,6 +335,8 @@ class MyBot(commands.Bot):
                 icon_url=ctx.author.avatar_url,
             )
             return await ctx.send(embed=em)
+
+        # unexpected error
         traceback.print_exception(type(error), error, error.__traceback__)
         error_em = await ctx.to_error()
 

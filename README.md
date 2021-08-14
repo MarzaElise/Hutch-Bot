@@ -50,9 +50,9 @@ Here are some extra facts and information that are good to know
 
 - Hutch Bot's message cache is capped at 1k and it only has members privileged intent enabled.
 
-- Official documentation for this bot is also available now. It is also made by me and you can visit it by clicking [here](https://marzaelise.github.io/Hutch-Bot/). Note that some command categories havent been added
+- Official documentation for this bot is also available now. It is also made by me and you can visit it by clicking [here](https:hutch-bot.readthedocs.io/). It might take a bit of time to update docs on each update
 
-- This repository will not be accepting pull requests, however I will merge pull requests that reduce my messy code. (please help me fix my code)
+- This repository will not be accepting pull requests that add new stuff, however I will merge pull requests that reduce my messy code. (please help me fix my code)
 
 - Fun Fact: Wild dogs and Hyenas eat their prey alive, so try not to get eaten by one
 

@@ -1,5 +1,4 @@
 import discord
-from discord import message
 from discord.ext import commands, flags
 from discord.ext.commands import *
 from discord.utils import *
@@ -15,6 +14,9 @@ import psutil
 import humanize
 from googletrans import Translator
 from googletrans.models import Translated
+import asyncio
+import contextlib
+from Bot import MyBot
 
 # os.chdir("../launcher.py")
 
@@ -55,7 +57,7 @@ inv_url = oauth_url(
 class Misc(commands.Cog):
     """Hutch Bot Miscellaneous Category"""
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: MyBot):
         self.bot = bot
         # bot.add_command(self.embed)
         self.__cog_description__ = "Hutch Bot Miscellaneous Category"
@@ -333,6 +335,43 @@ class Misc(commands.Cog):
         await ctx.send(
             content="Please note that there might be some bugs so please make sure to report them",
             embed=em,
+        )
+
+    @commands.command(aliases=["re"], brief="10s")
+    @commands.cooldown(1, 10, commands.BucketType.member)
+    async def redo(self, ctx: Context):
+        """
+        Redo a command by replying to the edited/corrected message.
+        You can only redo a message sent by you
+        """
+        if not ctx.reference:
+            return await ctx.to_error("Reply to a message sent by you to redo it.")
+        try:
+            message = await ctx.fetch_message(ctx.reference.message_id)
+        except discord.NotFound:
+            return await ctx.to_error("Replied message not found.")
+        alt_ctx = self.bot.get_context(message, cls=Context)
+        await alt_ctx.reinvoke()
+
+    @commands.command(aliases=["del"], brief="10s")
+    @commands.cooldown(1, 10, commands.BucketType.member)
+    async def delete(self, ctx: Context):
+        """
+        Delete a message sent by the bot. useful when the bot unexpectedly sends a wall text or any unwanted message
+        """
+        if not ctx.reference:
+            return await ctx.to_error("Reply to the message you want to delete")
+        message: discord.Message = ctx.reference.cached_message
+        if not message:
+            message: discord.Message = await ctx.fetch_message(ctx.reference.message_id)
+        if message.author.id == self.bot.user.id:
+            try:
+                with contextlib.suppress(discord.HTTPException):
+                    await message.delete()
+            except discord.NotFound:
+                return await ctx.to_error("Message not found")
+        return await ctx.to_error(
+            "Can only delete messages sent by the bot through this command"
         )
 
 
