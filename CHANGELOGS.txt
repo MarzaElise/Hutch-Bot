@@ -3,6 +3,10 @@
 ---- Delete -> delete a message sent by the bot. Helpful when the bot unexpectedly sends something unwanted.
 ---- Source -> view the source of a specific command. Will be adding checks later.
 
+**Updated**:
+---- Whois -> Reformatted the whois command.
+---- More error handling 
+----    -> Now the bot handles errors that occur when trying to send text with more than 2000 characters and stuff
 
 **Extra**:
 ---- The official documentation of the bot is now released at https://hutch-bot.readthedocs.io

@@ -380,17 +380,8 @@ class Moderation(commands.Cog):
                     f"Slow mode for {ctx.channel.mention} set to {secs}"
                 )
 
-    @commands.command(
-        aliases=["user", "userinfo", "about", "who"],
-        help="Receive information about a member",
-        brief="15s",
-    )
-    @commands.guild_only()
-    @commands.cooldown(1, 15, BucketType.member)
-    @commands.guild_only()
-    async def whois(self, ctx: Context, member: discord.Member = None):
-        """Receive information about a member"""
-        member = member or ctx.author
+    def get_aks(self, ctx: Context, member: discord.Member):
+        '''get the server acknowledgements for a member with a given context'''
         aks = "Server Member"
         if member.bot:
             aks = "Server Bot"
@@ -402,42 +393,45 @@ class Moderation(commands.Cog):
             aks = "Server Admin"
         if member.id == ctx.guild.owner_id:
             aks = "Server Owner"
-        permissions_list = [perm for perm in member.guild_permissions]
-        perms_and_values = []
-        perm_list = []
-        for perm, value in permissions_list:
-            if value == True:
-                perms_and_values.append(perm)
-            else:
-                continue
-        for perm in perms_and_values:
-            perm = perm.replace("_", " ").title()
-            perm_list.append(f"`{perm}`")
+
+    @commands.command(
+        aliases=["user", "userinfo", "about", "who"],
+        help="Receive information about a member",
+        brief="15s",
+    )
+    @commands.guild_only()
+    @commands.cooldown(1, 15, BucketType.member)
+    @commands.guild_only()
+    async def whois(self, ctx: Context, member: discord.Member = None):
+        """Receive information about a member"""
+        member = member or ctx.author
+        aks = self.get_aks(ctx, member)
+        permissions: List[str] = [perm[0] for perm in member.guild_permissions if perm[1]] # iter(member.guild_permissions) returns (perm, bool) value where bool is True if they do have that permission.
+        formatted = []
+        for element in permissions:
+            fmt = element.lower().replace("_", " ").replace("guild", "server").title()
+            formatted.append(f"`{fmt}`")
         created = member.created_at.strftime("%c")
         joined = member.joined_at.strftime("%c")
-        roles = [role for role in member.roles[1:]]
-        roles = roles[::-1]
-        member_perms = ", ".join(perm for perm in perm_list)
+        roles = [role.mention for role in member.roles[1:]][::-1] # slice from the first (@@everyone) role and reverse it
+        # member_perms = ", ".join(perm for perm in perm_list)
         with ctx.typing():
             await asyncio.sleep(1)
             em = discord.Embed()
-            em.set_author(name=f"{member}", icon_url=member.avatar_url)
+            em.set_author(name=f"{member}", url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
             em.set_thumbnail(url=member.avatar_url)
             em.add_field(name="Joined at:", value=joined, inline=True)
             em.add_field(name="Created at:", value=created, inline=True)
             em.add_field(name="ID:", value=member.id, inline=True)
-            try:
-                em.add_field(
-                    name=f"Roles [{len(member.roles) - 1}]",
-                    value="".join([role.mention for role in roles]),
-                    inline=False,
-                )
-                em.add_field(
-                    name="Top Role:", value=f"{member.top_role.mention}", inline=False
-                )
-            except:
-                pass
-            em.add_field(name="Permissions:", value=member_perms, inline=False)
+            em.add_field(
+                name=f"Roles [{len(member.roles) - 1}]",
+                value="|".join(roles) if len(roles) > 0 else "N/A",
+                inline=False,
+            )
+            em.add_field(
+                name="Top Role:", value=f"{member.top_role.mention}", inline=False
+            )
+            em.add_field(name="Permissions:", value=", ".join(formatted), inline=False)
             em.add_field(name="Server Acknowledgements", value=aks, inline=False)
             em.add_field(
                 name="Status",
