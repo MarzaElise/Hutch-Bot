@@ -315,7 +315,7 @@ class Dev(commands.Cog):
         blacklists = self.load_json("./assets/blacklist.json")
         blacklists[str(member.id)]["reason"] = reason
         self.write_json("./assets/blacklist.json", blacklists)
-        await ctx.send(f"{member} Succesfully blacklisted")
+        await ctx.em(heading="Success", desc="Member Succesfully blacklisted.", col=0x2ecc71)
 
 
 def setup(bot: commands.Bot):
