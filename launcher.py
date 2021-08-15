@@ -9,7 +9,7 @@ def main(TOKEN: str = "TOKEN_2"):
         change_status.start(bot)
         bot.run(bot.config.BOT_TOKEN)
     except Exception as e:
-        print(f"[ERROR]: \n{traceback.print_exception(type(e), e, e.__traceback__)}")
+        print(f"[ERROR]: \n{traceback.format_exc(type(e), e, e.__traceback__)}")
         return
 
 

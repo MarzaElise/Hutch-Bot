@@ -117,11 +117,13 @@ help_obj.command_attrs = {
 
 
 class MyBot(commands.Bot):
+
     def __init__(self, token_type="TOKEN_2"):
-        self.token = token_type
         intents = discord.Intents().default()
         intents.members = True
-        self.config = get_config(token_type)
+        self.config = get_config(token_type)  
+        # weird way of passing in token_type in params and running the bot 
+        # but this is the only way I found to run bots with two tokens without changing much code.
         super().__init__(
             command_prefix=[self.config.DEFAULT_PREFIX, "H!"],
             help_command=help_obj,
@@ -131,21 +133,27 @@ class MyBot(commands.Bot):
             strip_after_prefix=True,
             case_insensitive=True,
         )
+
         environ["JISHAKU_NO_UNDERSCORE"] = "True"
         environ["JISHAKU_RETAIN"] = "True"
-        self.logs: Union[List[discord.TextChannel], None] = None
 
-        # NOTE: USELESS ATTRIBUTES
-        self.__author__ = "Marcus"
-        self.__title__ = "Hutch Bot"
-        self.__license__ = "MIT"
-        self.__copyright__ = "Copyright 2021-present Marcus"
-        self.__version__ = version() or "3.4.1"
+        self.logs: Union[List[discord.TextChannel], None] = None # logs channels are set in on_ready
+        self.colors = colors # handpicked colors
+        self.colours = colors # aliasing
+        self.testing_guilds = [
+            681882711945641997,
+            841721684876328961
+        ]
+        # servers like TCA where the bot is invited for testing with extra rules and limitations
+        
+        self._session = aiohttp.ClientSession() # global session to interact with external APIs
+        self.load_all_extensions()
 
-        # NOTE: USEFUL ATTRIBUTES
-        self.colors = colors
-        self.colours = colors
-        self.paginator = Paginator
+    @property
+    def session(self):
+        return self._session
+
+    def load_all_extensions(self):
         self.initial_ext = [
             "cogs.Fun",
             "cogs.Misc",
@@ -153,24 +161,20 @@ class MyBot(commands.Bot):
             "cogs.Moderation",
             "jishaku",
         ]
-
-        self.session = aiohttp.ClientSession()
-
-        # NOTE: LOADING EXTENSIONS
         for ext in self.initial_ext:
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # raise e
-                err: List[str] = traceback.format_exception(type(e), e, e.__traceback__)
-                _1, _2, _3 = err[-3], err[-2], err[-1]
-                exc = f"{_1}{_2}{_3}"
-                print(f"ERROR: [{ext}] \n{exc}")
-
-        # NOTE:  DATABASES
-        from data import Database
-
-        self.warns = Database("./databases/warns.sqlite")
+                print(f"ERROR: [{ext}] \n{e}") 
+                # minimal info is enough to know what happened in most cases. 
+                # I can just change this whenever I want to see the entire exception
+    
+    def get_prefix(self, message: discord.Message): # NOTE: not tested yet.
+        ret = [self.config.DEFAULT_PREFIX, "H!"]
+        if message.author.id == self.owner_id:
+            ret.append("") # empty prefix for bot owner
+        return ret
 
     async def get_context(self, message: discord.Message, *, cls=Context):
         ctx: Context = await super().get_context(message, cls=Context)
@@ -194,9 +198,8 @@ class MyBot(commands.Bot):
         for ch in self.logs:
             try:
                 import datetime
-
                 await ch.send(
-                    f"<@!754557382708822137> im up! - {datetime.datetime.utcnow()}"
+                    f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>"
                 )
                 break
             except AttributeError:
@@ -282,9 +285,13 @@ class MyBot(commands.Bot):
         author: discord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
         await self.process_commands(after)
-        if (before.content != after.content) and (author.bot == False) and (after.author.id == self.owner_id):
+        if (
+            (before.content != after.content)
+            and (author.bot == False)
+            and (after.author.id == self.owner_id)
+        ):
             await self.invoke(ctx)
-    
+
     def get_command(self, name):
         return super().get_command(name)
 
@@ -364,13 +371,18 @@ class MyBot(commands.Bot):
                 # ik this is messy but one of the log channel would be NoneType
                 # when using each of the bots and I didnt find any better way than this.
                 # any help to make this better will be appreciated. : )
-    
-    def get_docs(self, entity: Optional[Union[commands.Command, commands.Group, commands.Cog]] = None, *, error=True) -> str:
+
+    def get_docs(
+        self,
+        entity: Optional[Union[commands.Command, commands.Group, commands.Cog]] = None,
+        *,
+        error=True,
+    ) -> str:
         """
         Get the documentation link for a given category or a command (including group commands)
-        
+
         Takes in one ``entity`` argument that you need the documentation link for. Returns the home page if no entity given
-        
+
         Raises:
             :class:`NotDocumented`: Requested entity is not documented
         """
@@ -378,7 +390,9 @@ class MyBot(commands.Bot):
         base = "http://127.0.0.1:8000"
         if not entity:
             if error:
-                raise NotDocumented("No entity was given to get the documentation link for. Are you sure you spelt it correctly?")
+                raise NotDocumented(
+                    "No entity was given to get the documentation link for. Are you sure you spelt it correctly?"
+                )
             name = "/home"
         if isinstance(entity, commands.Cog):
             name = "/commands/" + str(entity.qualified_name).lower()
@@ -386,7 +400,9 @@ class MyBot(commands.Bot):
             cmd = str(entity.qualified_name).lower().replace(" ", "-")
             if not entity.cog:
                 if error:
-                    raise NotDocumented(f"Command {entity.qualified_name} is not documented yet.")
+                    raise NotDocumented(
+                        f"Command {entity.qualified_name} is not documented yet."
+                    )
                 return False
             category = entity.cog.qualified_name.lower()
             name = "/commands" + f"/{category}" + f"/#{cmd}"
@@ -394,5 +410,7 @@ class MyBot(commands.Bot):
         if url_exists(final):
             return final
         if error:
-            raise NotDocumented(f"{entity.qualified_name} was not found in the documentation.")
+            raise NotDocumented(
+                f"{entity.qualified_name} was not found in the documentation."
+            )
         return False

@@ -1,3 +1,4 @@
+# the utilities file which has all the helper functions, custom exceptions and subclasses like Context
 from discord.ext import commands
 from discord import abc
 import discord
@@ -14,6 +15,7 @@ import io
 import asyncio
 import requests
 
+
 def url_exists(url: str):
     """
     Helper function to make sure a URL exists and returns a status code in the 2xx-3xx range
@@ -22,8 +24,10 @@ def url_exists(url: str):
     code = str(response.status_code)
     return code.startswith("2") or code.startswith("3")
 
+
 class NotDocumented(commands.CommandError):
     pass
+
 
 class EmbedCreationError(commands.CommandError):
     pass

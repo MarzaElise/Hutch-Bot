@@ -12,3 +12,5 @@ class GuildModel(Model):
         default=False,
         description="boolean field to mark if a guild with this id is blacklisted or not",
     )
+    class Meta:
+        table = "Guilds"

@@ -12,3 +12,5 @@ class MembeModel(Model):
         default=False,
         description="Stores True if a member with this id is opted out of the dm command, defaults to False",
     )
+    class Meta:
+        table = "Members"

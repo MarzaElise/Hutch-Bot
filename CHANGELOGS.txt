@@ -12,7 +12,8 @@
 ---- The official documentation of the bot is now released at https://hutch-bot.readthedocs.io
 ---- This update took longer than I expected since I was doing the documentation
 ---- Bot's source is now open for everyone to view at <https://github.com/MarzaElise/Hutch-Bot>
----- Warn commands that were under testing will be removed soon in the next update
----- Since redo command is added now, you no longer can edit the message to reinvoke a command.
+---- Warn commands that were under testing will be removed soon in the next update.
+---- Will be moving blacklist data and dm command opt out data to database :pog_shake:
+---- Since redo command is added now, you no longer can edit the message to reinvoke a command. That method is now restrcited to only me
 
 ||sorry for taking too long||

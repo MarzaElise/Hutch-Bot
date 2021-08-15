@@ -381,7 +381,7 @@ class Moderation(commands.Cog):
                 )
 
     def get_aks(self, ctx: Context, member: discord.Member):
-        '''get the server acknowledgements for a member with a given context'''
+        """get the server acknowledgements for a member with a given context"""
         aks = "Server Member"
         if member.bot:
             aks = "Server Bot"
@@ -406,19 +406,27 @@ class Moderation(commands.Cog):
         """Receive information about a member"""
         member = member or ctx.author
         aks = self.get_aks(ctx, member)
-        permissions: List[str] = [perm[0] for perm in member.guild_permissions if perm[1]] # iter(member.guild_permissions) returns (perm, bool) value where bool is True if they do have that permission.
+        permissions: List[str] = [
+            perm[0] for perm in member.guild_permissions if perm[1]
+        ]  # iter(member.guild_permissions) returns (perm, bool) value where bool is True if they do have that permission.
         formatted = []
         for element in permissions:
             fmt = element.lower().replace("_", " ").replace("guild", "server").title()
             formatted.append(f"`{fmt}`")
         created = member.created_at.strftime("%c")
         joined = member.joined_at.strftime("%c")
-        roles = [role.mention for role in member.roles[1:]][::-1] # slice from the first (@@everyone) role and reverse it
+        roles = [role.mention for role in member.roles[1:]][
+            ::-1
+        ]  # slice from the first (@@everyone) role and reverse it
         # member_perms = ", ".join(perm for perm in perm_list)
         with ctx.typing():
             await asyncio.sleep(1)
             em = discord.Embed()
-            em.set_author(name=f"{member}", url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+            em.set_author(
+                name=f"{member}",
+                url=f"https://discord.com/users/{member.id}",
+                icon_url=member.avatar_url,
+            )
             em.set_thumbnail(url=member.avatar_url)
             em.add_field(name="Joined at:", value=joined, inline=True)
             em.add_field(name="Created at:", value=created, inline=True)
