@@ -356,10 +356,11 @@ class MyBot(commands.Bot):
         err = f"{_1}{_2}{_3}"
         info = [
             ("Guild:", ctx.guild.name if ctx.guild else f"{ctx.author}"),
+            ("Id:", ctx.guild.id if ctx.guild else ctx.author.id)
             ("Message:", f"`{ctx.message.content}` | [Link]({ctx.message.jump_url})"),
             ("Channel:", f"{ctx.channel.name} | {ctx.channel.mention}"),
         ]
-        embed = discord.Embed(description=f"```py\n{err}\n```")  # f"```py\n{err}```"
+        embed = discord.Embed(description=f"```py\n{err}\n```")
         for nam, val in info:
             embed.add_field(name=nam, value=val, inline=False)
         for log in self.logs:
@@ -414,3 +415,20 @@ class MyBot(commands.Bot):
                 f"{entity.qualified_name} was not found in the documentation."
             )
         return False
+
+    def get_message(self, channel_id: int, msg_id: int, formatted=False): # not tested
+        if not isinstance(msg_id, int):
+            try:
+                msg_id = int(msg_id)
+            except ValueError:
+                return f"Expected msg_id to be an int, received {msg_id.__class__.__name__} instead"
+        if not isinstance(channel_id, int):
+            try:
+                channel_id = int(channel_id)
+            except ValueError:
+                return f"Expected channel_id to be an int, received {channel_id.__class__.__name__} instead"
+        message = self.http.get_message(channel_id, msg_id)
+        fmt = json.loads(message, indent=4)
+        if formatted:
+            return f"```\n{fmt}\n```"
+        return fmt
