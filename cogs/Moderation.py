@@ -145,28 +145,58 @@ class Moderation(commands.Cog):
             await user.kick(reason=f"{ctx.author}: {reason}")
             return await ctx.send(f"Succesfully kicked **{user.mention}**")
         else:
-            with ctx.typing():
-                await asyncio.sleep(1)
-                try:
-                    em = discord.Embed(
-                        title="\n", description="\n", color=random.choice(colors)
+            try:
+                em = discord.Embed(
+                    title="\n", description="\n", color=random.choice(colors)
+                )
+                em.set_author(
+                    name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                )
+                em.set_thumbnail(url=ctx.guild.icon_url)
+                em.add_field(
+                    name="Kicked",
+                    value=f"You were Kicked from **{ctx.guild}**",
+                    inline=False,
+                )
+                em.add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
+                em.add_field(name="Reason:", value=f"-*{reason}*", inline=False)
+                await user.send(embed=em)
+                await user.kick(reason=f"{ctx.author}: {reason}")
+            except discord.Forbidden:
+                await user.kick(reason=f"{ctx.author}: {reason}")
+            finally:
+                await ctx.send(f"Succesfully kicked **{user.mention}**")
+
+    async def can_ban(
+        self, ctx: Context, member: Union[discord.Member, discord.User], *, send=False
+    ):
+        """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
+        if not ctx.guild:
+            return False
+        member = (
+            ctx.guild.get_member(member.id)
+            if ctx.guild.get_member(member.id)
+            else member
+        )
+        if member.id == self.bot.user.id:
+            if send:
+                return await ctx.to_error("No, I won't ban myself")
+            return False
+        if member.id == ctx.author.id:
+            if send:
+                return await ctx.to_error("You can't ban yourself")
+            return False
+        if isinstance(member, discord.Member):
+            if member.top_role >= ctx.author.top_role:
+                if send:
+                    return await ctx.to_error("You cannot ban someone ranked above you")
+                return False
+            if member.top_role >= ctx.guild.me.top_role:
+                if send:
+                    return await ctx.to_error(
+                        "I cannot ban anyone who is ranked above me"
                     )
-                    em.set_author(
-                        name=ctx.author.display_name, icon_url=ctx.author.avatar_url
-                    )
-                    em.set_thumbnail(url=ctx.guild.icon_url)
-                    em.add_field(
-                        name="Kicked",
-                        value=f"You were Kicked from **{ctx.guild}**",
-                        inline=False,
-                    )
-                    em.add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
-                    em.add_field(name="Reason:", value=f"-*{reason}*", inline=False)
-                    await user.send(embed=em)
-                    await user.kick(reason=f"{ctx.author}: {reason}")
-                    await ctx.send(f"Succesfully kicked **{user.mention}**")
-                except discord.Forbidden:
-                    await user.kick(reason=f"{ctx.author}: {reason}")
+                return False
 
     @commands.command(help="Ban someone from the server", brief="0s")
     @commands.has_permissions(ban_members=True)
@@ -182,53 +212,44 @@ class Moderation(commands.Cog):
         """Ban someone from the server"""
         reason = reason or "No Reason Provided"
         guild: discord.Guild = ctx.guild
-        with ctx.typing():
-            await asyncio.sleep(1)
-
-            if user == ctx.guild.me:
-                return await ctx.send("No, I won't ban myself")
-
-            if user == ctx.author:
-                return await ctx.send("You dumb?")
+        await ctx.trigger_typing()
+        if self.can_ban(ctx, user, send=True):
 
             if isinstance(user, discord.User):
                 await guild.ban(user, reason=f"{ctx.author}: {reason}")
                 return await ctx.send(f"Succesfully banned **{user.mention}**")
 
             if isinstance(user, discord.Member):
-
-                if user.top_role >= ctx.author.top_role:
-                    return await ctx.send(
-                        f"{ctx.author.mention} you cannot ban {user.display_name}"
-                    )
-                if user.top_role >= ctx.guild.me.top_role:
-                    return await ctx.send(
-                        f"I cannot ban members who are ranked above me"
-                    )
-                if user.bot:
-                    await user.ban(reason=f"{ctx.author}: {reason}")
-                    return await ctx.send(f"Succesfully banned **{user.mention}**")
-                else:
-                    await ctx.send(f"Succesfully banned **{user.mention}**")
-                    try:
-                        em = discord.Embed(
-                            title="\n", description="\n", color=random.choice(colors)
+                await ctx.send(f"Succesfully banned **{user.mention}**")
+                try:
+                    em = (
+                        discord.Embed(
+                            title="\n",
+                            description="\n",
+                            color=random.choice(colors),
                         )
-                        em.set_author(
-                            name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                        .set_author(
+                            name=ctx.author.display_name,
+                            icon_url=ctx.author.avatar_url,
                         )
-                        em.set_thumbnail(url=ctx.guild.icon_url)
-                        em.add_field(
+                        .set_thumbnail(url=ctx.guild.icon_url)
+                        .add_field(
                             name="Banned",
                             value=f"You were Banned from **{ctx.guild}**",
                             inline=False,
                         )
-                        em.add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
-                        em.add_field(name="Reason:", value=f"-*{reason}*", inline=False)
+                        .add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
+                        .add_field(name="Reason:", value=f"-*{reason}*", inline=False)
+                    )
+                    if not user.bot:
                         await user.send(embed=em)
-                        await user.ban(reason=f"{ctx.author}: {reason}")
-                    except discord.Forbidden:
-                        await user.ban(reason=f"{ctx.author}: {reason}")
+                except (
+                    discord.Forbidden,
+                    discord.HTTPException,
+                ):  # couldnt DM member about ban
+                    pass
+                finally:
+                    await user.ban(reason=f"{ctx.author}: {reason}")
 
     @commands.command(help="Mass Ban Membes", brief="0s")
     @commands.has_permissions(ban_members=True)
@@ -245,45 +266,13 @@ class Moderation(commands.Cog):
         reason = reason or "No Reason Provided"
         reason = f"{ctx.author}: {reason}"
         guild: discord.Guild = ctx.guild
-        em = discord.Embed(title="\n", description="\n", color=random.choice(colors))
-        em.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-        em.set_thumbnail(url=ctx.guild.icon_url)
-        em.add_field(
-            name="Banned", value=f"You were Banned from **{ctx.guild}**", inline=False
-        )
-        em.add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
-        em.add_field(name="Reason:", value=f"-*{reason}*", inline=False)
 
         for member in members:
-            if member.id == ctx.author.id:
-                return await ctx.to_error("You cannot ban yourself")
-                break
-            if member.id == ctx.bot.user.id:
-                return await ctx.to_error("You cannot ban the bot itself")
-                break
-            is_member: Optional[discord.Member] = guild.get_member(member.id)
-            if is_member:
-                mem: discord.Member = is_member
-                if mem.top_role >= ctx.author.top_role:
-                    return await ctx.to_error(f"you cannot ban {mem.display_name}")
-                    break
-                if mem.top_role >= ctx.guild.me.top_role:
-                    return await ctx.to_error(
-                        f"I cannot ban members who are ranked above me"
-                    )
-                    break
-                if mem.bot:
-                    await guild.ban(mem, reason=reason, delete_message_days=7)
-                try:
-                    await mem.send(embed=em)
-                except discord.Forbidden:
-                    pass
-                finally:
-                    await guild.ban(mem, reason=reason, delete_message_days=7)
-            elif is_member is None:
-                usr: discord.User = member
-                await guild.ban(usr, reason=reason, delete_message_days=7)
-        await ctx.send(f"Succesfully banned {len(members)} members")
+            if self.can_ban(ctx, member, send=False):
+                await guild.ban(member, reason=reason, delete_message_days=7)
+            else:
+                return await ctx.to_error(f"Could not ban {member}")
+        await ctx.send(f"Succesfully banned {len(members)} members for reason: {reason}")
 
     @commands.command(help="Unban a previously banned member", brief="0s")
     @commands.has_permissions(ban_members=True)
@@ -292,13 +281,11 @@ class Moderation(commands.Cog):
     async def unban(self, ctx: Context, member: discord.User, *, reason=None):
         """Unban a previously banned member"""
         reason = reason or "No Reason Provided"
-        with ctx.typing():
-            await asyncio.sleep(1)
-            try:
-                await ctx.guild.unban(discord.Object(id=member.id), reason=reason)
-                await ctx.send(f"**{member}** was succesfully unbanned")
-            except BotMissingPermissions:
-                await ctx.send("I dont have unban permissions")
+        try:
+            await ctx.guild.unban(discord.Object(id=member.id), reason=reason)
+            await ctx.send(f"**{member}** was succesfully unbanned")
+        except BotMissingPermissions:
+            await ctx.send("I dont have unban permissions")
 
     @commands.command(
         aliases=["rule"], help="Sends a breif description of common rules", brief="10s"

@@ -87,7 +87,9 @@ class Context(commands.Context):
 
     Embed = Embed
 
-    def __init__(self, **attrs):
+    def __init__(
+        self, **attrs
+    ):  # for type hints, i just copy pasted the __init__ from the source lmao
         self.message: discord.Message = attrs.pop("message", None)
         self.bot: commands.Bot = attrs.pop("bot", None)
         self.args: list = attrs.pop("args", [])
@@ -601,6 +603,19 @@ def get_data_from_options(ctx: Context, **options: dict):
         ret["author"]["icon_url"] = str(author.avatar_url)
     em: Embed = Embed.from_dict(ret)
     return em
+
+
+async def report_to_logs(bot: commands.Bot, content: str = None, **kwargs):
+    sent = False
+    for channel in bot.logs:
+        content = content[2000:] if content else None
+        try:
+            await channel.send(content=content, **kwargs)
+            sent = True
+            break
+        except AttributeError:
+            pass
+    return sent
 
 
 website = [

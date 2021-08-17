@@ -28,6 +28,7 @@ import os
 import random
 import re
 import sys
+import datetime
 import traceback
 from os import environ
 from typing import *
@@ -41,6 +42,7 @@ from discord.ext.paginator import Paginator
 from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
+import difflib
 
 from config import Tokens
 from Help import CustomHelp
@@ -117,15 +119,14 @@ help_obj.command_attrs = {
 
 
 class MyBot(commands.Bot):
-
     def __init__(self, token_type="TOKEN_2"):
         intents = discord.Intents().default()
         intents.members = True
-        self.config = get_config(token_type)  
-        # weird way of passing in token_type in params and running the bot 
+        self.config = get_config(token_type)
+        # weird way of passing in token_type in params and running the bot
         # but this is the only way I found to run bots with two tokens without changing much code.
         super().__init__(
-            command_prefix=[self.config.DEFAULT_PREFIX, "H!"],
+            command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
             help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
             owner_id=self.config.OWNER_ID,
@@ -137,16 +138,23 @@ class MyBot(commands.Bot):
         environ["JISHAKU_NO_UNDERSCORE"] = "True"
         environ["JISHAKU_RETAIN"] = "True"
 
-        self.logs: Union[List[discord.TextChannel], None] = None # logs channels are set in on_ready
-        self.colors = colors # handpicked colors
-        self.colours = colors # aliasing
+        self.logs: Union[
+            List[discord.TextChannel], None
+        ] = None  # logs channels are set in on_ready
+        self.colors = colors  # handpicked colors
+        self.colours = colors  # aliasing
         self.testing_guilds = [
-            681882711945641997,
-            841721684876328961
+            681882711945641997,  # TCA
+            690557545965813770,  # PgamerX
+            841721684876328961,  # TCA bot testing
+            # 710534717652336732, # Space Kingdom
+            804592931586572298,  # zenithh
         ]
         # servers like TCA where the bot is invited for testing with extra rules and limitations
-        
-        self._session = aiohttp.ClientSession() # global session to interact with external APIs
+
+        self._session = (
+            aiohttp.ClientSession()
+        )  # global session to interact with external APIs
         self.load_all_extensions()
 
     @property
@@ -166,14 +174,14 @@ class MyBot(commands.Bot):
                 self.load_extension(ext)
             except Exception as e:
                 # raise e
-                print(f"ERROR: [{ext}] \n{e}") 
-                # minimal info is enough to know what happened in most cases. 
+                print(f"ERROR: [{ext}] \n{e}")
+                # minimal info is enough to know what happened in most cases.
                 # I can just change this whenever I want to see the entire exception
-    
-    def get_prefix(self, message: discord.Message): # NOTE: not tested yet.
+
+    def prefix(self, bot, message: discord.Message):
         ret = [self.config.DEFAULT_PREFIX, "H!"]
         if message.author.id == self.owner_id:
-            ret.append("") # empty prefix for bot owner
+            ret.append("")  # empty prefix for me
         return ret
 
     async def get_context(self, message: discord.Message, *, cls=Context):
@@ -195,15 +203,10 @@ class MyBot(commands.Bot):
         if self.is_ready():
             print("Cache Ready:", self.owner_id)
             print("-" * 50)
-        for ch in self.logs:
-            try:
-                import datetime
-                await ch.send(
-                    f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>"
-                )
-                break
-            except AttributeError:
-                pass
+        await report_to_logs(
+            self,
+            f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>",
+        )
 
     async def on_message(self, message: discord.Message):
         if message.author.bot:
@@ -216,10 +219,7 @@ class MyBot(commands.Bot):
             await ctx.send(
                 f"Hello :wave:, my prefix is {self.config.DEFAULT_PREFIX}. You can do `{self.config.DEFAULT_PREFIX}help` to get some help!"
             )
-        if message.mention_everyone and message.guild.id not in [
-            681882711945641997,
-            841721684876328961,
-        ]:
+        if message.mention_everyone and message.guild.id not in self.testing_guilds:
             if not message.author.guild_permissions.mention_everyone:
                 try:
                     message.author.kick(
@@ -228,33 +228,29 @@ class MyBot(commands.Bot):
                     await message.channel.send(
                         f"{message.author.mention} was kicked for mentioning everyone or here without permissions | ToS violation"
                     )
-                except:
+                except:  # i dont really care about this thing so, pass it whenever an exception is raised
                     pass
         if not message.author.bot:
             await self.process_commands(message)
 
     async def on_error(self, event_method, *args, **kwargs):
         tb = traceback.format_exc()
-        for channel in self.logs:
-            try:
-                embed = discord.Embed(description=f"```py\n{tb}\n```")
-                await channel.send(embed=embed)
-                break
-            except AttributeError:
-                pass
+        file = None
+        embed = discord.Embed()
+        embed.title = str(event_method)
+        embed.description = f"```py\n{tb}\n```"
+        if len(tb) > 2000:
+            file = discord.File(io.StringIO(tb), str(event_method))
+            embed = None  # we dont need an embed if we are going to send a file
+
+        await report_to_logs(self, content=None, embed=embed, file=file)
 
     async def on_guild_join(self, guild: discord.Guild):
-        logs: List[discord.TextChannel] = self.logs
         embed = discord.Embed(
             title="Joined New Server",
             description=f"{guild.name} | {guild.member_count}",
         )
-        for ch in logs:
-            try:
-                await ch.send(embed=embed)
-                break
-            except AttributeError:
-                pass
+        await report_to_logs(self, content=None, embed=embed)
         channel = random.choice(guild.text_channels)
         if channel.permissions_for(guild.me).embed_links:
             em = discord.Embed(title="Thank you for adding me!")
@@ -281,6 +277,9 @@ class MyBot(commands.Bot):
         await self.session.close()
         return await super().close()
 
+    async def logout(self):
+        return await self.close()
+
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         author: discord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
@@ -291,9 +290,6 @@ class MyBot(commands.Bot):
             and (after.author.id == self.owner_id)
         ):
             await self.invoke(ctx)
-
-    def get_command(self, name):
-        return super().get_command(name)
 
     def get_all_commands(
         self,
@@ -318,19 +314,28 @@ class MyBot(commands.Bot):
     async def on_command(self, ctx: Context):
         if ctx.author.id == self.owner_id:
             ctx.command.reset_cooldown(ctx)
-        else:
-            pass
 
     async def on_command_error(self, ctx: Context, error: commands.CommandError):
         error = getattr(error, "original", error)
+
         if isinstance(error, commands.CommandNotFound):
+            matches = difflib.get_close_matches(
+                str(ctx.command.qualified_name), self.get_all_commands()
+            )
+            if len(matches) > 0:
+                fmt = "\n".join(matches)
+                desc = f"Command was not found, closest matches are...\n{fmt}"
+                return await ctx.to_error(desc)
             return
+
         if isinstance(error, commands.CommandOnCooldown):
             desc = f"That Command is on cooldown. Try again after **{error.retry_after:.2f}** secs"
             return await ctx.to_error(desc)
+
         if isinstance(error, commands.DisabledCommand):
             desc = "This Command is disabled throughout the bot, please wait patiently until it is enabled again"
             return await ctx.to_error(desc)
+
         if not isinstance(
             error, commands.CommandInvokeError
         ):  # handling method copied and modified from https://github.com/TechStruck/TechStruck-Bot/
@@ -352,11 +357,14 @@ class MyBot(commands.Bot):
         error_em = await ctx.to_error()
 
         trace = traceback.format_exception(type(error), error, error.__traceback__)
+        tb = "".join(trace)
         _1, _2, _3 = trace[-3], trace[-2], trace[-1]
-        err = f"{_1}{_2}{_3}"
+        err = tb[
+            2000:
+        ]  # minimal info which would include which error was raised and stuff
         info = [
             ("Guild:", ctx.guild.name if ctx.guild else f"{ctx.author}"),
-            ("Id:", ctx.guild.id if ctx.guild else ctx.author.id)
+            ("Id:", ctx.guild.id if ctx.guild else ctx.author.id),
             ("Message:", f"`{ctx.message.content}` | [Link]({ctx.message.jump_url})"),
             ("Channel:", f"{ctx.channel.name} | {ctx.channel.mention}"),
         ]
@@ -387,8 +395,8 @@ class MyBot(commands.Bot):
         Raises:
             :class:`NotDocumented`: Requested entity is not documented
         """
-        # base = "https://hutch-bot.readthedocs.io"
-        base = "http://127.0.0.1:8000"
+        base = "https://hutch-bot.readthedocs.io"
+        # base = "http://127.0.0.1:8000" # for testing
         if not entity:
             if error:
                 raise NotDocumented(
@@ -416,7 +424,7 @@ class MyBot(commands.Bot):
             )
         return False
 
-    def get_message(self, channel_id: int, msg_id: int, formatted=False): # not tested
+    def get_message(self, channel_id: int, msg_id: int, formatted=False):  # not tested
         if not isinstance(msg_id, int):
             try:
                 msg_id = int(msg_id)

@@ -350,8 +350,8 @@ class Misc(commands.Cog):
             message = await ctx.fetch_message(ctx.reference.message_id)
         except discord.NotFound:
             return await ctx.to_error("Replied message not found.")
-        alt_ctx = self.bot.get_context(message, cls=Context)
-        await alt_ctx.reinvoke()
+        alt_ctx = await self.bot.get_context(message, cls=Context)
+        await self.bot.invoke(alt_ctx)
 
     @commands.command(aliases=["del"], brief="10s")
     @commands.cooldown(1, 10, commands.BucketType.member)
