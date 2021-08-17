@@ -608,7 +608,7 @@ def get_data_from_options(ctx: Context, **options: dict):
 async def report_to_logs(bot: commands.Bot, content: str = None, **kwargs):
     sent = False
     for channel in bot.logs:
-        content = content[2000:] if content else None
+        content = content[:2000] if content else None
         try:
             await channel.send(content=content, **kwargs)
             sent = True

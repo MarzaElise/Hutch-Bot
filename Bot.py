@@ -205,7 +205,7 @@ class MyBot(commands.Bot):
             print("-" * 50)
         await report_to_logs(
             self,
-            f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>",
+            content=f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>",
         )
 
     async def on_message(self, message: discord.Message):

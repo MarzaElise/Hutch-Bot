@@ -167,7 +167,7 @@ class Moderation(commands.Cog):
             finally:
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
-    async def can_ban(
+    def can_ban(
         self, ctx: Context, member: Union[discord.Member, discord.User], *, send=False
     ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
@@ -213,7 +213,7 @@ class Moderation(commands.Cog):
         reason = reason or "No Reason Provided"
         guild: discord.Guild = ctx.guild
         await ctx.trigger_typing()
-        if self.can_ban(ctx, user, send=True):
+        if await self.can_ban(ctx, user, send=True):
 
             if isinstance(user, discord.User):
                 await guild.ban(user, reason=f"{ctx.author}: {reason}")
@@ -266,13 +266,13 @@ class Moderation(commands.Cog):
         reason = reason or "No Reason Provided"
         reason = f"{ctx.author}: {reason}"
         guild: discord.Guild = ctx.guild
-
+a
         for member in members:
-            if self.can_ban(ctx, member, send=False):
+            if await self.can_ban(ctx, member, send=True):
                 await guild.ban(member, reason=reason, delete_message_days=7)
             else:
                 return await ctx.to_error(f"Could not ban {member}")
-        await ctx.send(f"Succesfully banned {len(members)} members for reason: {reason}")
+        await ctx.send(f"Succesfully banned {len(members)} members for reason: `{reason}`")
 
     @commands.command(help="Unban a previously banned member", brief="0s")
     @commands.has_permissions(ban_members=True)
