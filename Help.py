@@ -42,8 +42,46 @@ class CustomHelp(commands.MinimalHelpCommand):
         self.verify_checks = False
         super().__init__(**options)
 
+    def get_docs_for(self, entity=None):
+        ctx: Context = self.context
+        docs = ctx.bot.get_docs(entity, error=False)
+        if entity == False or docs == False:
+            return "https://hutch-bot.readthedocs.io"
+        return docs
+
     def get_opening_note(self):
         return super().get_opening_note()
+
+    def get_opening_page(self, entity=None):
+        nav = (
+            "⏪ - *Go to the first page*\n"
+            "\n◀️ - *Go to the previous page*\n"
+            "\n:stop_button: - *Delete the message*\n"
+            "\n▶️ - *Go to the next page*\n"
+            "\n⏩ - *Go to the last page*"
+        )
+        em = discord.Embed(
+            title="Welcome To The Hutch Bot Help Command",
+            description=self.get_opening_note() + "\n",
+            timestamp=self.context.message.created_at,
+            color=random.choice(colors),
+        )
+        em.set_footer(
+            text=self.get_ending_note(), icon_url=self.context.author.avatar_url
+        )
+        em.set_author(name=self.context.author, icon_url=self.context.author.avatar_url)
+        em.set_thumbnail(url=self.context.guild.icon_url)
+        em.add_field(name="Navigation", value=f"{nav}\n\n", inline=False)
+        em.add_field(
+            name="Bugs:",
+            value=f"If you find any bugs, please report it in the bot's DMs using the `{self.clean_prefix}report` command\n\n",
+        )
+        em.add_field(
+            name="Documentation",
+            value=f"Please view the [official documentation]({self.get_docs_for(entity)}) for more info",
+        )
+        self.add_link(em)
+        return em
 
     def get_second_page(self):
         ctx: Context = self.context
@@ -77,27 +115,6 @@ class CustomHelp(commands.MinimalHelpCommand):
         self.add_link(em)
         return em
 
-    def get_opening_page(self):
-        nav = "◀️ - *Go to the previous page*\n\n:stop_button: - *Lock the current page* (Cannot move to other pages)\n\n▶️ - *Go to the next page*"
-        em = discord.Embed(
-            title="Welcome To The Hutch Bot Help Command",
-            description=self.get_opening_note() + "\n",
-            timestamp=self.context.message.created_at,
-            color=random.choice(colors),
-        )
-        em.set_footer(
-            text=self.get_ending_note(), icon_url=self.context.author.avatar_url
-        )
-        em.set_author(name=self.context.author, icon_url=self.context.author.avatar_url)
-        em.set_thumbnail(url=self.context.guild.icon_url)
-        em.add_field(name="Navigation", value=f"{nav}\n\n", inline=False)
-        em.add_field(
-            name="Bugs:",
-            value=f"If you find any bugs, please report it in the bot's DMs using the `{self.clean_prefix}report` command\n\n",
-        )
-        self.add_link(em)
-        return em
-
     def add_link(self, embed: discord.Embed):
         ctx: Context = self.context
         url = oauth_url(
@@ -108,8 +125,10 @@ class CustomHelp(commands.MinimalHelpCommand):
         links = [
             f"[Bot Invite]({url})",
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
+            "[Official Documentation](https://hutch-bot.readthedocs.io)",
         ]
         embed.add_field(name="Useful Links", value=" | ".join(links), inline=False)
+        return embed
 
     def get_destination(self):
         ctx: Context = self.context
@@ -119,7 +138,7 @@ class CustomHelp(commands.MinimalHelpCommand):
 
     def get_group_alias(self, command: commands.Command):
         if command.full_parent_name == "":
-            return [f"`{a}`" for a  in command.aliases]
+            return [f"`{a}`" for a in command.aliases]
         return [f"`{command.full_parent_name} {alias}`" for alias in command.aliases]
 
     def get_ending_note(self):
@@ -198,7 +217,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                 "Please make sure I have all of these permissions enabled to work properly"
             )
         _embeds = []
-        # _embeds.append(self.get_opening_page())
+        _embeds.append(self.get_opening_page(command))
         em = discord.Embed(color=random.choice(colors))
         em.title = command.qualified_name.title()
         em.description = command.help
@@ -215,10 +234,6 @@ class CustomHelp(commands.MinimalHelpCommand):
 
         if command.aliases:
             alias = self.get_group_alias(command)
-            # if command.parents != []:
-            #     alias = self.get_group_alias(command)
-            # else:
-            #     alias = command.aliases
             em.add_field(
                 name="Aliases",
                 value=f'`{command.qualified_name}`, {", ".join(alias)}',
@@ -226,6 +241,9 @@ class CustomHelp(commands.MinimalHelpCommand):
             )
 
         em.add_field(name="Cooldown", value=command.brief, inline=False)
+        em.add_field(
+            name="Documentation", value=self.get_docs_for(command), inline=False
+        )
         em.set_footer(
             text=self.get_ending_note(), icon_url=self.context.author.avatar_url
         )
@@ -249,7 +267,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                 "Please make sure I have all of these permissions enabled to work properly"
             )
         _embeds = []
-        _embeds.append(self.get_opening_page())
+        _embeds.append(self.get_opening_page(cog))
         data = cog.get_commands()
         paginated = self.chunk(data, 5)
         for index, chunk in enumerate(paginated):
@@ -295,7 +313,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         data = list(group.commands)
         paginated = self.chunk(data, 5)
         _embeds = []
-        _embeds.append(self.get_opening_page())
+        _embeds.append(self.get_opening_page(group))
         for index, chunk in enumerate(paginated):
             em = discord.Embed(
                 title=command, description=group.help, color=random.choice(colors)

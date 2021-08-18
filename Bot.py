@@ -150,12 +150,21 @@ class MyBot(commands.Bot):
             # 710534717652336732, # Space Kingdom
             804592931586572298,  # zenithh
         ]
-        # servers like TCA where the bot is invited for testing with extra rules and limitations
+        # servers where the bot is invited for testing with extra rules and limitations
 
         self._session = (
             aiohttp.ClientSession()
         )  # global session to interact with external APIs
         self.load_all_extensions()
+
+    @property
+    def cogs_set(self):
+        cogs: Dict[str, commands.Cog] = {}
+        for name, cls in dict(
+            self.cogs
+        ).items()():  # bot.cogs actually returns a mapping of cog name to the cog class, not the cog object
+            cogs[name] = self.get_cog(name)
+        return cogs
 
     @property
     def session(self):
@@ -180,8 +189,8 @@ class MyBot(commands.Bot):
 
     def prefix(self, bot, message: discord.Message):
         ret = [self.config.DEFAULT_PREFIX, "H!"]
-        if message.author.id == self.owner_id:
-            ret.append("")  # empty prefix for me
+        # if message.author.id == self.owner_id: # causes chaos. :bruh:
+        #     ret.append("")  # empty prefix for me
         return ret
 
     async def get_context(self, message: discord.Message, *, cls=Context):
@@ -219,17 +228,6 @@ class MyBot(commands.Bot):
             await ctx.send(
                 f"Hello :wave:, my prefix is {self.config.DEFAULT_PREFIX}. You can do `{self.config.DEFAULT_PREFIX}help` to get some help!"
             )
-        if message.mention_everyone and message.guild.id not in self.testing_guilds:
-            if not message.author.guild_permissions.mention_everyone:
-                try:
-                    message.author.kick(
-                        reason="Automoderator: Mentioning @ everyone or @ here without permissions | ToS violation"
-                    )
-                    await message.channel.send(
-                        f"{message.author.mention} was kicked for mentioning everyone or here without permissions | ToS violation"
-                    )
-                except:  # i dont really care about this thing so, pass it whenever an exception is raised
-                    pass
         if not message.author.bot:
             await self.process_commands(message)
 
@@ -283,7 +281,6 @@ class MyBot(commands.Bot):
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         author: discord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
-        await self.process_commands(after)
         if (
             (before.content != after.content)
             and (author.bot == False)
@@ -317,15 +314,17 @@ class MyBot(commands.Bot):
 
     async def on_command_error(self, ctx: Context, error: commands.CommandError):
         error = getattr(error, "original", error)
-
         if isinstance(error, commands.CommandNotFound):
-            matches = difflib.get_close_matches(
-                str(ctx.command.qualified_name), self.get_all_commands()
-            )
-            if len(matches) > 0:
-                fmt = "\n".join(matches)
-                desc = f"Command was not found, closest matches are...\n{fmt}"
-                return await ctx.to_error(desc)
+            # matches = difflib.get_close_matches(
+            #     str(ctx.command.qualified_name), self.get_all_commands()
+            # )
+            # if len(matches) > 0:
+            #     fmt = "\n".join(matches)
+            #     desc = f"Command was not found, closest matches are...\n{fmt}"
+            #     return await ctx.to_error(desc)
+            return
+
+        if hasattr(ctx.command, "on_error"):
             return
 
         if isinstance(error, commands.CommandOnCooldown):
@@ -358,9 +357,9 @@ class MyBot(commands.Bot):
 
         trace = traceback.format_exception(type(error), error, error.__traceback__)
         tb = "".join(trace)
-        _1, _2, _3 = trace[-3], trace[-2], trace[-1]
+        # _1, _2, _3 = trace[-3], trace[-2], trace[-1]
         err = tb[
-            2000:
+            :2000
         ]  # minimal info which would include which error was raised and stuff
         info = [
             ("Guild:", ctx.guild.name if ctx.guild else f"{ctx.author}"),
@@ -440,3 +439,5 @@ class MyBot(commands.Bot):
         if formatted:
             return f"```\n{fmt}\n```"
         return fmt
+
+MyBot.on_message_edit()

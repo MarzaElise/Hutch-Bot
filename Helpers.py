@@ -235,7 +235,7 @@ class Context(commands.Context):
         allowed_mentions: discord.AllowedMentions = None,
         reference: Union[discord.MessageReference, discord.Message] = None,
         mention_author: bool = False,
-        # dump: bool = False, 
+        # dump: bool = False,
     ):
         r"""|coro|
 

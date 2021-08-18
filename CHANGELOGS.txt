@@ -5,6 +5,7 @@
 
 **Updated**:
 ---- Whois -> Reformatted the whois command.
+---- Help -> Reformatted the entire command and added documentation links to it
 ---- More error handling 
 ----    -> Now the bot handles errors that occur when trying to send text with more than 2000 characters and stuff
 

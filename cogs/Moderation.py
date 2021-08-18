@@ -92,6 +92,7 @@ class Moderation(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        # i honestly dont care about the automod shit. so, if any error, stfu and pass it :hahayes:
         if message.author.bot:
             return
 
@@ -101,8 +102,19 @@ class Moderation(commands.Cog):
                 await message.channel.send(
                     f"{message.author.mention} watch your language!", delete_after=5
                 )
-            except: # i dont care abt these
+            except:
                 pass
+        if message.mention_everyone and message.guild.id not in self.bot.testing_guilds:
+            if not message.author.guild_permissions.mention_everyone:
+                try:
+                    message.author.kick(
+                        reason="Automoderator: Mentioning @ everyone or @ here without permissions | ToS violation"
+                    )
+                    await message.channel.send(
+                        f"{message.author.mention} was kicked for mentioning everyone or here without permissions | ToS violation"
+                    )
+                except:
+                    pass
         if message.mentions and len(message.mentions) > 5:
             if message.guild and message.guild.id not in self.bot.testing_guilds:
                 try:
@@ -113,7 +125,7 @@ class Moderation(commands.Cog):
                     await message.channel.send(
                         f"{message.author.mention} was kicked for mass mentioning"
                     )
-                except: # still no
+                except:
                     pass
 
     @commands.command(help="Kick someone from the server", brief="0s")
@@ -123,20 +135,17 @@ class Moderation(commands.Cog):
     async def kick(self, ctx: Context, user: discord.Member, *, reason=None):
         """kick someone from the server"""
         reason = reason or "No Reason Provided"
+        await ctx.trigger_typing()
         if user == ctx.guild.me:
             return await ctx.send("No, I won't kick myself")
         if user == ctx.author:
             return await ctx.send("You dumb?")
         if user.top_role >= ctx.author.top_role:
-            with ctx.typing():
-                await asyncio.sleep(1)
-                return await ctx.send(
-                    f"{ctx.author.mention} you cannot kick {user.display_name}"
-                )
+            return await ctx.send(
+                f"{ctx.author.mention} you cannot kick {user.display_name}"
+            )
         if user.top_role >= ctx.guild.me.top_role:
-            with ctx.typing():
-                await asyncio.sleep(1)
-                return await ctx.send(f"I cannot kick members who are ranked above me")
+            return await ctx.send(f"I cannot kick members who are ranked above me")
         if user.bot:
             await user.kick(reason=f"{ctx.author}: {reason}")
             return await ctx.send(f"Succesfully kicked **{user.mention}**")
@@ -163,9 +172,7 @@ class Moderation(commands.Cog):
             finally:
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
-    def can_ban(
-        self, ctx: Context, member: Union[discord.Member, discord.User]
-    ):
+    def can_ban(self, ctx: Context, member: Union[discord.Member, discord.User]):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:
             return False
@@ -257,7 +264,9 @@ class Moderation(commands.Cog):
                 await guild.ban(member, reason=reason, delete_message_days=7)
             else:
                 return await ctx.to_error(f"Could not ban {member}")
-        await ctx.send(f"Succesfully banned {len(members)} members for reason: `{reason}`")
+        await ctx.send(
+            f"Succesfully banned {len(members)} members for reason: `{reason}`"
+        )
 
     @commands.command(help="Unban a previously banned member", brief="0s")
     @commands.has_permissions(ban_members=True)
@@ -315,7 +324,7 @@ class Moderation(commands.Cog):
         """Purge an amount of messages from the current channel"""
         amount = amount or 1
         with ctx.typing():
-            await asyncio.sleep(1) 
+            await asyncio.sleep(1)
             if amount > 100:
                 return await ctx.send("Cannot delete more than 100 messages!")
             elif amount < 1:
