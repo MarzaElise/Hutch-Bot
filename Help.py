@@ -1,17 +1,19 @@
-from discord.ext import *
-import discord
-from discord import *
-from dpymenus import Page, PaginatedMenu, BaseMenu
+import os
+import random
+import re
 import traceback
 from typing import *
-from Helpers import *
-from typing import List, Union, Optional
+from typing import List, Optional, Union
+
+import discord
+from discord import *
+from discord.ext import *
 from discord.ext.flags import *
+from paginator import Paginator
 from discord.utils import oauth_url
-import random
-import os
-import re
-from discord.ext.paginator import Paginator
+from dpymenus import BaseMenu, Page, PaginatedMenu
+
+from Helpers import *
 
 # os.chdir("./launcher.py")
 
@@ -117,7 +119,7 @@ class CustomHelp(commands.MinimalHelpCommand):
 
     def get_group_alias(self, command: commands.Command):
         if command.full_parent_name == "":
-            return [f"`{command.aliases}`"]
+            return [f"`{a}`" for a  in command.aliases]
         return [f"`{command.full_parent_name} {alias}`" for alias in command.aliases]
 
     def get_ending_note(self):
@@ -174,8 +176,8 @@ class CustomHelp(commands.MinimalHelpCommand):
                             )
                 if len(em.fields) >= 5:
                     _embeds.append(em)
-            Pag = Paginator(entries=_embeds, timeout=180.0)
-            await Pag.start(ctx)
+            Pag = Paginator(self.context, embeds=_embeds)
+            await Pag.start()
         except Exception as e:
             tb = traceback.format_exception(type(e), e, e.__traceback__)
             trace = tb[-1]
@@ -212,13 +214,14 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
 
         if command.aliases:
-            if command.parents != []:
-                alias = self.get_group_alias(command)
-            else:
-                alias = command.aliases
+            alias = self.get_group_alias(command)
+            # if command.parents != []:
+            #     alias = self.get_group_alias(command)
+            # else:
+            #     alias = command.aliases
             em.add_field(
                 name="Aliases",
-                value=f'`{command.qualified_name}`, `{", ".join(alias)}`',
+                value=f'`{command.qualified_name}`, {", ".join(alias)}',
                 inline=False,
             )
 
@@ -227,8 +230,8 @@ class CustomHelp(commands.MinimalHelpCommand):
             text=self.get_ending_note(), icon_url=self.context.author.avatar_url
         )
         _embeds.append(em)
-        Pag = Paginator(entries=_embeds, timeout=180.0)
-        await Pag.start(ctx)
+        Pag = Paginator(self.context, embeds=_embeds)
+        await Pag.start()
 
     def chunk(self, data: List, chunk_by: int):
         return [data[i : i + chunk_by] for i in range(0, len(data), chunk_by)]
@@ -270,9 +273,9 @@ class CustomHelp(commands.MinimalHelpCommand):
                     inline=False,
                 )
             _embeds.append(em)
-        Pag = Paginator(entries=_embeds, timeout=180.0)
+        Pag = Paginator(self.context, embeds=_embeds)
         if len(_embeds) > 1:
-            await Pag.start(ctx)
+            await Pag.start()
         else:
             await ctx.send(embed=_embeds[1])
 
@@ -307,8 +310,8 @@ class CustomHelp(commands.MinimalHelpCommand):
             _embeds.append(em)
 
         if len(_embeds) > 1:
-            Pag = Paginator(entries=_embeds, timeout=180.0)
-            await Pag.start(ctx)
+            Pag = Paginator(self.context, embeds=_embeds)
+            await Pag.start()
         else:
             await self.get_destination().send(embed=_embeds[1])
 

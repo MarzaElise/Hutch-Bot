@@ -3,21 +3,22 @@ import os
 import random
 import sys
 import traceback
-from typing import List
-from io import StringIO
 from inspect import getsource, getsourcefile
+from io import StringIO
+from typing import List
+
 import discord
 import humanize
 import psutil
 from BaseFile import *
+from Bot import MyBot
 from discord import Message
 from discord.ext import *
 from discord.ext.commands import BucketType
+from discord.ext.commands.cooldowns import CooldownMapping
 from discord.utils import *
 from Helpers import *
-from Bot import MyBot
 from jishaku.modules import package_version
-from discord.ext.commands.cooldowns import CooldownMapping
 
 
 class MemberBlacklisted(commands.CommandError):
@@ -64,7 +65,7 @@ class Dev(commands.Cog):
 
     # "https://dsc.bio/marcussimps"
 
-    @commands.command(aliases=["restart"], help="Restart the entire bot", usage="0s")
+    @commands.command(aliases=["restart"], help="Restart the entire bot", brief="0s")
     @commands.is_owner()
     async def reboot(self, ctx: Context):
         try:

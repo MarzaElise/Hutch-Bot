@@ -1,19 +1,19 @@
 # the utilities file which has all the helper functions, custom exceptions and subclasses like Context
-from discord.ext import commands
-from discord import abc
-import discord
-import aiohttp
-import random
-import discord.utils
-from discord.ext import flags
-import os
-from discord.embeds import EmptyEmbed
-from discord.utils import parse_time
-import contextlib
-from typing import List, Union, Optional
-import io
 import asyncio
+import contextlib
+import io
+import os
+import random
+from typing import List, Optional, Union
+
+import aiohttp
+import discord
+import discord.utils
 import requests
+from discord import abc
+from discord.embeds import EmptyEmbed
+from discord.ext import commands, flags
+from discord.utils import parse_time
 
 
 def url_exists(url: str):
@@ -235,7 +235,7 @@ class Context(commands.Context):
         allowed_mentions: discord.AllowedMentions = None,
         reference: Union[discord.MessageReference, discord.Message] = None,
         mention_author: bool = False,
-        dump: bool = False,
+        # dump: bool = False, 
     ):
         r"""|coro|
 
@@ -343,30 +343,9 @@ class Context(commands.Context):
                 reference=reference,
                 mention_author=mention_author,
             )
-            if dump:
-                if not self.channel.permissions_for(self.me).manage_messages:
-                    return await self.to_error(
-                        "Missing Required Permission: `Manage Messages`"
-                    )
-                await sent.add_reaction("🗑️")
-
-                def check(reaction: discord.Reaction, user: discord.Member):
-                    return str(reaction.emoji) == "🗑️" and user == self.author
-
-                try:
-                    reac, user = await self.bot.wait_for(
-                        "reaction_add", check=check, timeout=35
-                    )
-                    if reac:
-                        await self.message.delete()
-                        await sent.delete()
-                    return None
-                except asyncio.TimeoutError:
-                    await sent.remove_reaction("🗑️", self.author)
-                    pass
             if sent.nonce:
                 self.last_msg = sent
-                return sent
+            return sent
         return None
 
     async def reply(self, content: str = None, **kwargs: dict):

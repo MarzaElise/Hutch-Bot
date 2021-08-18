@@ -1,6 +1,7 @@
 import asyncio
-from typing import *
 from concurrent.futures import ThreadPoolExecutor
+from typing import *
+
 import aiosqlite
 
 

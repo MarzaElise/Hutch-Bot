@@ -23,12 +23,13 @@ all copies or substantial portions of the Software.
 """
 
 import asyncio
+import datetime
+import difflib
 import json
 import os
 import random
 import re
 import sys
-import datetime
 import traceback
 from os import environ
 from typing import *
@@ -42,7 +43,6 @@ from discord.ext.paginator import Paginator
 from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
-import difflib
 
 from config import Tokens
 from Help import CustomHelp

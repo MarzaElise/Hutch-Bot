@@ -9,8 +9,9 @@ import discord
 from discord.ext import tasks
 from discord.utils import oauth_url
 from pydantic import BaseModel
-from data import Database
+
 import Bot
+from data import Database
 from Helpers import Context
 
 # os.chdir("./launcher.py")aaaaaaaaa

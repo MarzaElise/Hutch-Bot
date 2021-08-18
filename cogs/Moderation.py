@@ -101,14 +101,10 @@ class Moderation(commands.Cog):
                 await message.channel.send(
                     f"{message.author.mention} watch your language!", delete_after=5
                 )
-            except:
+            except: # i dont care abt these
                 pass
-
         if message.mentions and len(message.mentions) > 5:
-            if message.guild and message.guild.id not in [
-                681882711945641997,
-                841721684876328961,
-            ]:
+            if message.guild and message.guild.id not in self.bot.testing_guilds:
                 try:
                     await message.author.send(
                         f"You were kicked from the server for mentioning too many people!"
@@ -117,7 +113,7 @@ class Moderation(commands.Cog):
                     await message.channel.send(
                         f"{message.author.mention} was kicked for mass mentioning"
                     )
-                except:
+                except: # still no
                     pass
 
     @commands.command(help="Kick someone from the server", brief="0s")
@@ -168,7 +164,7 @@ class Moderation(commands.Cog):
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
     def can_ban(
-        self, ctx: Context, member: Union[discord.Member, discord.User], *, send=False
+        self, ctx: Context, member: Union[discord.Member, discord.User]
     ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:
@@ -179,23 +175,13 @@ class Moderation(commands.Cog):
             else member
         )
         if member.id == self.bot.user.id:
-            if send:
-                return await ctx.to_error("No, I won't ban myself")
             return False
         if member.id == ctx.author.id:
-            if send:
-                return await ctx.to_error("You can't ban yourself")
             return False
         if isinstance(member, discord.Member):
             if member.top_role >= ctx.author.top_role:
-                if send:
-                    return await ctx.to_error("You cannot ban someone ranked above you")
                 return False
             if member.top_role >= ctx.guild.me.top_role:
-                if send:
-                    return await ctx.to_error(
-                        "I cannot ban anyone who is ranked above me"
-                    )
                 return False
 
     @commands.command(help="Ban someone from the server", brief="0s")
@@ -213,7 +199,7 @@ class Moderation(commands.Cog):
         reason = reason or "No Reason Provided"
         guild: discord.Guild = ctx.guild
         await ctx.trigger_typing()
-        if await self.can_ban(ctx, user, send=True):
+        if self.can_ban(ctx, user, send=True):
 
             if isinstance(user, discord.User):
                 await guild.ban(user, reason=f"{ctx.author}: {reason}")
@@ -266,9 +252,8 @@ class Moderation(commands.Cog):
         reason = reason or "No Reason Provided"
         reason = f"{ctx.author}: {reason}"
         guild: discord.Guild = ctx.guild
-a
         for member in members:
-            if await self.can_ban(ctx, member, send=True):
+            if self.can_ban(ctx, member, send=True):
                 await guild.ban(member, reason=reason, delete_message_days=7)
             else:
                 return await ctx.to_error(f"Could not ban {member}")
@@ -330,7 +315,7 @@ a
         """Purge an amount of messages from the current channel"""
         amount = amount or 1
         with ctx.typing():
-            await asyncio.sleep(1)
+            await asyncio.sleep(1) 
             if amount > 100:
                 return await ctx.send("Cannot delete more than 100 messages!")
             elif amount < 1:
@@ -380,6 +365,7 @@ a
             aks = "Server Admin"
         if member.id == ctx.guild.owner_id:
             aks = "Server Owner"
+        return aks
 
     @commands.command(
         aliases=["user", "userinfo", "about", "who"],

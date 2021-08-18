@@ -1,6 +1,7 @@
 import traceback
-from Bot import MyBot
+
 from BaseFile import *
+from Bot import MyBot
 
 
 def main(TOKEN: str = "TOKEN_2"):

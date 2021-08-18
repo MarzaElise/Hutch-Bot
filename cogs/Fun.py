@@ -1,19 +1,20 @@
+import asyncio
+import json
+import os
 import random
 import typing
+
 import aiohttp
 import asyncpraw
 import discord
+from BaseFile import *
+from Bot import MyBot
+from config import get_passwords
 from discord import *
 from discord.ext import commands, tasks
 from discord.ext.commands import *
 from discord.utils import *
 from Helpers import *
-from BaseFile import *
-import os
-from config import get_passwords
-import asyncio
-import json
-from Bot import MyBot
 
 # os.chdir("../launcher.py")
 

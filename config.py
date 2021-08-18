@@ -1,5 +1,6 @@
+from typing import Any, Dict
+
 from pydantic import BaseSettings
-from typing import Dict, Any
 
 
 class Passwords(BaseSettings):
