@@ -46,7 +46,7 @@ Here are some extra facts and information that are good to know
 
 - This repository has a ton of messy code.
 
-- It took 10 days to make me functional, from then there were only minor updates and bug fixes.
+- It took 10 days to make the bot functional, from then there were only minor updates and bug fixes.
 
 - Hutch Bot's message cache is capped at 1k and it only has members privileged intent enabled.
 
