@@ -17,7 +17,7 @@ from discord.ext.commands import *
 from discord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
-from Helpers import *
+from utils.helpers import *
 from jishaku.modules import package_version
 
 # os.chdir("../launcher.py")
@@ -339,8 +339,7 @@ class Misc(commands.Cog):
             embed=em,
         )
 
-    @commands.command(aliases=["re"], brief="10s")
-    @commands.cooldown(1, 10, commands.BucketType.member)
+    @commands.command(aliases=["re"], brief="0s")
     async def redo(self, ctx: Context):
         """
         Redo a command by replying to the edited/corrected message.
@@ -352,8 +351,13 @@ class Misc(commands.Cog):
             message = await ctx.fetch_message(ctx.reference.message_id)
         except discord.NotFound:
             return await ctx.to_error("Replied message not found.")
-        alt_ctx = await self.bot.get_context(message, cls=Context)
-        await self.bot.invoke(alt_ctx)
+        except discord.HTTPException:
+            return await ctx.send(embed=ctx.em("Retrieving the message failed."))
+        # all possible exceptions handled, message is defined
+        if message.author == ctx.author:
+            return await self.bot.process_commands(message)
+        return await ctx.to_error("You do not own that message?")
+        # if statement returned False
 
     @commands.command(aliases=["del"], brief="10s")
     @commands.cooldown(1, 10, commands.BucketType.member)

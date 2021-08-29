@@ -14,7 +14,7 @@ from discord import *
 from discord.ext import commands, tasks
 from discord.ext.commands import *
 from discord.utils import *
-from Helpers import *
+from utils.helpers import *
 
 # os.chdir("../launcher.py")
 

@@ -1,3 +1,4 @@
+"""Absolutely retarded code that is not used anywhere in this repo lmao"""
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from typing import *

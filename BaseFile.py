@@ -14,8 +14,6 @@ import Bot
 from data import Database
 from Helpers import Context
 
-# os.chdir("./launcher.py")aaaaaaaaa
-
 
 def version():
     with open("./VERSION.txt", "r+") as f:

@@ -23,23 +23,25 @@ class NoHelpCommand(commands.CommandError):
 
 
 colors = [
-    0xF3FF00,
-    0x00FFFF,
-    0x0036FF,
-    0xF000FF,
-    0xFF0000,
-    0x17FF00,
-    0x00FF93,
-    0x00B2FF,
-    0x0013FF,
-    0x65FF00,
+    0xF3FF00,  # Yellow
+    0x00FFFF,  # Lighter Cyan
+    0x0036FF,  # Normal Blue
+    0xF000FF,  # Pink
+    0xFF0000,  # Red
+    0x17FF00,  # Light Green
+    0x00FF93,  # Cyan
+    0x00B2FF,  # Light Blue
+    0x0013FF,  # Dark Blue
+    0x65FF00,  # Green
 ]
 
 
 class CustomHelp(commands.MinimalHelpCommand):
-    def __init__(self, **options):
+    def __init__(self, bot, **options):
         self.show_hidden = True
         self.verify_checks = False
+        self.bot = bot
+        self.cog = bot.get_cog("Misc")
         super().__init__(**options)
 
     def get_docs_for(self, entity=None):
@@ -56,9 +58,9 @@ class CustomHelp(commands.MinimalHelpCommand):
         nav = (
             "⏪ - *Go to the first page*\n"
             "\n◀️ - *Go to the previous page*\n"
-            "\n:stop_button: - *Delete the message*\n"
             "\n▶️ - *Go to the next page*\n"
-            "\n⏩ - *Go to the last page*"
+            "\n⏩ - *Go to the last page*\n"
+            "\n:stop_button: - *Delete the message*\n"
         )
         em = discord.Embed(
             title="Welcome To The Hutch Bot Help Command",
@@ -76,14 +78,14 @@ class CustomHelp(commands.MinimalHelpCommand):
             name="Bugs:",
             value=f"If you find any bugs, please report it in the bot's DMs using the `{self.clean_prefix}report` command\n\n",
         )
-        em.add_field(
-            name="Documentation",
-            value=f"Please view the [official documentation]({self.get_docs_for(entity)}) for more info",
-        )
-        self.add_link(em)
+        # em.add_field(
+        #     name="Documentation",
+        #     value=f"Please view the [official documentation]({self.get_docs_for(entity)}) for more info",
+        # )
+        self.add_link(em, entity)
         return em
 
-    def get_second_page(self):
+    def get_second_page(self, entity=None):
         ctx: Context = self.context
         em = discord.Embed(color=random.choice(colors))
         em.title = "Command Signatures"
@@ -112,11 +114,12 @@ class CustomHelp(commands.MinimalHelpCommand):
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.set_footer(text=self.get_ending_note(), icon_url=ctx.author.avatar_url)
-        self.add_link(em)
+        self.add_link(em, entity)
         return em
 
-    def add_link(self, embed: discord.Embed):
+    def add_link(self, embed: discord.Embed, entity):
         ctx: Context = self.context
+        docs = self.get_docs_for(entity)
         url = oauth_url(
             ctx.me.id,
             permissions=discord.Permissions.all(),
@@ -125,7 +128,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         links = [
             f"[Bot Invite]({url})",
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
-            "[Official Documentation](https://hutch-bot.readthedocs.io)",
+            f"[Official Documentation]({docs})",
         ]
         embed.add_field(name="Useful Links", value=" | ".join(links), inline=False)
         return embed
@@ -136,7 +139,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         channel: discord.TextChannel = ctx.channel
         return channel
 
-    def get_group_alias(self, command: commands.Command):
+    def get_aliases(self, command: commands.Command):
         if command.full_parent_name == "":
             return [f"`{a}`" for a in command.aliases]
         return [f"`{command.full_parent_name} {alias}`" for alias in command.aliases]
@@ -150,6 +153,8 @@ class CustomHelp(commands.MinimalHelpCommand):
     def get_command_signature(
         self, command: Union[commands.Command, commands.Group, FlagCommand]
     ):  # h!ban <member> [reason]
+        if command.qualified_name == "embed":
+            return f"{self.context.prefix}help embed"
         signature = command.signature.replace("_", " ")
         return "{}{} {}".format(self.clean_prefix, command.qualified_name, signature)
 
@@ -182,17 +187,17 @@ class CustomHelp(commands.MinimalHelpCommand):
                     filtered = cog.get_commands()
                     for command in filtered:
                         signature = self.get_command_signature(command)
-                        if command.qualified_name != "embed":
-                            em.add_field(
-                                name=str(command.qualified_name).title(),
-                                value=f"`{signature}`",
-                                inline=True,
-                            )
-                        else:
-                            em.add_field(
-                                name=command.qualified_name.title(),
-                                value=f"`{ctx.prefix}help embed`",
-                            )
+                        # if command.qualified_name != "embed":
+                        em.add_field(
+                            name=str(command.qualified_name).title(),
+                            value=f"`{signature}`",
+                            inline=True,
+                        )
+                        # else:
+                        #     em.add_field(
+                        #         name=command.qualified_name.title(),
+                        #         value=f"`{ctx.prefix}help embed`",
+                        #     )
                 if len(em.fields) >= 5:
                     _embeds.append(em)
             Pag = Paginator(self.context, embeds=_embeds)
@@ -233,7 +238,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
 
         if command.aliases:
-            alias = self.get_group_alias(command)
+            alias = self.get_aliases(command)
             em.add_field(
                 name="Aliases",
                 value=f'`{command.qualified_name}`, {", ".join(alias)}',
@@ -242,7 +247,8 @@ class CustomHelp(commands.MinimalHelpCommand):
 
         em.add_field(name="Cooldown", value=command.brief, inline=False)
         em.add_field(
-            name="Documentation", value=self.get_docs_for(command), inline=False
+            name="Documentation",
+            value=f"Please view the [official documentation]({self.get_docs_for(command)}) for more info",
         )
         em.set_footer(
             text=self.get_ending_note(), icon_url=self.context.author.avatar_url
@@ -332,18 +338,6 @@ class CustomHelp(commands.MinimalHelpCommand):
             await Pag.start()
         else:
             await self.get_destination().send(embed=_embeds[1])
-
-    # async def subcommand_not_found(self, command, string : str):
-    #     ctx : Context = self.context
-    #     if isinstance(command, commands.Group) and len(command.all_commands) > 0:
-    #         message = 'Command "{0.qualified_name}" has no subcommand named {1!r}'.format(command, string)
-    #     else:
-    #         message = 'Command "{0.qualified_name}" has no subcommands.'.format(command)
-    #     return message
-
-    # async def command_not_found(self, string):
-    #     ctx : Context = self.context
-    #     return f"Command {string} not found"
 
     async def send_error_message(self, error):
         ctx: Context = self.context

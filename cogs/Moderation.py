@@ -8,7 +8,7 @@ import discord
 from better_profanity import *
 from discord.ext import *
 from discord.utils import *
-from Helpers import *
+from utils.helpers import *
 from discord.ext.commands import BucketType
 from Bot import MyBot
 import os

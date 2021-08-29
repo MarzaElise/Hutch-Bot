@@ -44,12 +44,11 @@ from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
-from config import Tokens
+from config import *
 from Help import CustomHelp
-from Helpers import *
+from utils.helpers import *
 
 load_dotenv()
-# os.chdir("./launcher.py")
 
 colors = [
     0xF3FF00,
@@ -106,20 +105,18 @@ def get_config(token_type: str = "TOKEN_2"):
     return conf
 
 
-help_obj = CustomHelp()
-help_obj.show_hidden = True
-help_obj.verify_checks = False
-help_obj.command_attrs = {
-    "name": "help",
-    "help": "Shows help about a command or a category",
-    "aliases": ["helps"],
-    "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
-    "brief": "5s",
-}
-
-
 class MyBot(commands.Bot):
     def __init__(self, token_type="TOKEN_2"):
+        help_obj = CustomHelp(self)
+        help_obj.show_hidden = True
+        help_obj.verify_checks = False
+        help_obj.command_attrs = {
+            "name": "help",
+            "help": "Shows help about a command or a category",
+            "aliases": ["helps"],
+            "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
+            "brief": "5s",
+        }
         intents = discord.Intents().default()
         intents.members = True
         self.config = get_config(token_type)
@@ -148,7 +145,7 @@ class MyBot(commands.Bot):
             690557545965813770,  # PgamerX
             841721684876328961,  # TCA bot testing
             # 710534717652336732, # Space Kingdom
-            804592931586572298,  # zenithh
+            804592931586572298,  # zennithh
         ]
         # servers where the bot is invited for testing with extra rules and limitations
 
@@ -183,7 +180,9 @@ class MyBot(commands.Bot):
                 self.load_extension(ext)
             except Exception as e:
                 # raise e
-                print(f"ERROR: [{ext}] \n{e}")
+                print(
+                    f"ERROR: [{ext}] \n{traceback.format_exception(type(e), e, e.__traceback__)[-1]}"
+                )
                 # minimal info is enough to know what happened in most cases.
                 # I can just change this whenever I want to see the entire exception
 
@@ -235,7 +234,7 @@ class MyBot(commands.Bot):
         tb = traceback.format_exc()
         file = None
         embed = discord.Embed()
-        embed.title = str(event_method)
+        embed.title = str(event_method).title()
         embed.description = f"```py\n{tb}\n```"
         if len(tb) > 2000:
             file = discord.File(io.StringIO(tb), str(event_method))
@@ -300,12 +299,12 @@ class MyBot(commands.Bot):
         cmds = cmds or self.commands
         if isinstance(cmds, commands.Group):
             lis.append(cmds.qualified_name)
-            get_all_commands(cmds.commands, lis)
+            self.get_all_commands(cmds.commands, lis)
         if isinstance(cmds, commands.Command):
             lis.append(cmds.qualified_name)
         if isinstance(cmds, set):
             for cmd in cmds:
-                get_all_commands(cmd, lis)
+                self.get_all_commands(cmd, lis)
         return list(set(lis))
 
     async def on_command(self, ctx: Context):
@@ -313,15 +312,15 @@ class MyBot(commands.Bot):
             ctx.command.reset_cooldown(ctx)
 
     async def on_command_error(self, ctx: Context, error: commands.CommandError):
-        error = getattr(error, "original", error)
+
         if isinstance(error, commands.CommandNotFound):
-            # matches = difflib.get_close_matches(
-            #     str(ctx.command.qualified_name), self.get_all_commands()
-            # )
-            # if len(matches) > 0:
-            #     fmt = "\n".join(matches)
-            #     desc = f"Command was not found, closest matches are...\n{fmt}"
-            #     return await ctx.to_error(desc)
+            matches = difflib.get_close_matches(
+                str(error).split('"')[1], self.get_all_commands()
+            )
+            if len(matches) > 0:
+                fmt = "\n".join(matches)
+                desc = f"Command was not found, closest matches are...\n{fmt}"
+                return await ctx.to_error(desc)
             return
 
         if hasattr(ctx.command, "on_error"):
@@ -335,6 +334,7 @@ class MyBot(commands.Bot):
             desc = "This Command is disabled throughout the bot, please wait patiently until it is enabled again"
             return await ctx.to_error(desc)
 
+        # i handled the above errors like that since the default error message isnt really helpful at times
         if not isinstance(
             error, commands.CommandInvokeError
         ):  # handling method copied and modified from https://github.com/TechStruck/TechStruck-Bot/
@@ -439,5 +439,3 @@ class MyBot(commands.Bot):
         if formatted:
             return f"```\n{fmt}\n```"
         return fmt
-
-MyBot.on_message_edit()

@@ -13,7 +13,7 @@ class Paginator:
         self.current = 1
         self.timeout = 100.0
         self.compact: bool = False
-        if len(self.embeds) == 2:
+        if len(self.embeds) == 2 or len(self.embeds) < 2:
             self.compact = True
         self._buttons: Dict[str, str] = {
             "⏪": "stop",

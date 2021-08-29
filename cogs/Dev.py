@@ -17,7 +17,7 @@ from discord.ext import *
 from discord.ext.commands import BucketType
 from discord.ext.commands.cooldowns import CooldownMapping
 from discord.utils import *
-from Helpers import *
+from utils.helpers import *
 from jishaku.modules import package_version
 
 
@@ -72,10 +72,12 @@ class Dev(commands.Cog):
             channel: discord.TextChannel = ctx.channel
             await ctx.send("Rebooting")
             await self.bot.close()
-            os.execv(sys.executable, ["python"] + sys.argv)
-        except Exception as e:
+            os.execv(
+                sys.executable, ["python"] + sys.argv
+            )  # really retarded way but it works :shrug:
+        except Exception as e:  # i dont know what error could be raised
             tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
-            await ctx.send(f"``py\n{tb}\n```")
+            await ctx.em(heading="Reboot Failed", desc=f"``py\n{tb}\n```")
 
     @commands.command(
         name="reload", help="Reaload all the cogs of this bot", brief="0s"
@@ -91,7 +93,9 @@ class Dev(commands.Cog):
                 self.bot.reload_extension(ext)
                 reloaded.append(ext)
             except Exception as e:
-                trace = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+                trace = traceback.format_exception(type(e), e, e.__traceback__)[-1]
+                # cant get full tb cos it would pass the maximum embed value limit
+                # so just the error would be enough
                 exceptions.append(f"```py\n{trace}\n```")
 
         reload_ = "Success" if len(exceptions) == 0 else "Unsuccesfull :("
@@ -176,6 +180,8 @@ class Dev(commands.Cog):
                     pass
         except Exception as e:
             return await ctx.to_error("Sending report failed\n\n{}".format(e))
+            # if it couldnt report, then we would have to show the error to the
+            # user and let them report it to me manually
         my_msg = await ctx.send("Report Sent successfully")
         return await my_msg.add_reaction("✅")
 
@@ -206,13 +212,14 @@ class Dev(commands.Cog):
         em.add_field(name="Total Servers:", value=len(self.bot.guilds), inline=False)
         em.add_field(
             name="Library:",
-            value=f'discord.py version {package_version("discord.py")}',
+            value=f'discord.py, version {package_version("discord.py")}',
             inline=False,
         )
         url = oauth(ctx)
         links = [
             f"[Bot Invite]({url})",
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
+            "[Official Documentation][https://hutch-bot.readthedocs.io/en/latest]",
         ]
         em.add_field(name="Useful Links", value=" | ".join(links), inline=False)
         em.set_author(name=self.bot.user, icon_url=self.bot.user.avatar_url)
