@@ -135,7 +135,7 @@ class Context(commands.Context):
         desc: str = None,
         col: int = 0xFF0000,
         image: str = None,
-    ):
+    ): # now im sure im using this method. no need to remove it :happy:
         r"""
         Custom function that returns a standard embed similar to ctx.embed but you cannot use some embed kwargs
         """
@@ -235,7 +235,6 @@ class Context(commands.Context):
         allowed_mentions: discord.AllowedMentions = None,
         reference: Union[discord.MessageReference, discord.Message] = None,
         mention_author: bool = False,
-        # dump: bool = False,
     ):
         r"""|coro|
 

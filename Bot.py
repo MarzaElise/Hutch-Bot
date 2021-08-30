@@ -107,6 +107,29 @@ def get_config(token_type: str = "TOKEN_2"):
 
 class MyBot(commands.Bot):
     def __init__(self, token_type="TOKEN_2"):
+        self.config = get_config(token_type)
+        self.set_bot_config()
+        # weird way of passing in token_type in params and running the bot
+        # but this is the only way I found to run bots with two tokens without changing much code.
+        super().__init__(
+            command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
+            description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
+            owner_id=self.config.OWNER_ID,
+            strip_after_prefix=True,
+            case_insensitive=True,
+        )
+
+        self.logs: Union[
+            List[discord.TextChannel], None
+        ] = None  # logs channels are set in on_ready
+
+        self._session = (
+            aiohttp.ClientSession()
+        )  # global session to interact with external APIs
+        self.load_all_extensions()
+
+    def set_bot_config(self):
+        """Function called inside __init__ to reduce code inside init and make shit more organized"""
         help_obj = CustomHelp(self)
         help_obj.show_hidden = True
         help_obj.verify_checks = False
@@ -117,27 +140,12 @@ class MyBot(commands.Bot):
             "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
             "brief": "5s",
         }
+        help_obj.cog
         intents = discord.Intents().default()
         intents.members = True
-        self.config = get_config(token_type)
-        # weird way of passing in token_type in params and running the bot
-        # but this is the only way I found to run bots with two tokens without changing much code.
-        super().__init__(
-            command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
-            help_command=help_obj,
-            description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
-            owner_id=self.config.OWNER_ID,
-            intents=intents,
-            strip_after_prefix=True,
-            case_insensitive=True,
-        )
-
         environ["JISHAKU_NO_UNDERSCORE"] = "True"
         environ["JISHAKU_RETAIN"] = "True"
 
-        self.logs: Union[
-            List[discord.TextChannel], None
-        ] = None  # logs channels are set in on_ready
         self.colors = colors  # handpicked colors
         self.colours = colors  # aliasing
         self.testing_guilds = [
@@ -148,20 +156,8 @@ class MyBot(commands.Bot):
             804592931586572298,  # zennithh
         ]
         # servers where the bot is invited for testing with extra rules and limitations
-
-        self._session = (
-            aiohttp.ClientSession()
-        )  # global session to interact with external APIs
-        self.load_all_extensions()
-
-    @property
-    def cogs_set(self):
-        cogs: Dict[str, commands.Cog] = {}
-        for name, cls in dict(
-            self.cogs
-        ).items()():  # bot.cogs actually returns a mapping of cog name to the cog class, not the cog object
-            cogs[name] = self.get_cog(name)
-        return cogs
+        self.help_command = help_obj
+        self.intents = intents
 
     @property
     def session(self):

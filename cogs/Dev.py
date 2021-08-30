@@ -69,7 +69,6 @@ class Dev(commands.Cog):
     @commands.is_owner()
     async def reboot(self, ctx: Context):
         try:
-            channel: discord.TextChannel = ctx.channel
             await ctx.send("Rebooting")
             await self.bot.close()
             os.execv(
@@ -281,6 +280,25 @@ class Dev(commands.Cog):
         file = discord.File(
             StringIO(getsource(cmd)), getsourcefile(cmd).split("\\")[-1]
         )
+        await ctx.send(file=file)
+
+    @commands.command(
+        help="Get source code of a specific command as a file | Under development",
+        brief="10s",
+    )
+    @commands.cooldown(10, 1, commands.BucketType.member)
+    @commands.is_owner()
+    async def source(self, ctx: Context, *, command: str):
+        cmd = (
+            self.bot.help_command.__class__
+            if command in ["help", "helps"]
+            else self.bot.get_command(command)
+        )
+        if not cmd:
+            return await ctx.to_error(f"No Command called {command} was found")
+        if command not in ["help", "helps"]:
+            cmd = cmd.callback
+        file = discord.File(StringIO(getsource(cmd)), getsourcefile(cmd).split("/")[-1])
         await ctx.send(file=file)
 
     def load_json(self, file_path):  # TODO: move to db
