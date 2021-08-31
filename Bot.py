@@ -47,6 +47,7 @@ from pydantic import BaseModel
 from config import *
 from Help import CustomHelp
 from utils.helpers import *
+from tortoise.queryset import QuerySet
 
 load_dotenv()
 
@@ -140,7 +141,6 @@ class MyBot(commands.Bot):
             "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
             "brief": "5s",
         }
-        help_obj.cog
         intents = discord.Intents().default()
         intents.members = True
         environ["JISHAKU_NO_UNDERSCORE"] = "True"
@@ -162,6 +162,12 @@ class MyBot(commands.Bot):
     @property
     def session(self):
         return self._session
+
+    def generate_cache(self):
+        """Generates a cache dict for each of the most used models to reduce querying."""
+        from models import GuildModel, MemberModel 
+        # i dont rlly need these in the global scope, only for a few lines in here
+        # TODO: fill this method
 
     def load_all_extensions(self):
         self.initial_ext = [
