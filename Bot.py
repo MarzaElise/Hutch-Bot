@@ -165,7 +165,8 @@ class MyBot(commands.Bot):
 
     def generate_cache(self):
         """Generates a cache dict for each of the most used models to reduce querying."""
-        from models import GuildModel, MemberModel 
+        from models import GuildModel, MemberModel
+
         # i dont rlly need these in the global scope, only for a few lines in here
         # TODO: fill this method
 
@@ -200,7 +201,8 @@ class MyBot(commands.Bot):
 
     async def on_ready(self):
         self.logs: List[discord.TextChannel] = [
-            self.get_channel(_id) for _id in [847931426938945597, 845739412867514442]
+            self.get_channel(_id)
+            for _id in [847931426938945597, 845739412867514442]
         ]
         print("\n")
         print("-" * 50)
@@ -225,7 +227,9 @@ class MyBot(commands.Bot):
         ctx: Context = await self.get_context(message, cls=Context)
         channel: discord.TextChannel = message.channel
 
-        if (f"<@!{self.user.id}>" in message.content) and (len(message.mentions) == 1):
+        if (f"<@!{self.user.id}>" in message.content) and (
+            len(message.mentions) == 1
+        ):
             await ctx.send(
                 f"Hello :wave:, my prefix is {self.config.DEFAULT_PREFIX}. You can do `{self.config.DEFAULT_PREFIX}help` to get some help!"
             )
@@ -240,7 +244,9 @@ class MyBot(commands.Bot):
         embed.description = f"```py\n{tb}\n```"
         if len(tb) > 2000:
             file = discord.File(io.StringIO(tb), str(event_method))
-            embed = None  # we dont need an embed if we are going to send a file
+            embed = (
+                None  # we dont need an embed if we are going to send a file
+            )
 
         await report_to_logs(self, content=None, embed=embed, file=file)
 
@@ -279,7 +285,9 @@ class MyBot(commands.Bot):
     async def logout(self):
         return await self.close()
 
-    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+    async def on_message_edit(
+        self, before: discord.Message, after: discord.Message
+    ):
         author: discord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
         if (
@@ -313,7 +321,9 @@ class MyBot(commands.Bot):
         if ctx.author.id == self.owner_id:
             ctx.command.reset_cooldown(ctx)
 
-    async def on_command_error(self, ctx: Context, error: commands.CommandError):
+    async def on_command_error(
+        self, ctx: Context, error: commands.CommandError
+    ):
 
         if isinstance(error, commands.CommandNotFound):
             matches = difflib.get_close_matches(
@@ -357,7 +367,9 @@ class MyBot(commands.Bot):
         traceback.print_exception(type(error), error, error.__traceback__)
         error_em = await ctx.to_error()
 
-        trace = traceback.format_exception(type(error), error, error.__traceback__)
+        trace = traceback.format_exception(
+            type(error), error, error.__traceback__
+        )
         tb = "".join(trace)
         # _1, _2, _3 = trace[-3], trace[-2], trace[-1]
         err = tb[
@@ -366,7 +378,10 @@ class MyBot(commands.Bot):
         info = [
             ("Guild:", ctx.guild.name if ctx.guild else f"{ctx.author}"),
             ("Id:", ctx.guild.id if ctx.guild else ctx.author.id),
-            ("Message:", f"`{ctx.message.content}` | [Link]({ctx.message.jump_url})"),
+            (
+                "Message:",
+                f"`{ctx.message.content}` | [Link]({ctx.message.jump_url})",
+            ),
             ("Channel:", f"{ctx.channel.name} | {ctx.channel.mention}"),
         ]
         embed = discord.Embed(description=f"```py\n{err}\n```")
@@ -384,7 +399,9 @@ class MyBot(commands.Bot):
 
     def get_docs(
         self,
-        entity: Optional[Union[commands.Command, commands.Group, commands.Cog]] = None,
+        entity: Optional[
+            Union[commands.Command, commands.Group, commands.Cog]
+        ] = None,
         *,
         error=True,
     ) -> str:
@@ -425,7 +442,9 @@ class MyBot(commands.Bot):
             )
         return False
 
-    def get_message(self, channel_id: int, msg_id: int, formatted=False):  # not tested
+    def get_message(
+        self, channel_id: int, msg_id: int, formatted=False
+    ):  # not tested
         if not isinstance(msg_id, int):
             try:
                 msg_id = int(msg_id)

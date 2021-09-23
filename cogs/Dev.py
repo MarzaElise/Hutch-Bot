@@ -65,7 +65,9 @@ class Dev(commands.Cog):
 
     # "https://dsc.bio/marcussimps"
 
-    @commands.command(aliases=["restart"], help="Restart the entire bot", brief="0s")
+    @commands.command(
+        aliases=["restart"], help="Restart the entire bot", brief="0s"
+    )
     @commands.is_owner()
     async def reboot(self, ctx: Context):
         try:
@@ -75,7 +77,9 @@ class Dev(commands.Cog):
                 sys.executable, ["python"] + sys.argv
             )  # really retarded way but it works :shrug:
         except Exception as e:  # i dont know what error could be raised
-            tb = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+            tb = "".join(
+                traceback.format_exception(type(e), e, e.__traceback__)
+            )
             await ctx.em(heading="Reboot Failed", desc=f"``py\n{tb}\n```")
 
     @commands.command(
@@ -92,7 +96,9 @@ class Dev(commands.Cog):
                 self.bot.reload_extension(ext)
                 reloaded.append(ext)
             except Exception as e:
-                trace = traceback.format_exception(type(e), e, e.__traceback__)[-1]
+                trace = traceback.format_exception(
+                    type(e), e, e.__traceback__
+                )[-1]
                 # cant get full tb cos it would pass the maximum embed value limit
                 # so just the error would be enough
                 exceptions.append(f"```py\n{trace}\n```")
@@ -143,7 +149,9 @@ class Dev(commands.Cog):
             )
             await ctx.send(embed=em)
 
-    @commands.command(aliases=["uv"], help="Update the VERSION.txt file", brief="0s")
+    @commands.command(
+        aliases=["uv"], help="Update the VERSION.txt file", brief="0s"
+    )
     @commands.is_owner()
     async def update(self, ctx: Context, *, new_version: str):
         try:
@@ -194,7 +202,9 @@ class Dev(commands.Cog):
             if not new_nickname:
                 await ctx.send(f"Current Display name -> *{me.display_name}*")
             await me.edit(nick=new_nickname)
-            await ctx.send(f"Succesfully changed my display name -> {new_nickname}")
+            await ctx.send(
+                f"Succesfully changed my display name -> {new_nickname}"
+            )
         except Exception as e:
             await ctx.send(e)
 
@@ -207,8 +217,12 @@ class Dev(commands.Cog):
         )
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.add_field(name="Bot Version", value=version(), inline=False)
-        em.add_field(name="Total Users:", value=len(self.bot.users), inline=False)
-        em.add_field(name="Total Servers:", value=len(self.bot.guilds), inline=False)
+        em.add_field(
+            name="Total Users:", value=len(self.bot.users), inline=False
+        )
+        em.add_field(
+            name="Total Servers:", value=len(self.bot.guilds), inline=False
+        )
         em.add_field(
             name="Library:",
             value=f'discord.py, version {package_version("discord.py")}',
@@ -220,7 +234,9 @@ class Dev(commands.Cog):
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
             "[Official Documentation][https://hutch-bot.readthedocs.io/en/latest]",
         ]
-        em.add_field(name="Useful Links", value=" | ".join(links), inline=False)
+        em.add_field(
+            name="Useful Links", value=" | ".join(links), inline=False
+        )
         em.set_author(name=self.bot.user, icon_url=self.bot.user.avatar_url)
         em.set_footer(
             text=f"Send {self.bot.config.ME} nitro for making this bot :)",
@@ -242,11 +258,15 @@ class Dev(commands.Cog):
         em = discord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
-        em.set_author(name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url)
+        em.set_author(
+            name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url
+        )
         em.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=em)
 
-    @changelogs.command(help="Change the changelogs to the latest features", brief="0s")
+    @changelogs.command(
+        help="Change the changelogs to the latest features", brief="0s"
+    )
     @commands.is_owner()
     async def new(self, ctx: Context, *, new_logs: str):
         """Change the changelogs to the latest features"""
@@ -259,7 +279,9 @@ class Dev(commands.Cog):
         em = discord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
-        em.set_author(name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url)
+        em.set_author(
+            name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url
+        )
         em.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=em)
 
@@ -298,7 +320,9 @@ class Dev(commands.Cog):
             return await ctx.to_error(f"No Command called {command} was found")
         if command not in ["help", "helps"]:
             cmd = cmd.callback
-        file = discord.File(StringIO(getsource(cmd)), getsourcefile(cmd).split("/")[-1])
+        file = discord.File(
+            StringIO(getsource(cmd)), getsourcefile(cmd).split("/")[-1]
+        )
         await ctx.send(file=file)
 
     def load_json(self, file_path):  # TODO: move to db
@@ -342,7 +366,9 @@ class Dev(commands.Cog):
         blacklists[str(member.id)]["reason"] = reason
         self.write_json("./assets/blacklist.json", blacklists)
         await ctx.em(
-            heading="Success", desc="Member Succesfully blacklisted.", col=0x2ECC71
+            heading="Success",
+            desc="Member Succesfully blacklisted.",
+            col=0x2ECC71,
         )
 
 

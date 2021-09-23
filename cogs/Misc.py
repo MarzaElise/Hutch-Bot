@@ -24,7 +24,9 @@ from jishaku.modules import package_version
 
 
 def version():
-    with open(r"E:\Marcus\Coding\Python\DiscordBot\Hutch_Bot\VERSION.txt", "r+") as f:
+    with open(
+        r"E:\Marcus\Coding\Python\DiscordBot\Hutch_Bot\VERSION.txt", "r+"
+    ) as f:
         lines = f.read()
     return lines or "Not Found"
 
@@ -98,7 +100,9 @@ class Misc(commands.Cog):
                 value="[Link Here](https://discord.gg/5nzgEWSnEG)",
             )
             em.set_thumbnail(url=ctx.guild.icon_url)
-            em.set_author(name=self.bot.config.ME, url="https://discord.gg/ZhMPxJ6gM2")
+            em.set_author(
+                name=self.bot.config.ME, url="https://discord.gg/ZhMPxJ6gM2"
+            )
             em.set_footer(
                 text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
             )
@@ -152,7 +156,9 @@ class Misc(commands.Cog):
                 name="Description:",
                 value=f"I am a fun bot with a lot of cool commands. I have a built-in profanity filter! I do have some moderation commands like ban unban!\nType `h!help` from more info!",
             )
-            em.set_author(name=self.bot.config.ME, icon_url=ctx.author.avatar_url)
+            em.set_author(
+                name=self.bot.config.ME, icon_url=ctx.author.avatar_url
+            )
             em.set_footer(
                 text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
             )
@@ -216,14 +222,19 @@ class Misc(commands.Cog):
                         await asyncio.sleep(5)
                     except:
                         em.add_field(
-                            name=guild.name, value=guild.member_count, inline=True
+                            name=guild.name,
+                            value=guild.member_count,
+                            inline=True,
                         )
                 else:
-                    em.add_field(name=guild.name, value=guild.member_count, inline=True)
+                    em.add_field(
+                        name=guild.name, value=guild.member_count, inline=True
+                    )
             return await ctx.reply(embed=em)
 
     @commands.command(
-        help="Mention a member to hug them | Sends a random hugging gif", brief="10s"
+        help="Mention a member to hug them | Sends a random hugging gif",
+        brief="10s",
     )
     @commands.cooldown(1, 10, BucketType.member)
     async def hug(self, ctx: Context, member: discord.Member = None):
@@ -232,10 +243,14 @@ class Misc(commands.Cog):
             await asyncio.sleep(1)
             async with aiohttp.ClientSession() as cs:
                 try:
-                    async with cs.get("https://some-random-api.ml/animu/hug") as r:
+                    async with cs.get(
+                        "https://some-random-api.ml/animu/hug"
+                    ) as r:
                         data = await r.json()
                         if member is None:
-                            em = discord.Embed(title="Hug", color=random.choice(colors))
+                            em = discord.Embed(
+                                title="Hug", color=random.choice(colors)
+                            )
                         else:
                             em = discord.Embed(
                                 title=f"{ctx.author.display_name} hugs {member.display_name}",
@@ -247,7 +262,8 @@ class Misc(commands.Cog):
                     await ctx.send(e)
 
     @commands.command(
-        help="Mention a member to pat them | Sends a random patting gif", brief="10s"
+        help="Mention a member to pat them | Sends a random patting gif",
+        brief="10s",
     )
     @commands.cooldown(1, 10, BucketType.member)
     async def pat(self, ctx: Context, member: discord.Member = None):
@@ -256,16 +272,22 @@ class Misc(commands.Cog):
             await asyncio.sleep(1)
             async with aiohttp.ClientSession() as cs:
                 try:
-                    async with cs.get("https://some-random-api.ml/animu/pat") as r:
+                    async with cs.get(
+                        "https://some-random-api.ml/animu/pat"
+                    ) as r:
                         data = await r.json()
                         if member is None:
-                            em = discord.Embed(title="Pat", color=random.choice(colors))
+                            em = discord.Embed(
+                                title="Pat", color=random.choice(colors)
+                            )
                         else:
                             em = discord.Embed(
                                 title=f"{ctx.author.display_name} Pats {member.display_name}",
                                 color=random.choice(colors),
                             )
-                        em = discord.Embed(title="Pat", color=random.choice(colors))
+                        em = discord.Embed(
+                            title="Pat", color=random.choice(colors)
+                        )
                         em.set_image(url=data["link"])
                         await ctx.send(embed=em)
                 except Exception as e:
@@ -279,9 +301,13 @@ class Misc(commands.Cog):
             await asyncio.sleep(1)
             async with aiohttp.ClientSession() as cs:
                 try:
-                    async with cs.get("https://some-random-api.ml/animu/wink") as r:
+                    async with cs.get(
+                        "https://some-random-api.ml/animu/wink"
+                    ) as r:
                         data = await r.json()
-                        em = discord.Embed(title="Wink", color=random.choice(colors))
+                        em = discord.Embed(
+                            title="Wink", color=random.choice(colors)
+                        )
                         em.set_image(url=data["link"])
                         await ctx.send(embed=em)
                 except Exception as e:
@@ -301,12 +327,16 @@ class Misc(commands.Cog):
             try:
                 translator = Translator()
                 result: Translated = translator.translate(text, lang)
-                em = discord.Embed(title="Translation", color=random.choice(colors))
+                em = discord.Embed(
+                    title="Translation", color=random.choice(colors)
+                )
                 em.set_thumbnail(url=ctx.guild.icon_url)
                 em.set_footer(text=f"Translation requested by {ctx.author}")
                 em.add_field(name="Text:", value=text, inline=False)
                 em.add_field(name="Source:", value=result.src)
-                em.add_field(name="Translation:", value=result.text, inline=False)
+                em.add_field(
+                    name="Translation:", value=result.text, inline=False
+                )
                 em.add_field(name="Pronunciation:", value=result.pronunciation)
                 return await ctx.reply(embed=em)
             except Exception as e:
@@ -346,13 +376,17 @@ class Misc(commands.Cog):
         You can only redo a message sent by you
         """
         if not ctx.reference:
-            return await ctx.to_error("Reply to a message sent by you to redo it.")
+            return await ctx.to_error(
+                "Reply to a message sent by you to redo it."
+            )
         try:
             message = await ctx.fetch_message(ctx.reference.message_id)
         except discord.NotFound:
             return await ctx.to_error("Replied message not found.")
         except discord.HTTPException:
-            return await ctx.send(embed=ctx.em("Retrieving the message failed."))
+            return await ctx.send(
+                embed=ctx.em("Retrieving the message failed.")
+            )
         # all possible exceptions handled, message is defined
         if message.author == ctx.author:
             return await self.bot.process_commands(message)
@@ -366,10 +400,14 @@ class Misc(commands.Cog):
         Delete a message sent by the bot. useful when the bot unexpectedly sends a wall text or any unwanted message
         """
         if not ctx.reference:
-            return await ctx.to_error("Reply to the message you want to delete")
+            return await ctx.to_error(
+                "Reply to the message you want to delete"
+            )
         message: discord.Message = ctx.reference.cached_message
         if not message:
-            message: discord.Message = await ctx.fetch_message(ctx.reference.message_id)
+            message: discord.Message = await ctx.fetch_message(
+                ctx.reference.message_id
+            )
         if message.author.id == self.bot.user.id:
             try:
                 with contextlib.suppress(discord.HTTPException):

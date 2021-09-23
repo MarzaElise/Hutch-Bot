@@ -100,11 +100,15 @@ class Moderation(commands.Cog):
             try:
                 await message.delete()
                 await message.channel.send(
-                    f"{message.author.mention} watch your language!", delete_after=5
+                    f"{message.author.mention} watch your language!",
+                    delete_after=5,
                 )
             except:
                 pass
-        if message.mention_everyone and message.guild.id not in self.bot.testing_guilds:
+        if (
+            message.mention_everyone
+            and message.guild.id not in self.bot.testing_guilds
+        ):
             if not message.author.guild_permissions.mention_everyone:
                 try:
                     message.author.kick(
@@ -116,12 +120,17 @@ class Moderation(commands.Cog):
                 except:
                     pass
         if message.mentions and len(message.mentions) > 5:
-            if message.guild and message.guild.id not in self.bot.testing_guilds:
+            if (
+                message.guild
+                and message.guild.id not in self.bot.testing_guilds
+            ):
                 try:
                     await message.author.send(
                         f"You were kicked from the server for mentioning too many people!"
                     )
-                    await message.author.kick(reason="Automoderator: Mass Mentioning")
+                    await message.author.kick(
+                        reason="Automoderator: Mass Mentioning"
+                    )
                     await message.channel.send(
                         f"{message.author.mention} was kicked for mass mentioning"
                     )
@@ -145,7 +154,9 @@ class Moderation(commands.Cog):
                 f"{ctx.author.mention} you cannot kick {user.display_name}"
             )
         if user.top_role >= ctx.guild.me.top_role:
-            return await ctx.send(f"I cannot kick members who are ranked above me")
+            return await ctx.send(
+                f"I cannot kick members who are ranked above me"
+            )
         if user.bot:
             await user.kick(reason=f"{ctx.author}: {reason}")
             return await ctx.send(f"Succesfully kicked **{user.mention}**")
@@ -155,7 +166,8 @@ class Moderation(commands.Cog):
                     title="\n", description="\n", color=random.choice(colors)
                 )
                 em.set_author(
-                    name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                    name=ctx.author.display_name,
+                    icon_url=ctx.author.avatar_url,
                 )
                 em.set_thumbnail(url=ctx.guild.icon_url)
                 em.add_field(
@@ -163,8 +175,12 @@ class Moderation(commands.Cog):
                     value=f"You were Kicked from **{ctx.guild}**",
                     inline=False,
                 )
-                em.add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
-                em.add_field(name="Reason:", value=f"-*{reason}*", inline=False)
+                em.add_field(
+                    name="By:", value=f"-*{ctx.author}*", inline=False
+                )
+                em.add_field(
+                    name="Reason:", value=f"-*{reason}*", inline=False
+                )
                 await user.send(embed=em)
                 await user.kick(reason=f"{ctx.author}: {reason}")
             except discord.Forbidden:
@@ -172,7 +188,9 @@ class Moderation(commands.Cog):
             finally:
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
-    def can_ban(self, ctx: Context, member: Union[discord.Member, discord.User]):
+    def can_ban(
+        self, ctx: Context, member: Union[discord.Member, discord.User]
+    ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:
             return False
@@ -231,8 +249,12 @@ class Moderation(commands.Cog):
                             value=f"You were Banned from **{ctx.guild}**",
                             inline=False,
                         )
-                        .add_field(name="By:", value=f"-*{ctx.author}*", inline=False)
-                        .add_field(name="Reason:", value=f"-*{reason}*", inline=False)
+                        .add_field(
+                            name="By:", value=f"-*{ctx.author}*", inline=False
+                        )
+                        .add_field(
+                            name="Reason:", value=f"-*{reason}*", inline=False
+                        )
                     )
                     if not user.bot:
                         await user.send(embed=em)
@@ -282,7 +304,9 @@ class Moderation(commands.Cog):
             await ctx.send("I dont have unban permissions")
 
     @commands.command(
-        aliases=["rule"], help="Sends a breif description of common rules", brief="10s"
+        aliases=["rule"],
+        help="Sends a breif description of common rules",
+        brief="10s",
     )
     @commands.has_permissions(manage_messages=True)
     @commands.cooldown(1, 10, BucketType.member)
@@ -291,22 +315,34 @@ class Moderation(commands.Cog):
         """Sends a breif description of common rules"""
         with ctx.typing():
             await asyncio.sleep(1)
-            newEmbed = discord.Embed(title="Rules", color=random.choice(colors))
+            newEmbed = discord.Embed(
+                title="Rules", color=random.choice(colors)
+            )
             newEmbed.set_author(
                 name=ctx.author.display_name, icon_url=ctx.author.avatar_url
             )
             newEmbed.set_thumbnail(url=ctx.guild.icon_url)
             newEmbed.add_field(
-                name="Rule 1", value="Follow Discord TOS and Guidlines", inline=False
+                name="Rule 1",
+                value="Follow Discord TOS and Guidlines",
+                inline=False,
             )
             newEmbed.add_field(
-                name="Rule 2", value="Respect Everyone, especially staff", inline=False
+                name="Rule 2",
+                value="Respect Everyone, especially staff",
+                inline=False,
             )
             newEmbed.add_field(
-                name="Rule 3", value="Do what a staff tells you to do", inline=False
+                name="Rule 3",
+                value="Do what a staff tells you to do",
+                inline=False,
             )
-            newEmbed.add_field(name="Rule 4", value="Don't DM advertise", inline=False)
-            newEmbed.add_field(name="Rule 5", value="Don't be annoying", inline=False)
+            newEmbed.add_field(
+                name="Rule 4", value="Don't DM advertise", inline=False
+            )
+            newEmbed.add_field(
+                name="Rule 5", value="Don't be annoying", inline=False
+            )
             newEmbed.set_footer(text=f"Requested by: {ctx.author}")
             await ctx.send(embed=newEmbed)
             await ctx.message.delete()
@@ -370,7 +406,10 @@ class Moderation(commands.Cog):
             aks = "The one and only me"
         if member.guild_permissions.manage_messages:
             aks = "Server Moderator"
-        if member.guild_permissions.administrator and member.id != ctx.guild.owner_id:
+        if (
+            member.guild_permissions.administrator
+            and member.id != ctx.guild.owner_id
+        ):
             aks = "Server Admin"
         if member.id == ctx.guild.owner_id:
             aks = "Server Owner"
@@ -393,7 +432,12 @@ class Moderation(commands.Cog):
         ]  # iter(member.guild_permissions) returns (perm, bool) value where bool is True if they do have that permission.
         formatted = []
         for element in permissions:
-            fmt = element.lower().replace("_", " ").replace("guild", "server").title()
+            fmt = (
+                element.lower()
+                .replace("_", " ")
+                .replace("guild", "server")
+                .title()
+            )
             formatted.append(f"`{fmt}`")
         created = member.created_at.strftime("%c")
         joined = member.joined_at.strftime("%c")
@@ -419,17 +463,24 @@ class Moderation(commands.Cog):
                 inline=False,
             )
             em.add_field(
-                name="Top Role:", value=f"{member.top_role.mention}", inline=False
+                name="Top Role:",
+                value=f"{member.top_role.mention}",
+                inline=False,
             )
-            em.add_field(name="Permissions:", value=", ".join(formatted), inline=False)
-            em.add_field(name="Server Acknowledgements", value=aks, inline=False)
+            em.add_field(
+                name="Permissions:", value=", ".join(formatted), inline=False
+            )
+            em.add_field(
+                name="Server Acknowledgements", value=aks, inline=False
+            )
             em.add_field(
                 name="Status",
                 value=f"```{member.activity.name if member.activity else 'N/A'}```",
                 inline=False,
             )
             em.add_field(
-                name="Nickname", value=f"```{member.nick if member.nick else 'N/A'}```"
+                name="Nickname",
+                value=f"```{member.nick if member.nick else 'N/A'}```",
             )
             return await ctx.send(embed=em)
 

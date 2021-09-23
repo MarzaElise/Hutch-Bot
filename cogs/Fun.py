@@ -86,7 +86,9 @@ def can_dm(mem: discord.Member):  # TODO: move to db
     members = alr_opted.keys()
     if member in members:
         if alr_opted[member] == True:
-            raise CannotDmMember("Specified member has opted out of the DM command")
+            raise CannotDmMember(
+                "Specified member has opted out of the DM command"
+            )
         elif alr_opted[member] == False:
             return True
     elif member not in members:
@@ -112,7 +114,9 @@ class Fun(commands.Cog):
             dic = json.load(f)
         if member_id in dic.keys():
             if dic[str(member_id)] == True:
-                raise AlreadyOptedOut("You have already opted out of the DM command")
+                raise AlreadyOptedOut(
+                    "You have already opted out of the DM command"
+                )
         dic[str(member_id)] = True
         with open("./assets/opt_out.json", "w+") as f:
             json.dump(dic, f, indent=4)
@@ -122,7 +126,9 @@ class Fun(commands.Cog):
         with open("./assets/opt_out.json", "r") as f:  # TODO: move to db
             alr_opted = json.load(f)
         if member_id not in alr_opted.keys():
-            raise AlreadyOptedIn(f"You are currently opted into the DM command")
+            raise AlreadyOptedIn(
+                f"You are currently opted into the DM command"
+            )
         elif alr_opted[member_id] == False:
             raise AlreadyOptedIn("You are currently opted into the DM command")
         elif alr_opted[member_id] == True:
@@ -148,7 +154,9 @@ class Fun(commands.Cog):
     )
     @commands.cooldown(1, 20, BucketType.member)
     @commands.guild_only()
-    async def dm(self, ctx: Context, member: discord.Member, *, text_to_dm: str):
+    async def dm(
+        self, ctx: Context, member: discord.Member, *, text_to_dm: str
+    ):
         """DM a user of your choice with a message"""
         if member.bot:
             return await ctx.to_error("you cannot DM a bot")
@@ -157,16 +165,21 @@ class Fun(commands.Cog):
                 "You must be opted in to the DM command to send DMs through the bot"
             )
         if ctx.guild.id in [681882711945641997, 841721684876328961]:
-            return await ctx.to_error("This command is disabled due to the rules")
+            return await ctx.to_error(
+                "This command is disabled due to the rules"
+            )
         can = can_dm(member)
         message: discord.Message = ctx.message
-        em = discord.Embed(description=f"> {text_to_dm}", color=random.choice(colors))
+        em = discord.Embed(
+            description=f"> {text_to_dm}", color=random.choice(colors)
+        )
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         em.set_footer(text=f"Use '{ctx.prefix}dm opt out' command to opt out")
         em.set_thumbnail(url=ctx.guild.icon_url)
         if can:
             confirmed = await ctx.confirm(
-                f"Are you sure you want to send this DM to {member}", timeout=15
+                f"Are you sure you want to send this DM to {member}",
+                timeout=15,
             )
             if not confirmed:
                 return await ctx.to_error("Command has been cancelled!")
@@ -207,7 +220,9 @@ class Fun(commands.Cog):
             )
 
     @commands.command(
-        aliases=["8ball"], help="Sends a random answer to a question", brief="5s"
+        aliases=["8ball"],
+        help="Sends a random answer to a question",
+        brief="5s",
     )
     @commands.guild_only()
     @commands.cooldown(1, 5, BucketType.member)
@@ -216,7 +231,9 @@ class Fun(commands.Cog):
         await ctx.trigger_typing()
         answer = random.choice(responses)
         em = discord.Embed(color=random.choice(colors))
-        em.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+        em.set_author(
+            name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+        )
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.add_field(name="Question:", value=question, inline=False)
         em.add_field(name="Answer:", value=answer, inline=False)
@@ -225,7 +242,11 @@ class Fun(commands.Cog):
     @commands.command(aliases=["say"], help="Repeats your message", brief="5s")
     @commands.cooldown(1, 5, BucketType.member)
     async def echo(
-        self, ctx: Context, channel: typing.Optional[discord.TextChannel], *, msg: str
+        self,
+        ctx: Context,
+        channel: typing.Optional[discord.TextChannel],
+        *,
+        msg: str,
     ):
         """Repeats your message"""
         with ctx.typing():
@@ -239,7 +260,9 @@ class Fun(commands.Cog):
                 await ctx.send(msg)
 
     @commands.command(
-        aliases=["coin", "flip"], help="Flips a coin and sends the result", brief="5s"
+        aliases=["coin", "flip"],
+        help="Flips a coin and sends the result",
+        brief="5s",
     )
     @commands.cooldown(1, 5, BucketType.member)
     async def coinflip(self, ctx: Context):
@@ -318,16 +341,21 @@ class Fun(commands.Cog):
                         color=random.choice(colors),
                     )
                     em.add_field(name="Text:", value=text, inline=False)
-                    em.add_field(name="Binary:", value=data["binary"], inline=False)
+                    em.add_field(
+                        name="Binary:", value=data["binary"], inline=False
+                    )
                     em.set_footer(text=f"Requested by {ctx.author}")
                     em.set_thumbnail(url=ctx.guild.icon_url)
                     em.set_author(
-                        name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                        name=ctx.author.display_name,
+                        icon_url=ctx.author.avatar_url,
                     )
                     await ctx.reply(embed=em)
             except Exception as e:
                 em = discord.Embed(description=e)
-                await ctx.reply("I could not convert it to binary :(", embed=em)
+                await ctx.reply(
+                    "I could not convert it to binary :(", embed=em
+                )
 
     @commands.command(
         aliases=["facts", "funfact"], help="Sends a random fact", brief="5s"
@@ -337,7 +365,9 @@ class Fun(commands.Cog):
         """Sends a random fact"""
         await ctx.trigger_typing()
         async with self.bot.session as cs:
-            async with cs.get("https://randomness-api.herokuapp.com/fact") as res:
+            async with cs.get(
+                "https://randomness-api.herokuapp.com/fact"
+            ) as res:
                 data = dict(await res.json())
         fact = json.loads(data.get("fact", random.choice(random_facts)))
         await ctx.reply(fact)
@@ -383,7 +413,10 @@ class Fun(commands.Cog):
         if image_name not in categories:
             em = discord.Embed(title="Categories", color=random.choice(colors))
             em.description = "\n".join(
-                [f"`{i}` -> Sends a random image of a `{i}`" for i in categories]
+                [
+                    f"`{i}` -> Sends a random image of a `{i}`"
+                    for i in categories
+                ]
             )
             em.set_footer(text=f"Requested by {ctx.author}")
             em.set_thumbnail(url=ctx.guild.icon_url)
@@ -407,7 +440,9 @@ class Fun(commands.Cog):
                 except Exception as e:
                     return await ctx.send(e)
 
-    @commands.command(aliases=["memey"], help="Sends a random meme", brief="5s")
+    @commands.command(
+        aliases=["memey"], help="Sends a random meme", brief="5s"
+    )
     @commands.cooldown(1, 5, BucketType.member)
     async def meme(self, ctx: Context):
         """Sends a random meme"""
@@ -452,7 +487,9 @@ class Fun(commands.Cog):
                 random_submission = random.choice(all_submissions)
                 name = random_submission.title
                 url = random_submission.url
-                em = discord.Embed(title=name, color=random.choice(colors), url=url)
+                em = discord.Embed(
+                    title=name, color=random.choice(colors), url=url
+                )
                 em.set_image(url=url)
                 await ctx.reply(embed=em)
         except Exception as e:
@@ -470,7 +507,9 @@ class Fun(commands.Cog):
             await ctx.to_error("You need more than one option to make a poll!")
             return
         if len(options) > 5:
-            await ctx.to_error("You cannot make a poll for more than 5 options!")
+            await ctx.to_error(
+                "You cannot make a poll for more than 5 options!"
+            )
             return
 
         if (

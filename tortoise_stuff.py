@@ -8,7 +8,7 @@ async def init():
     calls Tortoise.init with our models from /models
     """
     file_list = [
-        f"models.{file.split('.')[0]}" # .split('.') returns ['file', 'extension']
+        f"models.{file.split('.')[0]}"  # .split('.') returns ['file', 'extension']
         for file in os.listdir("./models")
         if not file.startswith("_")
     ]
@@ -17,7 +17,7 @@ async def init():
 
     await Tortoise.init(
         # db_url="sqlite://databases/main.sqlite",
-        db_url="sqlite://:memory:", # testing lololololololololol
+        db_url="sqlite://:memory:",  # testing lololololololololol
         modules={"models": file_list},
     )
     # Generate the schema

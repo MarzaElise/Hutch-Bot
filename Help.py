@@ -69,9 +69,12 @@ class CustomHelp(commands.MinimalHelpCommand):
             color=random.choice(colors),
         )
         em.set_footer(
-            text=self.get_ending_note(), icon_url=self.context.author.avatar_url
+            text=self.get_ending_note(),
+            icon_url=self.context.author.avatar_url,
         )
-        em.set_author(name=self.context.author, icon_url=self.context.author.avatar_url)
+        em.set_author(
+            name=self.context.author, icon_url=self.context.author.avatar_url
+        )
         em.set_thumbnail(url=self.context.guild.icon_url)
         em.add_field(name="Navigation", value=f"{nav}\n\n", inline=False)
         em.add_field(
@@ -113,7 +116,9 @@ class CustomHelp(commands.MinimalHelpCommand):
 
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         em.set_thumbnail(url=ctx.guild.icon_url)
-        em.set_footer(text=self.get_ending_note(), icon_url=ctx.author.avatar_url)
+        em.set_footer(
+            text=self.get_ending_note(), icon_url=ctx.author.avatar_url
+        )
         self.add_link(em, entity)
         return em
 
@@ -130,7 +135,9 @@ class CustomHelp(commands.MinimalHelpCommand):
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
             f"[Official Documentation]({docs})",
         ]
-        embed.add_field(name="Useful Links", value=" | ".join(links), inline=False)
+        embed.add_field(
+            name="Useful Links", value=" | ".join(links), inline=False
+        )
         return embed
 
     def get_destination(self):
@@ -142,12 +149,13 @@ class CustomHelp(commands.MinimalHelpCommand):
     def get_aliases(self, command: commands.Command):
         if command.full_parent_name == "":
             return [f"`{a}`" for a in command.aliases]
-        return [f"`{command.full_parent_name} {alias}`" for alias in command.aliases]
+        return [
+            f"`{command.full_parent_name} {alias}`"
+            for alias in command.aliases
+        ]
 
     def get_ending_note(self):
-        string = (
-            "Use {0.clean_prefix}{0.invoked_with} [command] for more info on a command"
-        )
+        string = "Use {0.clean_prefix}{0.invoked_with} [command] for more info on a command"
         return string.format(self)
 
     def get_command_signature(
@@ -156,7 +164,9 @@ class CustomHelp(commands.MinimalHelpCommand):
         if command.qualified_name == "embed":
             return f"{self.context.prefix}help embed"
         signature = command.signature.replace("_", " ")
-        return "{}{} {}".format(self.clean_prefix, command.qualified_name, signature)
+        return "{}{} {}".format(
+            self.clean_prefix, command.qualified_name, signature
+        )
 
     async def send_bot_help(self, mapping):  # h!help
         channel: discord.TextChannel = self.context.channel
@@ -181,7 +191,8 @@ class CustomHelp(commands.MinimalHelpCommand):
                 em.set_thumbnail(url=ctx.guild.icon_url)
                 em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
                 em.set_footer(
-                    text="<> - Required | [] - Optional", icon_url=ctx.author.avatar_url
+                    text="<> - Required | [] - Optional",
+                    icon_url=ctx.author.avatar_url,
                 )
                 if cog:
                     filtered = cog.get_commands()
@@ -209,7 +220,9 @@ class CustomHelp(commands.MinimalHelpCommand):
             embed = ctx.em(desc=string)
             await self.get_destination().send(embed=embed)
 
-    async def send_command_help(self, command: commands.Command):  # h!help ping
+    async def send_command_help(
+        self, command: commands.Command
+    ):  # h!help ping
         ctx: Context = self.context
         channel: TextChannel = ctx.channel
         if not (channel.permissions_for(ctx.guild.me).send_messages):
@@ -229,7 +242,8 @@ class CustomHelp(commands.MinimalHelpCommand):
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
         em.set_thumbnail(url=self.context.guild.icon_url)
         em.set_footer(
-            text="<> - Required | [] - Optional", icon_url=ctx.author.avatar_url
+            text="<> - Required | [] - Optional",
+            icon_url=ctx.author.avatar_url,
         )
         em.add_field(
             name="Usage:",
@@ -251,7 +265,8 @@ class CustomHelp(commands.MinimalHelpCommand):
             value=f"Please view the [official documentation]({self.get_docs_for(command)}) for more info",
         )
         em.set_footer(
-            text=self.get_ending_note(), icon_url=self.context.author.avatar_url
+            text=self.get_ending_note(),
+            icon_url=self.context.author.avatar_url,
         )
         _embeds.append(em)
         Pag = Paginator(self.context, embeds=_embeds)
@@ -283,13 +298,15 @@ class CustomHelp(commands.MinimalHelpCommand):
             em.set_thumbnail(url=self.context.guild.icon_url)
             em.set_author(name=self.context.author)
             em.set_footer(
-                text=self.get_ending_note(), icon_url=self.context.author.avatar_url
+                text=self.get_ending_note(),
+                icon_url=self.context.author.avatar_url,
             )
             for command in chunk:
                 qual_name = str(command.qualified_name).title()
                 if isinstance(command, commands.Group):
                     qual_name = (
-                        str(command.qualified_name).title() + " | Has Subcommands"
+                        str(command.qualified_name).title()
+                        + " | Has Subcommands"
                     )
                 em.add_field(
                     name=qual_name,
@@ -322,14 +339,20 @@ class CustomHelp(commands.MinimalHelpCommand):
         _embeds.append(self.get_opening_page(group))
         for index, chunk in enumerate(paginated):
             em = discord.Embed(
-                title=command, description=group.help, color=random.choice(colors)
+                title=command,
+                description=group.help,
+                color=random.choice(colors),
             )
             em.set_thumbnail(url=ctx.guild.icon_url)
-            em.set_footer(text=self.get_ending_note(), icon_url=ctx.author.avatar_url)
+            em.set_footer(
+                text=self.get_ending_note(), icon_url=ctx.author.avatar_url
+            )
             em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
             for cmd in chunk:
                 em.add_field(
-                    name=str(cmd.qualified_name).title(), value=cmd.help, inline=False
+                    name=str(cmd.qualified_name).title(),
+                    value=cmd.help,
+                    inline=False,
                 )
             _embeds.append(em)
 
@@ -343,7 +366,9 @@ class CustomHelp(commands.MinimalHelpCommand):
         ctx: Context = self.context
         await ctx.to_error(error)
 
-    async def on_help_command_error(self, ctx: Context, error: commands.CommandError):
+    async def on_help_command_error(
+        self, ctx: Context, error: commands.CommandError
+    ):
         if isinstance(error, commands.CommandNotFound):
             return await ctx.to_error("No Command with that name was found")
         if isinstance(error, commands.CommandOnCooldown):

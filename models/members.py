@@ -6,7 +6,8 @@ class MemberModel(Model):
 
     id = fields.IntField(pk=True, description="Id of the member")
     is_blacklisted = fields.BooleanField(
-        default=False, description="a boolean field to store if this id is blacklisted"
+        default=False,
+        description="a boolean field to store if this id is blacklisted",
     )
     is_opted_out = fields.BooleanField(
         default=False,

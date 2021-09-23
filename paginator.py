@@ -32,7 +32,9 @@ class Paginator:
                 del self._buttons[key]
 
     async def send_initial_message(self):
-        self.message: discord.Message = await self.ctx.send(embed=self.embeds[0])
+        self.message: discord.Message = await self.ctx.send(
+            embed=self.embeds[0]
+        )
         # print(self.message)
         return self.message
 
@@ -50,9 +52,13 @@ class Paginator:
             await message.add_reaction(b)
 
         def check(
-            reaction: discord.Reaction, user: Union[discord.Member, discord.User]
+            reaction: discord.Reaction,
+            user: Union[discord.Member, discord.User],
         ):
-            return str(reaction.emoji) in self._buttons and user == self.ctx.author
+            return (
+                str(reaction.emoji) in self._buttons
+                and user == self.ctx.author
+            )
 
         while True:
             try:
@@ -62,7 +68,9 @@ class Paginator:
                 if str(reaction.emoji) == "⏹️":
                     await message.delete()
                     break
-                if str(reaction.emoji) == "▶️" and self.current != len(self.embeds):
+                if str(reaction.emoji) == "▶️" and self.current != len(
+                    self.embeds
+                ):
                     self.current += 1
                     await message.edit(embed=self.embeds[self.current - 1])
                 if str(reaction.emoji) == "◀️" and self.current > 1:

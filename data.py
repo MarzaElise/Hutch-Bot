@@ -55,7 +55,9 @@ class Database(object):
         r"""Fetch all data from a database where a condition is met"""
         self.conn = await self.get_con(self.db)
         async with self.conn.cursor() as cur:
-            await cur.execute(f"SELECT * FROM '{table}' WHERE {condition}", params)
+            await cur.execute(
+                f"SELECT * FROM '{table}' WHERE {condition}", params
+            )
             ret: Iterable[aiosqlite.Row] = await cur.fetchall()
         return ret
 
@@ -63,7 +65,9 @@ class Database(object):
         r"""Fetch one peice of data from a database where a condition is met"""
         self.conn = await self.get_con(self.db)
         async with self.conn.cursor() as cur:
-            await cur.execute(f"SELECT {ret} FROM '{table}' WHERE {condition}", params)
+            await cur.execute(
+                f"SELECT {ret} FROM '{table}' WHERE {condition}", params
+            )
             res: aiosqlite.Row = await cur.fetchone()
         return res
 
@@ -100,7 +104,9 @@ class Database(object):
             ret: aiosqlite.Row = cur.fetchone()
         return ret
 
-    async def get_member_data(self, table, member_id, member_col, required_col=None):
+    async def get_member_data(
+        self, table, member_id, member_col, required_col=None
+    ):
         r"""Get a column value or everything related to a user where the `member_col` is equal to member_id"""
         self.conn = await self.get_con(self.db)
         async with self.conn.cursor() as cur:
@@ -113,7 +119,8 @@ class Database(object):
                 return ret
             else:
                 await cur.execute(
-                    f"SELECT * FROM '{table}' WHERE {member_col} = ?", (member_id,)
+                    f"SELECT * FROM '{table}' WHERE {member_col} = ?",
+                    (member_id,),
                 )
                 ret: aiosqlite.Row = await cur.fetchone()
                 return ret
@@ -134,7 +141,9 @@ class Database(object):
         r"""Delete from a database where a condition is met [You are instructed to be careful when using this]"""
         self.conn = await self.get_con(self.db)
         async with self.conn.cursor() as cur:
-            await cur.execute(f"DELETE FROM '{table}' WHERE {condition}", params)
+            await cur.execute(
+                f"DELETE FROM '{table}' WHERE {condition}", params
+            )
         return None
 
     async def insert(self, table, columns, num_of_cols: int, params: tuple):
@@ -144,7 +153,9 @@ class Database(object):
         count = list(to_update).count("?")
         if len(params) != count:
             raise TypeError(
-                "Amount of {!r}  does not match the amount of parameters".format("?")
+                "Amount of {!r}  does not match the amount of parameters".format(
+                    "?"
+                )
             )
         async with self.conn.cursor() as cur:
             await cur.execute(
@@ -167,7 +178,11 @@ class Database(object):
         return None
 
     async def select(
-        self, table: str, column: str = "*", condition=None, params: tuple = None
+        self,
+        table: str,
+        column: str = "*",
+        condition=None,
+        params: tuple = None,
     ):
         r"""
         "SELECT" a specific column from `table` where the `Optional[condition]` is met.

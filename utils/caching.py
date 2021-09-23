@@ -27,7 +27,7 @@ class Cache(dict):
             return self
         raise RuntimeError(f"Key {key} is not in cache")
 
-    def get_or_create(self, key, value):
+    def get_or_create(self, key, value=None):
         """Return the value of the given key if found else create new key and return the value"""
         if key in self.keys():
             return self[key]
@@ -58,5 +58,5 @@ class Cache(dict):
         return f"Cache({super().__str__()})"
 
 
-def create_new_cache(initial_data: dict=None):
+def create_new_cache(initial_data: dict = None):
     return Cache() if not initial_data else Cache.from_dict(initial_data)

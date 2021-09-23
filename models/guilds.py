@@ -6,7 +6,8 @@ class GuildModel(Model):
 
     id = fields.IntField(pk=True, description="Guild's id.")
     ai_chat_channel_id = fields.IntField(
-        null=True, description="The channel id of the configured ai chat channel."
+        null=True,
+        description="The channel id of the configured ai chat channel.",
     )
     is_blacklisted = fields.BooleanField(
         default=False,

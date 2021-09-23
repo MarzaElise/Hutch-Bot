@@ -102,7 +102,9 @@ class Context(commands.Context):
         self.invoked_subcommand: commands.Command = attrs.pop(
             "invoked_subcommand", None
         )
-        self.subcommand_passed: Optional[str] = attrs.pop("subcommand_passed", None)
+        self.subcommand_passed: Optional[str] = attrs.pop(
+            "subcommand_passed", None
+        )
         self.command_failed: bool = attrs.pop("command_failed", False)
         self._state = self.message._state
 
@@ -135,7 +137,7 @@ class Context(commands.Context):
         desc: str = None,
         col: int = 0xFF0000,
         image: str = None,
-    ): # now im sure im using this method. no need to remove it :happy:
+    ):  # now im sure im using this method. no need to remove it :happy:
         r"""
         Custom function that returns a standard embed similar to ctx.embed but you cannot use some embed kwargs
         """
@@ -165,7 +167,9 @@ class Context(commands.Context):
     async def send_help(self, *args):
         return await super().send_help(*args)
 
-    def embed(self, description=None, *args, **kwargs):  # i think i should remove this
+    def embed(
+        self, description=None, *args, **kwargs
+    ):  # i think i should remove this
         colors = [
             0xF3FF00,
             0x00FFFF,
@@ -367,7 +371,9 @@ class Context(commands.Context):
                 files.append(file)
                 file = None
         try:
-            sent: discord.Message = await super().reply(content=content, **kwargs)
+            sent: discord.Message = await super().reply(
+                content=content, **kwargs
+            )
             if sent.nonce:
                 self.last_msg = sent
                 return sent
@@ -389,13 +395,16 @@ class Context(commands.Context):
         send_status: bool = False,
     ):
         em = self.Embed(
-            title="Confirmation", description=description, color=discord.Color.orange()
+            title="Confirmation",
+            description=description,
+            color=discord.Color.orange(),
         )
         reactions = ["✅", "❌"]
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar_url)
         em.set_footer(
-            text=f"You Have {timeout} seconds to react", icon_url=self.author.avatar_url
+            text=f"You Have {timeout} seconds to react",
+            icon_url=self.author.avatar_url,
         )
         msg = await self.send(embed=em)
         for reac in reactions:
@@ -451,7 +460,9 @@ class CustomMemberConverter(commands.Converter):
                     if argument.lower() in str(mem.display_name).lower():
                         return mem
                     break
-                return await ctx.to_error("Member {!r} was not found".format(argument))
+                return await ctx.to_error(
+                    "Member {!r} was not found".format(argument)
+                )
         _id = int(argument)
         if guild:
             for member in guild.members:
@@ -483,7 +494,9 @@ class CustomUserConverter(commands.Converter):
             if usr.id == _id:
                 return user
             break
-        return await ctx.to_error("User with id {!r} was not found".format(argument))
+        return await ctx.to_error(
+            "User with id {!r} was not found".format(argument)
+        )
 
 
 class CustomRoleConverter(commands.Converter):
@@ -543,7 +556,12 @@ def get_data_from_options(ctx: Context, **options: dict):
 
     __all__ = [title, desc, _image, __col, __foot, thumbnail, author]
 
-    if (title is None) and (desc is None) and (_image is None) and (__foot is None):
+    if (
+        (title is None)
+        and (desc is None)
+        and (_image is None)
+        and (__foot is None)
+    ):
         raise EmbedCreationError(
             "You should at least provide a title to create an embed"
         )
