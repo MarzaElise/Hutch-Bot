@@ -3,12 +3,11 @@ class Cache(dict):
     # not used right now. hope i use it after i fully move to tortoise
     # this class has some retarded methods like add_key but only i use it so not much of a problem
 
-    def update(self, d: dict):
-        for key, value in d.items():
-            self.add_key(key, value)
-        return self
+    @classmethod
+    def from_dict(cls, other: dict):
+        return cls(other)
 
-    def add_key(self, key, value):
+    def insert(self, key, value):
         # this method allows you to do something like add_key([1, 2, 3], 4) and it would add 1, 2 and 3 keys
         # with the 4 value this would indeed fuck up the create_opposite_copy method by overriding keys
         # for example, {1: 2, 3: 4, 10: 9, 11: 9} would try to turn into {2: 1, 4: 3, 9: 10, 9: 11} and end up
@@ -19,6 +18,8 @@ class Cache(dict):
         else:
             self[key] = value
         return self
+
+    add_key = insert
 
     def delete(self, key):
         if key in self:
@@ -33,10 +34,10 @@ class Cache(dict):
         # key doesnt exist so create it
         return self.add_key(key, value)
 
-    def exists(self, key) -> bool:
+    def contains(self, key) -> bool:
         return key in self.keys()
 
-    def create_opposite_copy(self):
+    def reverse(self):
         """
         Create a copy of the current dict with its keys and values reversed.
 
@@ -57,7 +58,5 @@ class Cache(dict):
         return f"Cache({super().__str__()})"
 
 
-def create_new_cache(initial_data: dict):
-    new = Cache()
-    new.update(initial_data)
-    return new
+def create_new_cache(initial_data: dict=None):
+    return Cache() if not initial_data else Cache.from_dict(initial_data)
