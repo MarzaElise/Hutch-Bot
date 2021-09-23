@@ -155,7 +155,7 @@ class Moderation(commands.Cog):
             )
         if user.top_role >= ctx.guild.me.top_role:
             return await ctx.send(
-                f"I cannot kick members who are ranked above me"
+                "I cannot kick members who are ranked above me"
             )
         if user.bot:
             await user.kick(reason=f"{ctx.author}: {reason}")

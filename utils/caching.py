@@ -37,6 +37,8 @@ class Cache(dict):
     def contains(self, key) -> bool:
         return key in self.keys()
 
+    has = contains
+
     def reverse(self):
         """
         Create a copy of the current dict with its keys and values reversed.

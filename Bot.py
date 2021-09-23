@@ -443,7 +443,7 @@ class MyBot(commands.Bot):
         return False
 
     async def get_message(
-        self, channel_id: int, msg_id: int, formatted: bool=False
+        self, channel_id: int, msg_id: int, formatted: bool = False
     ):  # not tested
         if not isinstance(msg_id, int):
             try:

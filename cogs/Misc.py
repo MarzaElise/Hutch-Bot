@@ -1,24 +1,20 @@
 import asyncio
 import contextlib
-import os
 import random
-import sys
-import typing
 
 import aiohttp
 import discord
-import humanize
 import psutil
 import wikipedia as wiki
 from BaseFile import *
 from Bot import MyBot
 from discord.ext import commands, flags
-from discord.ext.commands import *
+from discord.ext.commands import BucketType
 from discord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
 from utils.helpers import *
-from jishaku.modules import package_version
+from utils import Cache
 
 # os.chdir("../launcher.py")
 
@@ -65,6 +61,8 @@ class Misc(commands.Cog):
         self.bot = bot
         # bot.add_command(self.embed)
         self.__cog_description__ = "Hutch Bot Miscellaneous Category"
+        self.session = bot.session
+        self.invite_cache = Cache()
 
     @commands.command(
         aliases=["latency"], help="Sends the latency of the bot", brief="5s"
@@ -72,13 +70,12 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, BucketType.member)
     async def ping(self, ctx: Context):
         """Sends the latency of the bot"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            pingEmbed = discord.Embed(
-                title=":ping_pong: Pong!",
-                description=f" My ping is **{round(self.bot.latency * 1000):.2f}**ms",
-            )
-            await ctx.reply(embed=pingEmbed)
+        await ctx.trigger_typing()
+        pingEmbed = discord.Embed(
+            title=":ping_pong: Pong!",
+            description=f" My ping is **{round(self.bot.latency * 1000):.2f}**ms",
+        )
+        await ctx.reply(embed=pingEmbed)
 
     @commands.command(
         aliases=["credit", "credits"],
@@ -88,25 +85,24 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, BucketType.member)
     async def dev(self, ctx: Context):
         """Gives credit to those who made the bot AKA me"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            em = discord.Embed(
-                title="Credits",
-                description=f"My Name is Hutch Bot, Developed by {self.bot.config.ME} in 10 days! \nI'm a multi-purpose bot with moderation commands, fun commands and some automod systems like profanity filter too!",
-                color=random.choice(colors),
-            )
-            em.add_field(
-                name="Join the support server",
-                value="[Link Here](https://discord.gg/5nzgEWSnEG)",
-            )
-            em.set_thumbnail(url=ctx.guild.icon_url)
-            em.set_author(
-                name=self.bot.config.ME, url="https://discord.gg/ZhMPxJ6gM2"
-            )
-            em.set_footer(
-                text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
-            )
-            await ctx.reply(embed=em)
+        await ctx.trigger_typing()
+        em = discord.Embed(
+            title="Credits",
+            description=f"My Name is Hutch Bot, Developed by {self.bot.config.ME} in 10 days! \nI'm a multi-purpose bot with moderation commands, fun commands and some automod systems like profanity filter too!",
+            color=random.choice(colors),
+        )
+        em.add_field(
+            name="Join the support server",
+            value="[Link Here](https://discord.gg/5nzgEWSnEG)",
+        )
+        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_author(
+            name=self.bot.config.ME, url="https://discord.gg/ZhMPxJ6gM2"
+        )
+        em.set_footer(
+            text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
+        )
+        await ctx.reply(embed=em)
 
     @commands.command(
         aliases=["inv", "invite", "botinvite"],
@@ -117,29 +113,28 @@ class Misc(commands.Cog):
     async def botinv(self, ctx: Context):
         """Sends the invite link to add me to other servers"""
         url = oauth(ctx)
-        with ctx.typing():
-            await asyncio.sleep(1)
-            em = discord.Embed()
-            em.set_author(
-                name=self.bot.config.ME,
-                icon_url="https://www.youtube.com/channel/UC3e6sBmEMCpsbr6V2QJTgpQ",
-                url="https://discord.gg/ZhMPxJ6gM2",
-            )
-            em.set_thumbnail(url=ctx.guild.icon_url)
-            em.add_field(
-                name="Add me to your server",
-                value=f"[Click This Link]({url})",
-                inline=False,
-            )
-            em.add_field(
-                name="Join my server",
-                value="[Discord Server Link](https://discord.gg/5nzgEWSnEG)",
-                inline=False,
-            )
-            em.set_footer(
-                text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
-            )
-            await ctx.reply(embed=em)
+        await ctx.trigger_typing()
+        em = discord.Embed()
+        em.set_author(
+            name=self.bot.config.ME,
+            icon_url="https://www.youtube.com/channel/UC3e6sBmEMCpsbr6V2QJTgpQ",
+            url="https://discord.gg/ZhMPxJ6gM2",
+        )
+        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.add_field(
+            name="Add me to your server",
+            value=f"[Click This Link]({url})",
+            inline=False,
+        )
+        em.add_field(
+            name="Join my server",
+            value="[Discord Server Link](https://discord.gg/5nzgEWSnEG)",
+            inline=False,
+        )
+        em.set_footer(
+            text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
+        )
+        await ctx.reply(embed=em)
 
     @commands.command(
         aliases=["brief", "description", "bot"],
@@ -149,21 +144,18 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 15, BucketType.member)
     async def desc(self, ctx: Context):
         """Sends a short description about the bot"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            em = discord.Embed(title="Hutch Bot", color=random.choice(colors))
-            em.add_field(
-                name="Description:",
-                value=f"I am a fun bot with a lot of cool commands. I have a built-in profanity filter! I do have some moderation commands like ban unban!\nType `h!help` from more info!",
-            )
-            em.set_author(
-                name=self.bot.config.ME, icon_url=ctx.author.avatar_url
-            )
-            em.set_footer(
-                text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
-            )
-            em.set_thumbnail(url=ctx.guild.icon_url)
-            await ctx.reply(embed=em)
+        await ctx.trigger_typing()
+        em = discord.Embed(title="Hutch Bot", color=random.choice(colors))
+        em.add_field(
+            name="Description:",
+            value=f"I am a fun bot with a lot of cool commands. I have a built-in profanity filter! I do have some moderation commands like ban unban!\nType `h!help` from more info!",
+        )
+        em.set_author(name=self.bot.config.ME, icon_url=ctx.author.avatar_url)
+        em.set_footer(
+            text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
+        )
+        em.set_thumbnail(url=ctx.guild.icon_url)
+        await ctx.reply(embed=em)
 
     @commands.command(
         aliases=["wiki"],
@@ -173,31 +165,43 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, BucketType.member)
     async def wikipedia(self, ctx: Context, *, query: str):
         """Searches something in wikipedia and sends the result as an embed"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            some_list = [3, 4, 5]
-            em = discord.Embed(title=str(query))
-            em.set_footer(text="Powered by wikipedia.org")
-            try:
-                result = wiki.summary(
-                    query, sentences=random.choice(some_list), chars=2048
-                )
-                em.color = discord.Color.green()
-                em.description = result
-                await ctx.reply(embed=em)
-                if len(result) > 2048:
-                    em.color = discord.Color.red()
-                    em.description = f"Result is too long. View the website [here](https://wikipedia.org/wiki/{query.replace(' ', '_')}), or just [Google it](https://google.com)."
-                    return await ctx.reply(embed=em)
-            except wiki.DisambiguationError as e:
-                em.title = "Error: Too many pages found"
-                options = list(e.options[:10])
-                joined = "\n".join(options)
-                em.description = f"Is it one of these?\n{joined}"
-            except wiki.PageError:
+        await ctx.trigger_typing()
+        some_list = [3, 4, 5]
+        em = discord.Embed(title=str(query))
+        em.set_footer(text="Powered by wikipedia.org")
+        try:
+            result = wiki.summary(
+                query, sentences=random.choice(some_list), chars=2048
+            )
+            em.color = discord.Color.green()
+            em.description = result
+            await ctx.reply(embed=em)
+            if len(result) > 2048:
                 em.color = discord.Color.red()
-                em.description = "Error: Page not found."
+                em.description = f"Result is too long. View the website [here](https://wikipedia.org/wiki/{query.replace(' ', '_')}), or just [Google it](https://google.com)."
                 return await ctx.reply(embed=em)
+        except wiki.DisambiguationError as e:
+            em.title = "Error: Too many pages found"
+            options = list(e.options[:10])
+            joined = "\n".join(options)
+            em.description = f"Is it one of these?\n{joined}"
+        except wiki.PageError:
+            em.color = discord.Color.red()
+            em.description = "Error: Page not found."
+            return await ctx.reply(embed=em)
+
+    async def get_invite(self, guild: discord.Guild) -> discord.Invite:
+        if self.invite_cache.contains(guild.id):
+            return self.invite_cache[guild.id]
+        first_channel = guild.text_channels[0]
+        invite = await first_channel.create_invite(
+            max_uses=1,
+            unique=False,
+            reason="Requested by bot developer",
+        )
+        await asyncio.sleep(3)
+        # sleeping for 4 sec to not get rate limitted
+        return self.invite_cache.insert(guild.id, invite).get(guild.id)
 
     @commands.command(
         aliases=["servers", "guilds", "joins"],
@@ -207,30 +211,30 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 5, BucketType.member)
     async def server(self, ctx: Context):
         """Sends the name and member count of all the servers the bot is in, soon to be removed..."""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            em = discord.Embed(title="Servers the bot is in:")
-            for guild in self.bot.guilds:
-                if self.bot.owner_id == ctx.author.id:
-                    try:
-                        inv = await guild.text_channels[0].create_invite()
-                        em.add_field(
-                            name=f"[{guild.name}]({inv})",
-                            value=guild.member_count,
-                            inline=True,
-                        )
-                        await asyncio.sleep(5)
-                    except:
-                        em.add_field(
-                            name=guild.name,
-                            value=guild.member_count,
-                            inline=True,
-                        )
-                else:
+        await ctx.trigger_typing()
+        em = discord.Embed(title="Servers the bot is in:")
+        for guild in self.bot.guilds:
+            if self.bot.owner_id == ctx.author.id:
+                try:
+                    inv = await self.get_invite(guild)
                     em.add_field(
-                        name=guild.name, value=guild.member_count, inline=True
+                        name=guild.name,
+                        value=f"Member Count: {guild.member_count}\nInvite: [link]({inv})",
+                        inline=True,
                     )
-            return await ctx.reply(embed=em)
+                except Exception:
+                    em.add_field(
+                        name=guild.name,
+                        value=guild.member_count,
+                        inline=True,
+                    )
+            else:
+                em.add_field(
+                    name=guild.name,
+                    value=f"Member Count: {guild.member_count}",
+                    inline=True,
+                )
+        return await ctx.reply(embed=em)
 
     @commands.command(
         help="Mention a member to hug them | Sends a random hugging gif",
@@ -239,27 +243,24 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 10, BucketType.member)
     async def hug(self, ctx: Context, member: discord.Member = None):
         """Mention a member to hug them | Sends a random hugging gif"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            async with aiohttp.ClientSession() as cs:
-                try:
-                    async with cs.get(
-                        "https://some-random-api.ml/animu/hug"
-                    ) as r:
-                        data = await r.json()
-                        if member is None:
-                            em = discord.Embed(
-                                title="Hug", color=random.choice(colors)
-                            )
-                        else:
-                            em = discord.Embed(
-                                title=f"{ctx.author.display_name} hugs {member.display_name}",
-                                color=random.choice(colors),
-                            )
-                        em.set_image(url=data["link"])
-                        await ctx.send(embed=em)
-                except Exception as e:
-                    await ctx.send(e)
+        await ctx.trigger_typing()
+        async with self.session as cs:
+            try:
+                async with cs.get("https://some-random-api.ml/animu/hug") as r:
+                    data = await r.json()
+                    if member is None:
+                        em = discord.Embed(
+                            title="Hug", color=random.choice(colors)
+                        )
+                    else:
+                        em = discord.Embed(
+                            title=f"{ctx.author.display_name} hugs {member.display_name}",
+                            color=random.choice(colors),
+                        )
+                    em.set_image(url=data["link"])
+                    await ctx.send(embed=em)
+            except Exception as e:
+                await ctx.send(e)
 
     @commands.command(
         help="Mention a member to pat them | Sends a random patting gif",
@@ -268,79 +269,72 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 10, BucketType.member)
     async def pat(self, ctx: Context, member: discord.Member = None):
         """Mention a member to pat them | Sends a random patting gif"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            async with aiohttp.ClientSession() as cs:
-                try:
-                    async with cs.get(
-                        "https://some-random-api.ml/animu/pat"
-                    ) as r:
-                        data = await r.json()
-                        if member is None:
-                            em = discord.Embed(
-                                title="Pat", color=random.choice(colors)
-                            )
-                        else:
-                            em = discord.Embed(
-                                title=f"{ctx.author.display_name} Pats {member.display_name}",
-                                color=random.choice(colors),
-                            )
+        await ctx.trigger_typing()
+        async with self.session as cs:
+            try:
+                async with cs.get("https://some-random-api.ml/animu/pat") as r:
+                    data = await r.json()
+                    if member is None:
                         em = discord.Embed(
                             title="Pat", color=random.choice(colors)
                         )
-                        em.set_image(url=data["link"])
-                        await ctx.send(embed=em)
-                except Exception as e:
-                    await ctx.send(e)
+                    else:
+                        em = discord.Embed(
+                            title=f"{ctx.author.display_name} Pats {member.display_name}",
+                            color=random.choice(colors),
+                        )
+                    em = discord.Embed(
+                        title="Pat", color=random.choice(colors)
+                    )
+                    em.set_image(url=data["link"])
+                    await ctx.send(embed=em)
+            except Exception as e:
+                await ctx.send(e)
 
     @commands.command(help="Sends a random winking gif", brief="10s")
     @commands.cooldown(1, 10, BucketType.member)
     async def wink(self, ctx: Context):
         """Sends a random winking gif"""
-        with ctx.typing():
-            await asyncio.sleep(1)
-            async with aiohttp.ClientSession() as cs:
-                try:
-                    async with cs.get(
-                        "https://some-random-api.ml/animu/wink"
-                    ) as r:
-                        data = await r.json()
-                        em = discord.Embed(
-                            title="Wink", color=random.choice(colors)
-                        )
-                        em.set_image(url=data["link"])
-                        await ctx.send(embed=em)
-                except Exception as e:
-                    await ctx.send(e)
+        await ctx.trigger_typing()
+        async with self.session as cs:
+            try:
+                async with cs.get(
+                    "https://some-random-api.ml/animu/wink"
+                ) as r:
+                    data = await r.json()
+                    em = discord.Embed(
+                        title="Wink", color=random.choice(colors)
+                    )
+                    em.set_image(url=data["link"])
+                    await ctx.send(embed=em)
+            except Exception as e:
+                await ctx.send(e)
 
     @commands.command(
         aliases=["Trans"],
-        help="Translate a given text to a specified language.\nNote that the language name must be in two letters, for example, \n'en' -> English\n'fr' -> French",
+        help="Translate a given text english.",
         brief="5s",
     )
     @commands.cooldown(1, 5, BucketType.member)
-    async def translate(self, ctx: Context, lang: str = None, *, text: str):
-        """Translate a given text to a specified language.\nNote that the language name must be in two letters, for example, \n'en' -> English\n'fr' -> French"""
-        lang = lang or "en"
-        with ctx.typing():
-            await asyncio.sleep(1)
-            try:
-                translator = Translator()
-                result: Translated = translator.translate(text, lang)
-                em = discord.Embed(
-                    title="Translation", color=random.choice(colors)
-                )
-                em.set_thumbnail(url=ctx.guild.icon_url)
-                em.set_footer(text=f"Translation requested by {ctx.author}")
-                em.add_field(name="Text:", value=text, inline=False)
-                em.add_field(name="Source:", value=result.src)
-                em.add_field(
-                    name="Translation:", value=result.text, inline=False
-                )
-                em.add_field(name="Pronunciation:", value=result.pronunciation)
-                return await ctx.reply(embed=em)
-            except Exception as e:
-                return await ctx.reply(e)
+    async def translate(self, ctx: Context, *, text: str):
+        """Translate a given text english."""
+        lang = "en"
+        await ctx.trigger_typing()
+        try:
+            translator = Translator()
+            result: Translated = translator.translate(text, lang)
+            em = discord.Embed(
+                title="Translation", color=random.choice(colors)
+            )
+            em.set_thumbnail(url=ctx.guild.icon_url)
+            em.set_footer(text=f"Translation requested by {ctx.author}")
+            em.add_field(name="Text:", value=text, inline=False)
+            em.add_field(name="Source:", value=result.src)
+            em.add_field(name="Translation:", value=result.text, inline=False)
+            em.add_field(name="Pronunciation:", value=result.pronunciation)
+            return await ctx.reply(embed=em)
+        except Exception as e:
+            return await ctx.reply(e)
 
     @flags.add_flag("--colour", type=str, default=None, nargs="*")
     @flags.add_flag("-colour", type=str, default=None, nargs="*")
@@ -369,6 +363,14 @@ class Misc(commands.Cog):
             embed=em,
         )
 
+    async def get_message_from_reference(
+        self, ctx: Context, from_cache: bool = False
+    ) -> discord.Message:
+        if ctx.reference.cached_message and from_cache:
+            return ctx.reference.cached_message
+        _id: int = ctx.reference.message_id
+        return await ctx.fetch_message(_id)
+
     @commands.command(aliases=["re"], brief="0s")
     async def redo(self, ctx: Context):
         """
@@ -380,7 +382,7 @@ class Misc(commands.Cog):
                 "Reply to a message sent by you to redo it."
             )
         try:
-            message = await ctx.fetch_message(ctx.reference.message_id)
+            message = await self.get_message_from_reference(ctx)
         except discord.NotFound:
             return await ctx.to_error("Replied message not found.")
         except discord.HTTPException:
@@ -388,10 +390,9 @@ class Misc(commands.Cog):
                 embed=ctx.em("Retrieving the message failed.")
             )
         # all possible exceptions handled, message is defined
-        if message.author == ctx.author:
-            return await self.bot.process_commands(message)
-        return await ctx.to_error("You do not own that message?")
-        # if statement returned False
+        if message.author != ctx.author:
+            return await ctx.to_error("You did not send that message?")
+        return await self.bot.process_commands(message)
 
     @commands.command(aliases=["del"], brief="10s")
     @commands.cooldown(1, 10, commands.BucketType.member)
@@ -403,17 +404,20 @@ class Misc(commands.Cog):
             return await ctx.to_error(
                 "Reply to the message you want to delete"
             )
-        message: discord.Message = ctx.reference.cached_message
-        if not message:
-            message: discord.Message = await ctx.fetch_message(
-                ctx.reference.message_id
+        try:
+            message: discord.Message = self.get_message_from_reference(
+                ctx.reference.messsage_id, from_cache=True
             )
+        except (discord.HTTPException, discord.Forbidden):
+            return await ctx.to_error("Retreiving the message failed")
+        except discord.NotFound:
+            return await ctx.to_error("Message not found")
         if message.author.id == self.bot.user.id:
             try:
                 with contextlib.suppress(discord.HTTPException):
                     await message.delete()
             except discord.NotFound:
-                return await ctx.to_error("Message not found")
+                return await ctx.to_error("Message already deleted")
         return await ctx.to_error(
             "Can only delete messages sent by the bot through this command"
         )
