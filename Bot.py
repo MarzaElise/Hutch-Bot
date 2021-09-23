@@ -442,8 +442,8 @@ class MyBot(commands.Bot):
             )
         return False
 
-    def get_message(
-        self, channel_id: int, msg_id: int, formatted=False
+    async def get_message(
+        self, channel_id: int, msg_id: int, formatted: bool=False
     ):  # not tested
         if not isinstance(msg_id, int):
             try:
@@ -455,7 +455,7 @@ class MyBot(commands.Bot):
                 channel_id = int(channel_id)
             except ValueError:
                 return f"Expected channel_id to be an int, received {channel_id.__class__.__name__} instead"
-        message = self.http.get_message(channel_id, msg_id)
+        message = await self.http.get_message(channel_id, msg_id)
         fmt = json.loads(message, indent=4)
         if formatted:
             return f"```\n{fmt}\n```"
