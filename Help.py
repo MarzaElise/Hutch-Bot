@@ -8,7 +8,6 @@ from typing import List, Optional, Union
 import discord
 from discord import *
 from discord.ext import *
-from discord.ext.flags import *
 from paginator import Paginator
 from discord.utils import oauth_url
 from dpymenus import BaseMenu, Page, PaginatedMenu
@@ -41,7 +40,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         self.show_hidden = True
         self.verify_checks = False
         self.bot = bot
-        self.cog = bot.get_cog("Misc")
+        # self.cog = bot.get_cog("Misc")
         super().__init__(**options)
 
     def get_docs_for(self, entity=None):
@@ -159,7 +158,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         return string.format(self)
 
     def get_command_signature(
-        self, command: Union[commands.Command, commands.Group, FlagCommand]
+        self, command: Union[commands.Command, commands.Group]
     ):  # h!ban <member> [reason]
         if command.qualified_name == "embed":
             return f"{self.context.prefix}help embed"

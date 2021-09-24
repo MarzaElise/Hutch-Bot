@@ -22,14 +22,11 @@ all copies or substantial portions of the Software.
 > DEALINGS IN THE SOFTWARE.
 """
 
-import asyncio
 import datetime
 import difflib
 import json
-import os
 import random
 import re
-import sys
 import traceback
 from os import environ
 from typing import *
@@ -47,7 +44,6 @@ from pydantic import BaseModel
 from config import *
 from Help import CustomHelp
 from utils.helpers import *
-from tortoise.queryset import QuerySet
 
 load_dotenv()
 
@@ -110,10 +106,22 @@ class MyBot(commands.Bot):
     def __init__(self, token_type="TOKEN_2"):
         self.config = get_config(token_type)
         self.set_bot_config()
+        help_obj = CustomHelp(self)
+        help_obj.show_hidden = True
+        help_obj.verify_checks = False
+        help_obj.command_attrs = {
+            "name": "help",
+            "help": "Shows help about a command or a category",
+            "aliases": ["helps"],
+            "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
+            "brief": "5s",
+        }
         # weird way of passing in token_type in params and running the bot
         # but this is the only way I found to run bots with two tokens without changing much code.
         super().__init__(
             command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
+            intents=discord.Intents.all(),
+            help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
             owner_id=self.config.OWNER_ID,
             strip_after_prefix=True,
@@ -131,18 +139,6 @@ class MyBot(commands.Bot):
 
     def set_bot_config(self):
         """Function called inside __init__ to reduce code inside init and make shit more organized"""
-        help_obj = CustomHelp(self)
-        help_obj.show_hidden = True
-        help_obj.verify_checks = False
-        help_obj.command_attrs = {
-            "name": "help",
-            "help": "Shows help about a command or a category",
-            "aliases": ["helps"],
-            "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
-            "brief": "5s",
-        }
-        intents = discord.Intents().default()
-        intents.members = True
         environ["JISHAKU_NO_UNDERSCORE"] = "True"
         environ["JISHAKU_RETAIN"] = "True"
 
@@ -156,8 +152,7 @@ class MyBot(commands.Bot):
             804592931586572298,  # zennithh
         ]
         # servers where the bot is invited for testing with extra rules and limitations
-        self.help_command = help_obj
-        self.intents = intents
+        # self.help_command = help_obj
 
     @property
     def session(self):
@@ -443,7 +438,7 @@ class MyBot(commands.Bot):
         return False
 
     async def get_message(
-        self, channel_id: int, msg_id: int, formatted: bool = False
+        self, channel_id: int, msg_id: int, formatted: bool = True
     ):  # not tested
         if not isinstance(msg_id, int):
             try:
@@ -456,7 +451,7 @@ class MyBot(commands.Bot):
             except ValueError:
                 return f"Expected channel_id to be an int, received {channel_id.__class__.__name__} instead"
         message = await self.http.get_message(channel_id, msg_id)
-        fmt = json.loads(message, indent=4)
+        fmt = json.dumps(message, indent=4)
         if formatted:
             return f"```\n{fmt}\n```"
         return fmt

@@ -445,27 +445,41 @@ class Context(commands.Context):
             pass
 
 
+def paginate(string: str, max_length: int = 2000):
+    if len(string) <= max_length:
+        yield string
+    else:
+        while len(string) >= max_length:
+            if len(string) == max_length:
+                yield string
+                break
+            else:
+                s = string[:max_length]
+                yield s
+                string = string[max_length:]
+
+
 def get_data_from_options(ctx: Context, **options: dict):
     bot: commands.Bot = ctx.bot
     guild: discord.Guild = ctx.guild
-    title = options.get("title", None)
-    desc = options.get("desc", None)
+    title = options.get("title")
+    desc = options.get("desc")
 
-    img = options.get("img", None)
+    img = options.get("img")
     _image = options.get("image", img)
 
-    colour = options.get("colour", None)
+    colour = options.get("colour")
     __col = None
     if colour:
         if isinstance(colour, list):
             colour = "".join(colour)
         __col = int(colour, 16)
 
-    _footer = options.get("footer", None)
+    _footer = options.get("footer")
     __foot = _footer
 
-    thumbnail = options.get("thumbnail", None)
-    author = options.get("author", None)
+    thumbnail = options.get("thumbnail")
+    author = options.get("author")
     author = author or ctx.author
     thumbnail = thumbnail or guild.icon_url
 
