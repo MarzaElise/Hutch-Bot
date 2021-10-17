@@ -1,4 +1,4 @@
-from diskord.ext import commands, paginator as p
+from diskord.ext import commands
 import diskord
 from typing import *
 from contextlib import suppress

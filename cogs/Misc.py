@@ -6,6 +6,7 @@ import diskord
 import wikipedia as wiki
 from BaseFile import *
 from Bot import MyBot
+import flags as flags
 from diskord.ext import commands
 from diskord.ext.commands import BucketType
 from diskord.utils import *
@@ -334,32 +335,32 @@ class Misc(commands.Cog):
         except Exception as e:
             return await ctx.reply(e)
 
-    # @flags.add_flag("--colour", type=str, default=None, nargs="*")
-    # @flags.add_flag("-colour", type=str, default=None, nargs="*")
-    # @flags.add_flag("--title", type=str, default=None, nargs="*")
-    # @flags.add_flag("-title", type=str, default=None, nargs="*")
-    # @flags.add_flag("-footer", type=str, default=None, nargs="*")
-    # @flags.add_flag("--footer", type=str, default=None, nargs="*")
-    # @flags.add_flag("-thumbnail", type=str, default=None)
-    # @flags.add_flag("--thumbnail", type=str, default=None)
-    # @flags.add_flag("-img", type=str, default=None, nargs="*")
-    # @flags.add_flag("--img", type=str, default=None, nargs="*")
-    # @flags.add_flag("--image", type=str, default=None, nargs="*")
-    # @flags.add_flag("-image", type=str, default=None, nargs="*")
-    # @flags.add_flag("--desc", type=str, default=None, nargs="*")
-    # @flags.add_flag("-desc", type=str, default=None, nargs="*")
-    # @flags.add_flag("-author", type=diskord.Member, default=None)
-    # @flags.add_flag("--author", type=diskord.Member, default=None)
-    # @flags.command(aliases=["em"], brief="10s")
-    # @commands.cooldown(1, 10, BucketType.user)
-    # async def embed(self, ctx: Context, **options):
-    #     """Make youself a custom embed by providing flags using `-flag` or `--flag`\n\nSurround values with quotation marks like this to use multiple word\nExample: `-flag \"multiple words\"`. All arguments are optional"""
-    #     # await ctx.send(options)
-    #     em = get_data_from_options(ctx, **options)
-    #     await ctx.send(
-    #         content="Please note that there might be some bugs so please make sure to report them",
-    #         embed=em,
-    #     )
+    @flags.add_flag("--colour", type=str, default=None, nargs="*")
+    @flags.add_flag("-colour", type=str, default=None, nargs="*")
+    @flags.add_flag("--title", type=str, default=None, nargs="*")
+    @flags.add_flag("-title", type=str, default=None, nargs="*")
+    @flags.add_flag("-footer", type=str, default=None, nargs="*")
+    @flags.add_flag("--footer", type=str, default=None, nargs="*")
+    @flags.add_flag("-thumbnail", type=str, default=None)
+    @flags.add_flag("--thumbnail", type=str, default=None)
+    @flags.add_flag("-img", type=str, default=None, nargs="*")
+    @flags.add_flag("--img", type=str, default=None, nargs="*")
+    @flags.add_flag("--image", type=str, default=None, nargs="*")
+    @flags.add_flag("-image", type=str, default=None, nargs="*")
+    @flags.add_flag("--desc", type=str, default=None, nargs="*")
+    @flags.add_flag("-desc", type=str, default=None, nargs="*")
+    @flags.add_flag("-author", type=diskord.Member, default=None)
+    @flags.add_flag("--author", type=diskord.Member, default=None)
+    @flags.command(aliases=["em"], brief="10s")
+    @commands.cooldown(1, 10, BucketType.user)
+    async def embed(self, ctx: Context, **options):
+        """Make youself a custom embed by providing flags using `-flag` or `--flag`\n\nSurround values with quotation marks like this to use multiple word\nExample: `-flag \"multiple words\"`. All arguments are optional"""
+        # await ctx.send(options)
+        em = get_data_from_options(ctx, **options)
+        await ctx.send(
+            content="Please note that there might be some bugs so please make sure to report them",
+            embed=em,
+        )
 
     async def get_message_from_reference(
         self, ctx: Context, from_cache: bool = False

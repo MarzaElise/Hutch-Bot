@@ -12,7 +12,8 @@ import diskord.utils
 import requests
 from diskord import abc
 from diskord.embeds import EmptyEmbed
-from diskord.ext import commands, flags
+from diskord.ext import commands
+import flags
 from diskord.utils import parse_time
 
 

@@ -36,8 +36,8 @@ import diskord
 from diskord import *
 from diskord.ext import commands, tasks
 from diskord.ext.commands import core
-from diskord.ext.paginator import Paginator
-from diskordUtils import *
+from discord.ext.paginator import Paginator
+from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -113,7 +113,7 @@ class MyBot(commands.Bot):
             "name": "help",
             "help": "Shows help about a command or a category",
             "aliases": ["helps"],
-            "cooldown": commands.Cooldown(1, 5, commands.BucketType.channel),
+            "cooldown": commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.channel),
             "brief": "5s",
         }
         # weird way of passing in token_type in params and running the bot
