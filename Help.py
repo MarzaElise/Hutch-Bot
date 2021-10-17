@@ -5,11 +5,11 @@ import traceback
 from typing import *
 from typing import List, Optional, Union
 
-import discord
-from discord import *
-from discord.ext import *
+import diskord
+from diskord import *
+from diskord.ext import *
 from paginator import Paginator
-from discord.utils import oauth_url
+from diskord.utils import oauth_url
 from dpymenus import BaseMenu, Page, PaginatedMenu
 
 from Helpers import *
@@ -61,7 +61,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             "\n⏩ - *Go to the last page*\n"
             "\n:stop_button: - *Delete the message*\n"
         )
-        em = discord.Embed(
+        em = diskord.Embed(
             title="Welcome To The Hutch Bot Help Command",
             description=self.get_opening_note() + "\n",
             timestamp=self.context.message.created_at,
@@ -89,7 +89,7 @@ class CustomHelp(commands.MinimalHelpCommand):
 
     def get_second_page(self, entity=None):
         ctx: Context = self.context
-        em = discord.Embed(color=random.choice(colors))
+        em = diskord.Embed(color=random.choice(colors))
         em.title = "Command Signatures"
         em.description = "You can understand command signature using this"
         em.add_field(
@@ -121,12 +121,12 @@ class CustomHelp(commands.MinimalHelpCommand):
         self.add_link(em, entity)
         return em
 
-    def add_link(self, embed: discord.Embed, entity):
+    def add_link(self, embed: diskord.Embed, entity):
         ctx: Context = self.context
         docs = self.get_docs_for(entity)
         url = oauth_url(
             ctx.me.id,
-            permissions=discord.Permissions.all(),
+            permissions=diskord.Permissions.all(),
             guild=ctx.guild,
         )
         links = [
@@ -141,8 +141,8 @@ class CustomHelp(commands.MinimalHelpCommand):
 
     def get_destination(self):
         ctx: Context = self.context
-        author: Union[discord.User, discord.Member] = ctx.author
-        channel: discord.TextChannel = ctx.channel
+        author: Union[diskord.User, diskord.Member] = ctx.author
+        channel: diskord.TextChannel = ctx.channel
         return channel
 
     def get_aliases(self, command: commands.Command):
@@ -168,7 +168,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
 
     async def send_bot_help(self, mapping):  # h!help
-        channel: discord.TextChannel = self.context.channel
+        channel: diskord.TextChannel = self.context.channel
         ctx: Context = self.context
         if not (channel.permissions_for(ctx.guild.me).send_messages):
             return
@@ -184,7 +184,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             _embeds.append(self.get_opening_page())
             _embeds.append(self.get_second_page())
             for cog, cmds in mapping.items():
-                em = discord.Embed(color=random.choice(colors))
+                em = diskord.Embed(color=random.choice(colors))
                 em.title = getattr(cog, "qualified_name", "No Category")
                 em.description = cog.description if cog else "\n"
                 em.set_thumbnail(url=ctx.guild.icon_url)
@@ -235,7 +235,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             )
         _embeds = []
         _embeds.append(self.get_opening_page(command))
-        em = discord.Embed(color=random.choice(colors))
+        em = diskord.Embed(color=random.choice(colors))
         em.title = command.qualified_name.title()
         em.description = command.help
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
@@ -275,7 +275,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         return [data[i : i + chunk_by] for i in range(0, len(data), chunk_by)]
 
     async def send_cog_help(self, cog: commands.Cog):  # h!help misc
-        channel: discord.TextChannel = self.context.channel
+        channel: diskord.TextChannel = self.context.channel
         ctx: Context = self.context
         if not (channel.permissions_for(ctx.guild.me).send_messages):
             return
@@ -291,7 +291,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         data = cog.get_commands()
         paginated = self.chunk(data, 5)
         for index, chunk in enumerate(paginated):
-            em = discord.Embed(color=random.choice(colors))
+            em = diskord.Embed(color=random.choice(colors))
             em.title = f"{cog.qualified_name} Commands"
             em.description = cog.description
             em.set_thumbnail(url=self.context.guild.icon_url)
@@ -320,7 +320,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             await ctx.send(embed=_embeds[1])
 
     async def send_group_help(self, group: commands.Group):  # h!help warn del
-        channel: discord.TextChannel = self.context.channel
+        channel: diskord.TextChannel = self.context.channel
         ctx: Context = self.context
         if not (channel.permissions_for(ctx.guild.me).send_messages):
             return
@@ -337,7 +337,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         _embeds = []
         _embeds.append(self.get_opening_page(group))
         for index, chunk in enumerate(paginated):
-            em = discord.Embed(
+            em = diskord.Embed(
                 title=command,
                 description=group.help,
                 color=random.choice(colors),
@@ -381,8 +381,8 @@ class CustomHelp(commands.MinimalHelpCommand):
             title = " ".join(
                 re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__)
             )
-            em = discord.Embed(
-                title=title, description=str(error), color=discord.Color.red()
+            em = diskord.Embed(
+                title=title, description=str(error), color=diskord.Color.red()
             )
             em.set_footer(
                 text="If this was a mistake please contact Marcus | Bot Dev#4438",

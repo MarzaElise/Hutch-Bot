@@ -7,16 +7,16 @@ from inspect import getsource, getsourcefile
 from io import StringIO
 from typing import List
 
-import discord
+import diskord
 import humanize
 import psutil
 from BaseFile import *
 from Bot import MyBot
-from discord import Message
-from discord.ext import *
-from discord.ext.commands import BucketType
-from discord.ext.commands.cooldowns import CooldownMapping
-from discord.utils import *
+from diskord import Message
+from diskord.ext import *
+from diskord.ext.commands import BucketType
+from diskord.ext.commands.cooldowns import CooldownMapping
+from diskord.utils import *
 from utils.helpers import *
 from jishaku.modules import package_version
 
@@ -33,7 +33,7 @@ def version():
 
 inv_url = oauth_url(
     client_id=799973356685361154,
-    permissions=discord.Permissions.all(),
+    permissions=diskord.Permissions.all(),
     guild=None,
     redirect_uri=None,
 )
@@ -104,7 +104,7 @@ class Dev(commands.Cog):
                 exceptions.append(f"```py\n{trace}\n```")
 
         reload_ = "Success" if len(exceptions) == 0 else "Unsuccesfull :("
-        em = discord.Embed(title=reload_, color=random.choice(colors))
+        em = diskord.Embed(title=reload_, color=random.choice(colors))
         em.add_field(
             name="Reloaded Extensions", value="\n".join(reloaded), inline=False
         )
@@ -127,7 +127,7 @@ class Dev(commands.Cog):
             em = ctx.em(
                 heading="Command Enabled",
                 desc=f"Command {command_name} is enabled",
-                col=discord.Color.green(),
+                col=diskord.Color.green(),
             )
             await ctx.send(embed=em)
 
@@ -145,7 +145,7 @@ class Dev(commands.Cog):
             em = ctx.em(
                 heading="Command Disabled",
                 desc=f"Command {command_name} is disabled",
-                col=discord.Color.red(),
+                col=diskord.Color.red(),
             )
             await ctx.send(embed=em)
 
@@ -161,7 +161,7 @@ class Dev(commands.Cog):
             await ctx.send(f"Updated bot version to {new}")
         except Exception as e:
             err = traceback.format_exception(type(e), e, e.__traceback__)
-            em = discord.Embed(description=f"```py\n{err}\n```")
+            em = diskord.Embed(description=f"```py\n{err}\n```")
             await ctx.send(embed=em)
 
     @commands.command(help="Report a bug to the dev", brief="12h")
@@ -177,7 +177,7 @@ class Dev(commands.Cog):
             return await ctx.send(
                 "Your report needs to have more than 50 characters to be sent!"
             )
-        me: List[discord.TextChannel] = self.bot.logs
+        me: List[diskord.TextChannel] = self.bot.logs
         try:
             for ch in me:
                 try:
@@ -197,7 +197,7 @@ class Dev(commands.Cog):
     @commands.guild_only()
     @commands.bot_has_permissions(change_nickname=True)
     async def botnick(self, ctx: Context, *, new_nickname=None):
-        me: discord.Member = ctx.me
+        me: diskord.Member = ctx.me
         try:
             if not new_nickname:
                 await ctx.send(f"Current Display name -> *{me.display_name}*")
@@ -212,8 +212,8 @@ class Dev(commands.Cog):
     @commands.cooldown(1, 5, BucketType.user)
     async def stats(self, ctx: Context):
         """Display the statistics of the bot"""
-        em = discord.Embed(
-            color=discord.Color.random(), timestamp=ctx.message.created_at
+        em = diskord.Embed(
+            color=diskord.Color.random(), timestamp=ctx.message.created_at
         )
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.add_field(name="Bot Version", value=version(), inline=False)
@@ -225,7 +225,7 @@ class Dev(commands.Cog):
         )
         em.add_field(
             name="Library:",
-            value=f'discord.py, version {package_version("discord.py")}',
+            value=f'diskord, version {package_version("diskord")}',
             inline=False,
         )
         url = oauth(ctx)
@@ -255,7 +255,7 @@ class Dev(commands.Cog):
         with open("./CHANGELOGS.txt", "r+") as f:
             logs = f.readlines()
         l = "".join(logs)
-        em = discord.Embed(color=random.choice(colors))
+        em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
         em.set_author(
@@ -276,7 +276,7 @@ class Dev(commands.Cog):
         with open("./CHANGELOGS.txt", "r+") as f:
             logs = f.readlines()
         l = "".join(logs)
-        em = discord.Embed(color=random.choice(colors))
+        em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
         em.set_author(
@@ -299,7 +299,7 @@ class Dev(commands.Cog):
         )
         if not cmd:
             return await ctx.to_error(f"No Command called {command} was found")
-        file = discord.File(
+        file = diskord.File(
             StringIO(getsource(cmd)), getsourcefile(cmd).split("\\")[-1]
         )
         await ctx.send(file=file)
@@ -320,7 +320,7 @@ class Dev(commands.Cog):
             return await ctx.to_error(f"No Command called {command} was found")
         if command not in ["help", "helps"]:
             cmd = cmd.callback
-        file = discord.File(
+        file = diskord.File(
             StringIO(getsource(cmd)), getsourcefile(cmd).split("/")[-1]
         )
         await ctx.send(file=file)
@@ -342,7 +342,7 @@ class Dev(commands.Cog):
         with open(file_path, "w+") as fp:
             json.dump(data, fp, indent=4)
 
-    def is_blacklisted(self, member: discord.Member):  # TODO: move to db
+    def is_blacklisted(self, member: diskord.Member):  # TODO: move to db
         import json
 
         _id = str(member.id)
@@ -357,7 +357,7 @@ class Dev(commands.Cog):
     )
     @commands.is_owner()
     async def blacklist(
-        self, ctx: Context, member: discord.Member, *, reason: str = None
+        self, ctx: Context, member: diskord.Member, *, reason: str = None
     ):
         reason = reason
         if self.is_blacklisted(member):

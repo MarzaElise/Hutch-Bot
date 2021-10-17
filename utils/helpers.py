@@ -7,13 +7,13 @@ import random
 from typing import List, Optional, Union
 
 import aiohttp
-import discord
-import discord.utils
+import diskord
+import diskord.utils
 import requests
-from discord import abc
-from discord.embeds import EmptyEmbed
-from discord.ext import commands, flags
-from discord.utils import parse_time
+from diskord import abc
+from diskord.embeds import EmptyEmbed
+from diskord.ext import commands, flags
+from diskord.utils import parse_time
 
 
 def url_exists(url: str):
@@ -33,7 +33,7 @@ class EmbedCreationError(commands.CommandError):
     pass
 
 
-class Embed(discord.Embed):
+class Embed(diskord.Embed):
     r"""Custom embed class just for the `from_dict` method"""
 
     @classmethod
@@ -50,7 +50,7 @@ class Embed(discord.Embed):
         if self.url is not EmptyEmbed:
             self.url = str(self.url)
         try:
-            self._colour = discord.Colour(value=data["color"])
+            self._colour = diskord.Colour(value=data["color"])
         except KeyError:
             pass
         try:
@@ -90,7 +90,7 @@ class Context(commands.Context):
     def __init__(
         self, **attrs
     ):  # for type hints, i just copy pasted the __init__ from the source lmao
-        self.message: discord.Message = attrs.pop("message", None)
+        self.message: diskord.Message = attrs.pop("message", None)
         self.bot: commands.Bot = attrs.pop("bot", None)
         self.args: list = attrs.pop("args", [])
         self.kwargs: dict = attrs.pop("kwargs", {})
@@ -108,26 +108,26 @@ class Context(commands.Context):
         self.command_failed: bool = attrs.pop("command_failed", False)
         self._state = self.message._state
 
-    @discord.utils.cached_property
+    @diskord.utils.cached_property
     def guild(self):
         """Optional[:class:`.Guild`]: Returns the guild associated with this context's command. None if not available."""
-        g: discord.Guild = self.message.guild
+        g: diskord.Guild = self.message.guild
         return g
 
     @property
     def reference(self):
         """shorthand method for `ctx.message.reference`"""
         if self.message.reference:
-            ref: discord.MessageReference = self.message.reference
+            ref: diskord.MessageReference = self.message.reference
             return ref
         return None
 
-    @discord.utils.cached_property
+    @diskord.utils.cached_property
     def author(self):
-        r"""Union[:class:`~discord.User`, :class:`.Member`]:
+        r"""Union[:class:`~diskord.User`, :class:`.Member`]:
         Returns the author associated with this context's command. Shorthand for :attr:`.Message.author`
         """
-        author: Union[discord.User, discord.Member] = self.message.author
+        author: Union[diskord.User, diskord.Member] = self.message.author
         return author
 
     def em(
@@ -141,7 +141,7 @@ class Context(commands.Context):
         r"""
         Custom function that returns a standard embed similar to ctx.embed but you cannot use some embed kwargs
         """
-        em = discord.Embed(timestamp=self.message.created_at, color=col)
+        em = diskord.Embed(timestamp=self.message.created_at, color=col)
         em.set_author(name=self.author, icon_url=self.author.avatar_url)
         em.set_footer(
             text=f"Requested by {self.author}", icon_url=self.author.avatar_url
@@ -198,7 +198,7 @@ class Context(commands.Context):
         if not description:
             description = "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
         em = self.Embed(
-            title="Error!", description=description, color=discord.Color.red()
+            title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar_url)
@@ -212,7 +212,7 @@ class Context(commands.Context):
         if not description:
             description = "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
         em = self.Embed(
-            title="Error!", description=description, color=discord.Color.red()
+            title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar_url)
@@ -231,13 +231,13 @@ class Context(commands.Context):
         content: str = None,
         *,
         tts: bool = False,
-        embed: discord.Embed = None,
-        file: discord.File = None,
-        files: List[discord.File] = None,
+        embed: diskord.Embed = None,
+        file: diskord.File = None,
+        files: List[diskord.File] = None,
         delete_after: float = None,
         nonce: int = None,
-        allowed_mentions: discord.AllowedMentions = None,
-        reference: Union[discord.MessageReference, discord.Message] = None,
+        allowed_mentions: diskord.AllowedMentions = None,
+        reference: Union[diskord.MessageReference, diskord.Message] = None,
         mention_author: bool = False,
         # dump: bool = False,
     ):
@@ -250,10 +250,10 @@ class Context(commands.Context):
         be provided.
 
         To upload a single file, the ``file`` parameter should be used with a
-        single :class:`~discord.File` object. To upload multiple files, the ``files``
-        parameter should be used with a :class:`list` of :class:`~discord.File` objects.
+        single :class:`~diskord.File` object. To upload multiple files, the ``files``
+        parameter should be used with a :class:`list` of :class:`~diskord.File` objects.
 
-        If the ``embed`` parameter is provided, it must be of type :class:`~discord.Embed` and
+        If the ``embed`` parameter is provided, it must be of type :class:`~diskord.Embed` and
         it must be a rich embed type.
 
         Parameters
@@ -262,11 +262,11 @@ class Context(commands.Context):
             The content of the message to send.
         tts: :class:`bool`
             Indicates if the message should be sent using text-to-speech.
-        embed: :class:`~discord.Embed`
+        embed: :class:`~diskord.Embed`
             The rich embed for the content.
-        file: :class:`~discord.File`
+        file: :class:`~diskord.File`
             The file to upload.
-        files: List[:class:`~discord.File`]
+        files: List[:class:`~diskord.File`]
             A list of files to upload. Must be a maximum of 10.
         nonce: :class:`int`
             The nonce to use for sending this message. If the message was successfully sent,
@@ -275,50 +275,50 @@ class Context(commands.Context):
             If provided, the number of seconds to wait in the background
             before deleting the message we just sent. If the deletion fails,
             then it is silently ignored.
-        allowed_mentions: :class:`~discord.AllowedMentions`
+        allowed_mentions: :class:`~diskord.AllowedMentions`
             Controls the mentions being processed in this message. If this is
-            passed, then the object is merged with :attr:`~discord.Client.allowed_mentions`.
+            passed, then the object is merged with :attr:`~diskord.Client.allowed_mentions`.
             The merging behaviour only overrides attributes that have been explicitly passed
-            to the object, otherwise it uses the attributes set in :attr:`~discord.Client.allowed_mentions`.
-            If no object is passed at all then the defaults given by :attr:`~discord.Client.allowed_mentions`
+            to the object, otherwise it uses the attributes set in :attr:`~diskord.Client.allowed_mentions`.
+            If no object is passed at all then the defaults given by :attr:`~diskord.Client.allowed_mentions`
             are used instead.
 
             .. versionadded:: 1.4
 
-        reference: Union[:class:`~discord.Message`, :class:`~discord.MessageReference`]
-            A reference to the :class:`~discord.Message` to which you are replying, this can be created using
-            :meth:`~discord.Message.to_reference` or passed directly as a :class:`~discord.Message`. You can control
-            whether this mentions the author of the referenced message using the :attr:`~discord.AllowedMentions.replied_user`
+        reference: Union[:class:`~diskord.Message`, :class:`~diskord.MessageReference`]
+            A reference to the :class:`~diskord.Message` to which you are replying, this can be created using
+            :meth:`~diskord.Message.to_reference` or passed directly as a :class:`~diskord.Message`. You can control
+            whether this mentions the author of the referenced message using the :attr:`~diskord.AllowedMentions.replied_user`
             attribute of ``allowed_mentions`` or by setting ``mention_author``.
 
             .. versionadded:: 1.6
 
         mention_author: Optional[:class:`bool`]
-            If set, overrides the :attr:`~discord.AllowedMentions.replied_user` attribute of ``allowed_mentions``.
+            If set, overrides the :attr:`~diskord.AllowedMentions.replied_user` attribute of ``allowed_mentions``.
 
             .. versionadded:: 1.6
 
         Raises
         --------
-        ~discord.HTTPException
+        ~diskord.HTTPException
             Sending the message failed.
-        ~discord.Forbidden
+        ~diskord.Forbidden
             You do not have the proper permissions to send the message.
-        ~discord.InvalidArgument
+        ~diskord.InvalidArgument
             The ``files`` list is not of the appropriate size,
             you specified both ``file`` and ``files``,
-            or the ``reference`` object is not a :class:`~discord.Message`
-            or :class:`~discord.MessageReference`.
+            or the ``reference`` object is not a :class:`~diskord.Message`
+            or :class:`~diskord.MessageReference`.
 
         Returns
         ---------
-        :class:`~discord.Message`
+        :class:`~diskord.Message`
             The message that was sent.
         """
         if (str(content)) and (self.bot.http.token in str(content)):
             content.replace(str(self.bot.http.token), "[token]")
         if (str(content)) and (len(str(content)) > 2000):
-            new_file = discord.File(io.StringIO(content), "message.txt")
+            new_file = diskord.File(io.StringIO(content), "message.txt")
             content = "Message has over 2000 characters..."
             if files:
                 files.append(new_file)
@@ -334,8 +334,8 @@ class Context(commands.Context):
         if not reference:
             if self.message.reference:
                 reference = self.message.reference
-        with contextlib.suppress(discord.HTTPException, discord.Forbidden):
-            sent: discord.Message = await super().send(
+        with contextlib.suppress(diskord.HTTPException, diskord.Forbidden):
+            sent: diskord.Message = await super().send(
                 content=content,
                 tts=tts,
                 embed=embed,
@@ -357,10 +357,10 @@ class Context(commands.Context):
         Reply to a user's message [takes in the same args and kwargs as ctx.send]
         """
         dump: bool = kwargs.get("dump", False)
-        file: discord.File = kwargs.get("file", None)
-        files: List[discord.File] = kwargs.get("files", None)
+        file: diskord.File = kwargs.get("file", None)
+        files: List[diskord.File] = kwargs.get("files", None)
         if (str(content)) and (len(str(content)) > 2000):
-            new_file = discord.File(io.StringIO(content), "message.txt")
+            new_file = diskord.File(io.StringIO(content), "message.txt")
             content = "Message has over 2000 characters..."
             if files:
                 files.append(new_file)
@@ -372,17 +372,17 @@ class Context(commands.Context):
                 files.append(file)
                 file = None
         try:
-            sent: discord.Message = await super().reply(
+            sent: diskord.Message = await super().reply(
                 content=content, **kwargs
             )
             if sent.nonce:
                 self.last_msg = sent
                 return sent
             return None
-        except discord.HTTPException:
+        except diskord.HTTPException:
             pass
-        except discord.NotFound:
-            sent: discord.Message = await self.send(content=content, **kwargs)
+        except diskord.NotFound:
+            sent: diskord.Message = await self.send(content=content, **kwargs)
             if sent.nonce:
                 self.last_msg = sent
                 return sent
@@ -398,7 +398,7 @@ class Context(commands.Context):
         em = self.Embed(
             title="Confirmation",
             description=description,
-            color=discord.Color.orange(),
+            color=diskord.Color.orange(),
         )
         reactions = ["✅", "❌"]
         em.timestamp = self.message.created_at
@@ -411,7 +411,7 @@ class Context(commands.Context):
         for reac in reactions:
             await msg.add_reaction(reac)
 
-        def check(reaction: discord.Reaction, user: discord.Member):
+        def check(reaction: diskord.Reaction, user: diskord.Member):
             return (
                 reaction.emoji in reactions
                 and user == self.author
@@ -423,20 +423,20 @@ class Context(commands.Context):
         )
         if reaction.emoji == "✅":
             if send_status:
-                embed = discord.Embed(
+                embed = diskord.Embed(
                     title="Success",
                     description="Confirmation succesful ✅",
-                    color=discord.Color.green(),
+                    color=diskord.Color.green(),
                 )
                 await msg.delete()
                 await self.send(embed=embed)
             return True
         elif reaction.emoji == "❌":
             if send_status:
-                embed = discord.Embed(
+                embed = diskord.Embed(
                     title="Failure",
                     description="Confirmation Failed! ❌",
-                    color=discord.Color.red(),
+                    color=diskord.Color.red(),
                 )
                 await msg.delete()
                 await self.send(embed=embed)
@@ -461,7 +461,7 @@ def paginate(string: str, max_length: int = 2000):
 
 def get_data_from_options(ctx: Context, **options: dict):
     bot: commands.Bot = ctx.bot
-    guild: discord.Guild = ctx.guild
+    guild: diskord.Guild = ctx.guild
     title = options.get("title")
     desc = options.get("desc")
 

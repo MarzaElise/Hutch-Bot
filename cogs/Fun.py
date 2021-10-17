@@ -6,14 +6,14 @@ import typing
 
 import aiohttp
 import asyncpraw
-import discord
+import diskord
 from BaseFile import *
 from Bot import MyBot
 from config import get_passwords
-from discord import *
-from discord.ext import commands, tasks
-from discord.ext.commands import *
-from discord.utils import *
+from diskord import *
+from diskord.ext import commands, tasks
+from diskord.ext.commands import *
+from diskord.utils import *
 from utils.helpers import *
 
 # os.chdir("../launcher.py")
@@ -79,7 +79,7 @@ reddit = asyncpraw.Reddit(
 )
 
 
-def can_dm(mem: discord.Member):  # TODO: move to db
+def can_dm(mem: diskord.Member):  # TODO: move to db
     member = str(mem.id)
     with open("./assets/opt_out.json", "r") as f:
         alr_opted = dict(json.load(f))
@@ -137,7 +137,7 @@ class Fun(commands.Cog):
                 json.dump(alr_opted, f, indent=4)
                 return True
 
-    def is_opted_out(self, member: discord.Member):  # TODO: move to db
+    def is_opted_out(self, member: diskord.Member):  # TODO: move to db
         with open("./assets/opt_out.json", "r+") as f:
             opt_outs = dict(json.load(f))
         if not str(member.id) in opt_outs.keys():
@@ -155,7 +155,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 20, BucketType.member)
     @commands.guild_only()
     async def dm(
-        self, ctx: Context, member: discord.Member, *, text_to_dm: str
+        self, ctx: Context, member: diskord.Member, *, text_to_dm: str
     ):
         """DM a user of your choice with a message"""
         if member.bot:
@@ -169,8 +169,8 @@ class Fun(commands.Cog):
                 "This command is disabled due to the rules"
             )
         can = can_dm(member)
-        message: discord.Message = ctx.message
-        em = discord.Embed(
+        message: diskord.Message = ctx.message
+        em = diskord.Embed(
             description=f"> {text_to_dm}", color=random.choice(colors)
         )
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
@@ -186,14 +186,14 @@ class Fun(commands.Cog):
             try:
                 await member.send(embed=em)
                 await message.add_reaction("✅")
-            except (discord.Forbidden, discord.HTTPException):
+            except (diskord.Forbidden, diskord.HTTPException):
                 reasons = [
                     "1. Member has their DMs turned off",
                     "2. I'm blocked :(",
                     "3. Unknown server side error | try again later",
                     "4. Could not find the user in the bot's cache",
                 ]
-                em = discord.Embed(title="DM command Unsuccesful").add_field(
+                em = diskord.Embed(title="DM command Unsuccesful").add_field(
                     name="Possible Reasons:", value="\n".join(reasons)
                 )
                 return await ctx.send(embed=em)
@@ -230,7 +230,7 @@ class Fun(commands.Cog):
         """Sends a random answer to a question"""
         await ctx.trigger_typing()
         answer = random.choice(responses)
-        em = discord.Embed(color=random.choice(colors))
+        em = diskord.Embed(color=random.choice(colors))
         em.set_author(
             name=ctx.author.display_name, icon_url=ctx.author.avatar_url
         )
@@ -244,7 +244,7 @@ class Fun(commands.Cog):
     async def echo(
         self,
         ctx: Context,
-        channel: typing.Optional[discord.TextChannel],
+        channel: typing.Optional[diskord.TextChannel],
         *,
         msg: str,
     ):
@@ -335,7 +335,7 @@ class Fun(commands.Cog):
                     f"https://some-random-api.ml/binary?text={text}"
                 ) as r:
                     data = await r.json()
-                    em = discord.Embed(
+                    em = diskord.Embed(
                         title="Binary Converter",
                         url=f"https://some-random-api.ml/binary?text={text}",
                         color=random.choice(colors),
@@ -352,7 +352,7 @@ class Fun(commands.Cog):
                     )
                     await ctx.reply(embed=em)
             except Exception as e:
-                em = discord.Embed(description=e)
+                em = diskord.Embed(description=e)
                 await ctx.reply(
                     "I could not convert it to binary :(", embed=em
                 )
@@ -411,7 +411,7 @@ class Fun(commands.Cog):
             "pikachu",
         ]
         if image_name not in categories:
-            em = discord.Embed(title="Categories", color=random.choice(colors))
+            em = diskord.Embed(title="Categories", color=random.choice(colors))
             em.description = "\n".join(
                 [
                     f"`{i}` -> Sends a random image of a `{i}`"
@@ -432,7 +432,7 @@ class Fun(commands.Cog):
                         f"https://some-random-api.ml/img/{image_name}"
                     ) as r:
                         data = await r.json()
-                        embed = discord.Embed(
+                        embed = diskord.Embed(
                             title=f"{image_name}", color=random.choice(colors)
                         )
                         embed.set_image(url=data["link"])
@@ -451,7 +451,7 @@ class Fun(commands.Cog):
             try:
                 async with cs.get("https://some-random-api.ml/meme") as r:
                     data = await r.json()
-                    em = discord.Embed(
+                    em = diskord.Embed(
                         title=data["caption"],
                         url=data["image"],
                         color=random.choice(colors),
@@ -487,7 +487,7 @@ class Fun(commands.Cog):
                 random_submission = random.choice(all_submissions)
                 name = random_submission.title
                 url = random_submission.url
-                em = discord.Embed(
+                em = diskord.Embed(
                     title=name, color=random.choice(colors), url=url
                 )
                 em.set_image(url=url)
@@ -525,7 +525,7 @@ class Fun(commands.Cog):
         for x, option in enumerate(options):
             description += "\n {} {}".format(reactions[x], option)
         desc = str("".join(description)).replace("-", "_").replace("_", " ")
-        embed = discord.Embed(title=title, description=desc)
+        embed = diskord.Embed(title=title, description=desc)
         react_message = await ctx.send(embed=embed)
         for reaction in reactions[: len(options)]:
             await react_message.add_reaction(reaction)
@@ -536,7 +536,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 10, BucketType.member)
     @commands.guild_only()
     async def nsfw(self, ctx: Context):
-        ch: discord.TextChannel = ctx.channel
+        ch: diskord.TextChannel = ctx.channel
         if ch.is_nsfw():
             return await ctx.send(
                 "you know, https://pornhub.com/ exists for a reason. "

@@ -1,11 +1,11 @@
-from discord.ext import commands, paginator as p
-import discord
+from diskord.ext import commands, paginator as p
+import diskord
 from typing import *
 from contextlib import suppress
 
 
 class Paginator:
-    def __init__(self, ctx: commands.Context, *, embeds: List[discord.Embed]):
+    def __init__(self, ctx: commands.Context, *, embeds: List[diskord.Embed]):
         self.ctx = ctx
         self.embeds = embeds
         self.bot: commands.Bot = ctx.bot
@@ -32,7 +32,7 @@ class Paginator:
                 del self._buttons[key]
 
     async def send_initial_message(self):
-        self.message: discord.Message = await self.ctx.send(
+        self.message: diskord.Message = await self.ctx.send(
             embed=self.embeds[0]
         )
         # print(self.message)
@@ -52,8 +52,8 @@ class Paginator:
             await message.add_reaction(b)
 
         def check(
-            reaction: discord.Reaction,
-            user: Union[discord.Member, discord.User],
+            reaction: diskord.Reaction,
+            user: Union[diskord.Member, diskord.User],
         ):
             return (
                 str(reaction.emoji) in self._buttons
@@ -84,6 +84,6 @@ class Paginator:
                     await message.edit(embed=self.embeds[self.current - 1])
 
             except Exception as e:
-                with suppress(discord.Forbidden, discord.HTTPException):
+                with suppress(diskord.Forbidden, diskord.HTTPException):
                     for b in self._buttons:
                         await message.remove_reaction(b, self.ctx.bot.user)

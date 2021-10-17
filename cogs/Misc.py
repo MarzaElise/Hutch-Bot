@@ -2,13 +2,13 @@ import asyncio
 import contextlib
 import random
 
-import discord
+import diskord
 import wikipedia as wiki
 from BaseFile import *
 from Bot import MyBot
-from discord.ext import commands
-from discord.ext.commands import BucketType
-from discord.utils import *
+from diskord.ext import commands
+from diskord.ext.commands import BucketType
+from diskord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
 from utils.helpers import *
@@ -40,7 +40,7 @@ colors = [
 
 inv_url = oauth_url(
     client_id=799973356685361154,
-    permissions=discord.Permissions(
+    permissions=diskord.Permissions(
         administrator=True,
         embed_links=True,
         send_messages=True,
@@ -69,7 +69,7 @@ class Misc(commands.Cog):
     async def ping(self, ctx: Context):
         """Sends the latency of the bot"""
         await ctx.trigger_typing()
-        pingEmbed = discord.Embed(
+        pingEmbed = diskord.Embed(
             title=":ping_pong: Pong!",
             description=f" My ping is **{round(self.bot.latency * 1000):.2f}**ms",
         )
@@ -84,7 +84,7 @@ class Misc(commands.Cog):
     async def dev(self, ctx: Context):
         """Gives credit to those who made the bot AKA me"""
         await ctx.trigger_typing()
-        em = discord.Embed(
+        em = diskord.Embed(
             title="Credits",
             description=f"My Name is Hutch Bot, Developed by {self.bot.config.ME} in 10 days! \nI'm a multi-purpose bot with moderation commands, fun commands and some automod systems like profanity filter too!",
             color=random.choice(colors),
@@ -112,7 +112,7 @@ class Misc(commands.Cog):
         """Sends the invite link to add me to other servers"""
         url = oauth(ctx)
         await ctx.trigger_typing()
-        em = discord.Embed()
+        em = diskord.Embed()
         em.set_author(
             name=self.bot.config.ME,
             icon_url="https://www.youtube.com/channel/UC3e6sBmEMCpsbr6V2QJTgpQ",
@@ -143,7 +143,7 @@ class Misc(commands.Cog):
     async def desc(self, ctx: Context):
         """Sends a short description about the bot"""
         await ctx.trigger_typing()
-        em = discord.Embed(title="Hutch Bot", color=random.choice(colors))
+        em = diskord.Embed(title="Hutch Bot", color=random.choice(colors))
         em.add_field(
             name="Description:",
             value=f"I am a fun bot with a lot of cool commands. I have a built-in profanity filter! I do have some moderation commands like ban unban!\nType `h!help` from more info!",
@@ -165,17 +165,17 @@ class Misc(commands.Cog):
         """Searches something in wikipedia and sends the result as an embed"""
         await ctx.trigger_typing()
         some_list = [3, 4, 5]
-        em = discord.Embed(title=str(query))
+        em = diskord.Embed(title=str(query))
         em.set_footer(text="Powered by wikipedia.org")
         try:
             result = wiki.summary(
                 query, sentences=random.choice(some_list), chars=2048
             )
-            em.color = discord.Color.green()
+            em.color = diskord.Color.green()
             em.description = result
             await ctx.reply(embed=em)
             if len(result) > 2048:
-                em.color = discord.Color.red()
+                em.color = diskord.Color.red()
                 em.description = f"Result is too long. View the website [here](https://wikipedia.org/wiki/{query.replace(' ', '_')}), or just [Google it](https://google.com)."
                 return await ctx.reply(embed=em)
         except wiki.DisambiguationError as e:
@@ -184,11 +184,11 @@ class Misc(commands.Cog):
             joined = "\n".join(options)
             em.description = f"Is it one of these?\n{joined}"
         except wiki.PageError:
-            em.color = discord.Color.red()
+            em.color = diskord.Color.red()
             em.description = "Error: Page not found."
             return await ctx.reply(embed=em)
 
-    async def get_invite(self, guild: discord.Guild) -> discord.Invite:
+    async def get_invite(self, guild: diskord.Guild) -> diskord.Invite:
         if self.invite_cache.contains(guild.id):
             return self.invite_cache[guild.id]
         first_channel = guild.text_channels[0]
@@ -210,7 +210,7 @@ class Misc(commands.Cog):
     async def server(self, ctx: Context):
         """Sends the name and member count of all the servers the bot is in, soon to be removed..."""
         await ctx.trigger_typing()
-        em = discord.Embed(title="Servers the bot is in:")
+        em = diskord.Embed(title="Servers the bot is in:")
         for guild in self.bot.guilds:
             if self.bot.owner_id == ctx.author.id:
                 try:
@@ -239,7 +239,7 @@ class Misc(commands.Cog):
         brief="10s",
     )
     @commands.cooldown(1, 10, BucketType.member)
-    async def hug(self, ctx: Context, member: discord.Member = None):
+    async def hug(self, ctx: Context, member: diskord.Member = None):
         """Mention a member to hug them | Sends a random hugging gif"""
         await ctx.trigger_typing()
         async with self.session as cs:
@@ -247,11 +247,11 @@ class Misc(commands.Cog):
                 async with cs.get("https://some-random-api.ml/animu/hug") as r:
                     data = await r.json()
                     if member is None:
-                        em = discord.Embed(
+                        em = diskord.Embed(
                             title="Hug", color=random.choice(colors)
                         )
                     else:
-                        em = discord.Embed(
+                        em = diskord.Embed(
                             title=f"{ctx.author.display_name} hugs {member.display_name}",
                             color=random.choice(colors),
                         )
@@ -265,7 +265,7 @@ class Misc(commands.Cog):
         brief="10s",
     )
     @commands.cooldown(1, 10, BucketType.member)
-    async def pat(self, ctx: Context, member: discord.Member = None):
+    async def pat(self, ctx: Context, member: diskord.Member = None):
         """Mention a member to pat them | Sends a random patting gif"""
         await ctx.trigger_typing()
         async with self.session as cs:
@@ -273,15 +273,15 @@ class Misc(commands.Cog):
                 async with cs.get("https://some-random-api.ml/animu/pat") as r:
                     data = await r.json()
                     if member is None:
-                        em = discord.Embed(
+                        em = diskord.Embed(
                             title="Pat", color=random.choice(colors)
                         )
                     else:
-                        em = discord.Embed(
+                        em = diskord.Embed(
                             title=f"{ctx.author.display_name} Pats {member.display_name}",
                             color=random.choice(colors),
                         )
-                    em = discord.Embed(
+                    em = diskord.Embed(
                         title="Pat", color=random.choice(colors)
                     )
                     em.set_image(url=data["link"])
@@ -300,7 +300,7 @@ class Misc(commands.Cog):
                     "https://some-random-api.ml/animu/wink"
                 ) as r:
                     data = await r.json()
-                    em = discord.Embed(
+                    em = diskord.Embed(
                         title="Wink", color=random.choice(colors)
                     )
                     em.set_image(url=data["link"])
@@ -321,7 +321,7 @@ class Misc(commands.Cog):
         try:
             translator = Translator()
             result: Translated = translator.translate(text, lang)
-            em = discord.Embed(
+            em = diskord.Embed(
                 title="Translation", color=random.choice(colors)
             )
             em.set_thumbnail(url=ctx.guild.icon_url)
@@ -348,8 +348,8 @@ class Misc(commands.Cog):
     # @flags.add_flag("-image", type=str, default=None, nargs="*")
     # @flags.add_flag("--desc", type=str, default=None, nargs="*")
     # @flags.add_flag("-desc", type=str, default=None, nargs="*")
-    # @flags.add_flag("-author", type=discord.Member, default=None)
-    # @flags.add_flag("--author", type=discord.Member, default=None)
+    # @flags.add_flag("-author", type=diskord.Member, default=None)
+    # @flags.add_flag("--author", type=diskord.Member, default=None)
     # @flags.command(aliases=["em"], brief="10s")
     # @commands.cooldown(1, 10, BucketType.user)
     # async def embed(self, ctx: Context, **options):
@@ -363,7 +363,7 @@ class Misc(commands.Cog):
 
     async def get_message_from_reference(
         self, ctx: Context, from_cache: bool = False
-    ) -> discord.Message:
+    ) -> diskord.Message:
         if ctx.reference.cached_message and from_cache:
             return ctx.reference.cached_message
         _id: int = ctx.reference.message_id
@@ -381,9 +381,9 @@ class Misc(commands.Cog):
             )
         try:
             message = await self.get_message_from_reference(ctx)
-        except discord.NotFound:
+        except diskord.NotFound:
             return await ctx.to_error("Replied message not found.")
-        except discord.HTTPException:
+        except diskord.HTTPException:
             return await ctx.send(
                 embed=ctx.em("Retrieving the message failed.")
             )
@@ -403,18 +403,18 @@ class Misc(commands.Cog):
                 "Reply to the message you want to delete"
             )
         try:
-            message: discord.Message = self.get_message_from_reference(
+            message: diskord.Message = self.get_message_from_reference(
                 ctx.reference.messsage_id, from_cache=True
             )
-        except (discord.HTTPException, discord.Forbidden):
+        except (diskord.HTTPException, diskord.Forbidden):
             return await ctx.to_error("Retreiving the message failed")
-        except discord.NotFound:
+        except diskord.NotFound:
             return await ctx.to_error("Message not found")
         if message.author.id == self.bot.user.id:
             try:
-                with contextlib.suppress(discord.HTTPException):
+                with contextlib.suppress(diskord.HTTPException):
                     await message.delete()
-            except discord.NotFound:
+            except diskord.NotFound:
                 return await ctx.to_error("Message already deleted")
         return await ctx.to_error(
             "Can only delete messages sent by the bot through this command"

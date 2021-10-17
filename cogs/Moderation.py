@@ -4,18 +4,18 @@ from typing import *
 from BaseFile import *
 import typing
 import aiosqlite
-import discord
+import diskord
 from better_profanity import *
-from discord.ext import *
-from discord.utils import *
+from diskord.ext import *
+from diskord.utils import *
 from utils.helpers import *
-from discord.ext.commands import BucketType
+from diskord.ext.commands import BucketType
 from Bot import MyBot
 import os
 from data import Database
 import traceback
 import datetime
-from discord.ext.commands.errors import BotMissingPermissions
+from diskord.ext.commands.errors import BotMissingPermissions
 
 # os.chdir("../launcher.py")
 
@@ -67,7 +67,7 @@ class Moderation(commands.Cog):
         print(f"Cog {self.__class__.__name__} Loaded")
         print("*" * 50)
 
-    def profanity_filter(self, message: discord.Message):
+    def profanity_filter(self, message: diskord.Message):
         profanity.load_censor_words(whitelist_words=white_listed)
         if (
             profanity.contains_profanity(message.content)
@@ -91,7 +91,7 @@ class Moderation(commands.Cog):
         return False
 
     @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: diskord.Message):
         # i honestly dont care about the automod shit. so, if any error, stfu and pass it :hahayes:
         if message.author.bot:
             return
@@ -141,7 +141,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
     @commands.guild_only()
-    async def kick(self, ctx: Context, user: discord.Member, *, reason=None):
+    async def kick(self, ctx: Context, user: diskord.Member, *, reason=None):
         """kick someone from the server"""
         reason = reason or "No Reason Provided"
         await ctx.trigger_typing()
@@ -162,7 +162,7 @@ class Moderation(commands.Cog):
             return await ctx.send(f"Succesfully kicked **{user.mention}**")
         else:
             try:
-                em = discord.Embed(
+                em = diskord.Embed(
                     title="\n", description="\n", color=random.choice(colors)
                 )
                 em.set_author(
@@ -183,13 +183,13 @@ class Moderation(commands.Cog):
                 )
                 await user.send(embed=em)
                 await user.kick(reason=f"{ctx.author}: {reason}")
-            except discord.Forbidden:
+            except diskord.Forbidden:
                 await user.kick(reason=f"{ctx.author}: {reason}")
             finally:
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
     def can_ban(
-        self, ctx: Context, member: Union[discord.Member, discord.User]
+        self, ctx: Context, member: Union[diskord.Member, diskord.User]
     ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:
@@ -203,7 +203,7 @@ class Moderation(commands.Cog):
             return False
         if member.id == ctx.author.id:
             return False
-        if isinstance(member, discord.Member):
+        if isinstance(member, diskord.Member):
             if member.top_role >= ctx.author.top_role:
                 return False
             if member.top_role >= ctx.guild.me.top_role:
@@ -216,25 +216,25 @@ class Moderation(commands.Cog):
     async def ban(
         self,
         ctx: Context,
-        user: typing.Union[discord.Member, discord.User],
+        user: typing.Union[diskord.Member, diskord.User],
         *,
         reason=None,
     ):
         """Ban someone from the server"""
         reason = reason or "No Reason Provided"
-        guild: discord.Guild = ctx.guild
+        guild: diskord.Guild = ctx.guild
         await ctx.trigger_typing()
         if self.can_ban(ctx, user, send=True):
 
-            if isinstance(user, discord.User):
+            if isinstance(user, diskord.User):
                 await guild.ban(user, reason=f"{ctx.author}: {reason}")
                 return await ctx.send(f"Succesfully banned **{user.mention}**")
 
-            if isinstance(user, discord.Member):
+            if isinstance(user, diskord.Member):
                 await ctx.send(f"Succesfully banned **{user.mention}**")
                 try:
                     em = (
-                        discord.Embed(
+                        diskord.Embed(
                             title="\n",
                             description="\n",
                             color=random.choice(colors),
@@ -259,8 +259,8 @@ class Moderation(commands.Cog):
                     if not user.bot:
                         await user.send(embed=em)
                 except (
-                    discord.Forbidden,
-                    discord.HTTPException,
+                    diskord.Forbidden,
+                    diskord.HTTPException,
                 ):  # couldnt DM member about ban
                     pass
                 finally:
@@ -273,14 +273,14 @@ class Moderation(commands.Cog):
     async def massban(
         self,
         ctx: Context,
-        members: commands.Greedy[discord.User],
+        members: commands.Greedy[diskord.User],
         *,
         reason: str = None,
     ):
-        members: List[discord.User] = members
+        members: List[diskord.User] = members
         reason = reason or "No Reason Provided"
         reason = f"{ctx.author}: {reason}"
-        guild: discord.Guild = ctx.guild
+        guild: diskord.Guild = ctx.guild
         for member in members:
             if self.can_ban(ctx, member, send=True):
                 await guild.ban(member, reason=reason, delete_message_days=7)
@@ -294,11 +294,11 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     @commands.guild_only()
-    async def unban(self, ctx: Context, member: discord.User, *, reason=None):
+    async def unban(self, ctx: Context, member: diskord.User, *, reason=None):
         """Unban a previously banned member"""
         reason = reason or "No Reason Provided"
         try:
-            await ctx.guild.unban(discord.Object(id=member.id), reason=reason)
+            await ctx.guild.unban(diskord.Object(id=member.id), reason=reason)
             await ctx.send(f"**{member}** was succesfully unbanned")
         except BotMissingPermissions:
             await ctx.send("I dont have unban permissions")
@@ -315,7 +315,7 @@ class Moderation(commands.Cog):
         """Sends a breif description of common rules"""
         with ctx.typing():
             await asyncio.sleep(1)
-            newEmbed = discord.Embed(
+            newEmbed = diskord.Embed(
                 title="Rules", color=random.choice(colors)
             )
             newEmbed.set_author(
@@ -397,7 +397,7 @@ class Moderation(commands.Cog):
                     f"Slow mode for {ctx.channel.mention} set to {secs}"
                 )
 
-    def get_aks(self, ctx: Context, member: discord.Member):
+    def get_aks(self, ctx: Context, member: diskord.Member):
         """get the server acknowledgements for a member with a given context"""
         aks = "Server Member"
         if member.bot:
@@ -423,7 +423,7 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.cooldown(1, 15, BucketType.member)
     @commands.guild_only()
-    async def whois(self, ctx: Context, member: discord.Member = None):
+    async def whois(self, ctx: Context, member: diskord.Member = None):
         """Receive information about a member"""
         member = member or ctx.author
         aks = self.get_aks(ctx, member)
@@ -447,7 +447,7 @@ class Moderation(commands.Cog):
         # member_perms = ", ".join(perm for perm in perm_list)
         with ctx.typing():
             await asyncio.sleep(1)
-            em = discord.Embed()
+            em = diskord.Embed()
             em.set_author(
                 name=f"{member}",
                 url=f"https://discord.com/users/{member.id}",

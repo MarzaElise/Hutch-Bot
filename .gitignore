@@ -1,9 +1,15 @@
+# python stuff, cache, env and upcoming
 assets
-__pycache__
-.env
+**/__pycache__
+*.env
 passwords.env
 databases
 main.py
 tests
 cogs/__pycache__
 TODO
+
+# database
+*.sqlite
+*.sqlite3
+*.db

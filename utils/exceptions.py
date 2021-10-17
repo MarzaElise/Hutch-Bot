@@ -1,4 +1,4 @@
-from discord.ext import commands
+from diskord.ext import commands
 
 
 class NotDocumented(commands.CommandError):

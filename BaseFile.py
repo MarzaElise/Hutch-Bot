@@ -5,9 +5,9 @@ import os
 from itertools import cycle
 from typing import *
 
-import discord
-from discord.ext import tasks
-from discord.utils import oauth_url
+import diskord
+from diskord.ext import tasks
+from diskord.utils import oauth_url
 from pydantic import BaseModel
 
 import Bot
@@ -24,7 +24,7 @@ def version():
 def oauth(ctx: Context):
     url = oauth_url(
         client_id=ctx.me.id,
-        permissions=discord.Permissions.all(),
+        permissions=diskord.Permissions.all(),
         guild=ctx.guild,
         redirect_uri="https://discord.gg/5nzgEWSnEG",  # Join btw
     )
@@ -49,7 +49,7 @@ async def change_status(bot):
     )
     await bot.wait_until_ready()
     await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.watching, name=f"{next(status)} | h!help"
+        activity=diskord.Activity(
+            type=diskord.ActivityType.watching, name=f"{next(status)} | h!help"
         )
     )

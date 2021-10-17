@@ -32,12 +32,12 @@ from os import environ
 from typing import *
 
 import aiohttp
-import discord
-from discord import *
-from discord.ext import commands, tasks
-from discord.ext.commands import core
-from discord.ext.paginator import Paginator
-from DiscordUtils import *
+import diskord
+from diskord import *
+from diskord.ext import commands, tasks
+from diskord.ext.commands import core
+from diskord.ext.paginator import Paginator
+from diskordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -120,7 +120,7 @@ class MyBot(commands.Bot):
         # but this is the only way I found to run bots with two tokens without changing much code.
         super().__init__(
             command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
-            intents=discord.Intents.all(),
+            intents=diskord.Intents.all(),
             help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
             owner_id=self.config.OWNER_ID,
@@ -129,7 +129,7 @@ class MyBot(commands.Bot):
         )
 
         self.logs: Union[
-            List[discord.TextChannel], None
+            List[diskord.TextChannel], None
         ] = None  # logs channels are set in on_ready
 
         self._session = (
@@ -184,18 +184,18 @@ class MyBot(commands.Bot):
                 # minimal info is enough to know what happened in most cases.
                 # I can just change this whenever I want to see the entire exception
 
-    def prefix(self, bot, message: discord.Message):
+    def prefix(self, bot, message: diskord.Message):
         ret = [self.config.DEFAULT_PREFIX, "H!"]
         # if message.author.id == self.owner_id: # causes chaos. :bruh:
         #     ret.append("")  # empty prefix for me
         return ret
 
-    async def get_context(self, message: discord.Message, *, cls=Context):
+    async def get_context(self, message: diskord.Message, *, cls=Context):
         ctx: Context = await super().get_context(message, cls=Context)
         return ctx
 
     async def on_ready(self):
-        self.logs: List[discord.TextChannel] = [
+        self.logs: List[diskord.TextChannel] = [
             self.get_channel(_id)
             for _id in [847931426938945597, 845739412867514442]
         ]
@@ -215,12 +215,12 @@ class MyBot(commands.Bot):
             content=f"<@!754557382708822137> im up! - <t:{int(datetime.datetime.utcnow().timestamp())}>",
         )
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: diskord.Message):
         if message.author.bot:
             return
 
         ctx: Context = await self.get_context(message, cls=Context)
-        channel: discord.TextChannel = message.channel
+        channel: diskord.TextChannel = message.channel
 
         if (f"<@!{self.user.id}>" in message.content) and (
             len(message.mentions) == 1
@@ -234,26 +234,26 @@ class MyBot(commands.Bot):
     async def on_error(self, event_method, *args, **kwargs):
         tb = traceback.format_exc()
         file = None
-        embed = discord.Embed()
+        embed = diskord.Embed()
         embed.title = str(event_method).title()
         embed.description = f"```py\n{tb}\n```"
         if len(tb) > 2000:
-            file = discord.File(io.StringIO(tb), str(event_method))
+            file = diskord.File(io.StringIO(tb), str(event_method))
             embed = (
                 None  # we dont need an embed if we are going to send a file
             )
 
         await report_to_logs(self, content=None, embed=embed, file=file)
 
-    async def on_guild_join(self, guild: discord.Guild):
-        embed = discord.Embed(
+    async def on_guild_join(self, guild: diskord.Guild):
+        embed = diskord.Embed(
             title="Joined New Server",
             description=f"{guild.name} | {guild.member_count}",
         )
         await report_to_logs(self, content=None, embed=embed)
         channel = random.choice(guild.text_channels)
         if channel.permissions_for(guild.me).embed_links:
-            em = discord.Embed(title="Thank you for adding me!")
+            em = diskord.Embed(title="Thank you for adding me!")
             em.add_field(name="Prefix", value="h!")
             em.add_field(
                 name="Config",
@@ -281,9 +281,9 @@ class MyBot(commands.Bot):
         return await self.close()
 
     async def on_message_edit(
-        self, before: discord.Message, after: discord.Message
+        self, before: diskord.Message, after: diskord.Message
     ):
-        author: discord.User = after.author
+        author: diskord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
         if (
             (before.content != after.content)
@@ -349,8 +349,8 @@ class MyBot(commands.Bot):
             title = " ".join(
                 re.compile(r"[A-Z][a-z]*").findall(error.__class__.__name__)
             )
-            em = discord.Embed(
-                title=title, description=str(error), color=discord.Color.red()
+            em = diskord.Embed(
+                title=title, description=str(error), color=diskord.Color.red()
             )
             em.set_footer(
                 text=f"If this was a mistake please contact {self.config.ME}",
@@ -379,7 +379,7 @@ class MyBot(commands.Bot):
             ),
             ("Channel:", f"{ctx.channel.name} | {ctx.channel.mention}"),
         ]
-        embed = discord.Embed(description=f"```py\n{err}\n```")
+        embed = diskord.Embed(description=f"```py\n{err}\n```")
         for nam, val in info:
             embed.add_field(name=nam, value=val, inline=False)
         for log in self.logs:
@@ -453,5 +453,5 @@ class MyBot(commands.Bot):
         message = await self.http.get_message(channel_id, msg_id)
         fmt = json.dumps(message, indent=4)
         if formatted:
-            return f"```\n{fmt}\n```"
+            return f"```json\n{fmt}\n```"
         return fmt

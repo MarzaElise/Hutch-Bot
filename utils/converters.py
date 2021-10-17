@@ -1,13 +1,13 @@
-from discord.ext import commands
+from diskord.ext import commands
 from utils.helpers import Context
-import discord
+import diskord
 
 # i dont use any of this classes lmao
 
 
 class CustomMemberConverter(commands.Converter):
     async def convert(self, ctx: Context, argument: str):
-        guild: discord.Guild = ctx.guild
+        guild: diskord.Guild = ctx.guild
         if not guild:
             raise commands.NoPrivateMessage(
                 f"{ctx.command.qualified_name} cannot be used in DMs"
@@ -17,7 +17,7 @@ class CustomMemberConverter(commands.Converter):
         except ValueError:
             if guild:
                 for member in guild.members:
-                    mem: discord.Member = member
+                    mem: diskord.Member = member
                     if argument.lower() in str(mem.display_name).lower():
                         return mem
                     break
@@ -42,7 +42,7 @@ class CustomUserConverter(commands.Converter):
             int(argument)
         except ValueError:
             for user in bot.users:
-                usr: discord.User = user
+                usr: diskord.User = user
                 if str(usr.name).lower() == argument.lower():
                     return user
                 break
@@ -51,7 +51,7 @@ class CustomUserConverter(commands.Converter):
             )
         _id = int(argument)
         for user in bot.users:
-            usr: discord.User = user
+            usr: diskord.User = user
             if usr.id == _id:
                 return user
             break
@@ -62,7 +62,7 @@ class CustomUserConverter(commands.Converter):
 
 class CustomRoleConverter(commands.Converter):
     async def convert(self, ctx: Context, argument: str):
-        guild: discord.Guild = ctx.guild()
+        guild: diskord.Guild = ctx.guild()
         if not guild:
             return await ctx.to_error(
                 f"{ctx.command.qualified_name} cannot be used in DMs"
@@ -71,7 +71,7 @@ class CustomRoleConverter(commands.Converter):
             int(argument)
         except ValueError:
             for r in guild.roles:
-                role: discord.Role = r
+                role: diskord.Role = r
                 if str(role.name).lower() == argument.lower():
                     return role
                 break
@@ -80,7 +80,7 @@ class CustomRoleConverter(commands.Converter):
             )
         _id = int(argument)
         for r in guild.roles:
-            role: discord.Role = r
+            role: diskord.Role = r
             if _id == role.id:
                 return role
             break
