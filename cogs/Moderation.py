@@ -169,7 +169,7 @@ class Moderation(commands.Cog):
                     name=ctx.author.display_name,
                     icon_url=ctx.author.avatar.url,
                 )
-                em.set_thumbnail(url=ctx.guild.icon_url)
+                em.set_thumbnail(url=ctx.guild.icon.url)
                 em.add_field(
                     name="Kicked",
                     value=f"You were Kicked from **{ctx.guild}**",
@@ -243,7 +243,7 @@ class Moderation(commands.Cog):
                             name=ctx.author.display_name,
                             icon_url=ctx.author.avatar.url,
                         )
-                        .set_thumbnail(url=ctx.guild.icon_url)
+                        .set_thumbnail(url=ctx.guild.icon.url)
                         .add_field(
                             name="Banned",
                             value=f"You were Banned from **{ctx.guild}**",
@@ -321,7 +321,7 @@ class Moderation(commands.Cog):
             newEmbed.set_author(
                 name=ctx.author.display_name, icon_url=ctx.author.avatar.url
             )
-            newEmbed.set_thumbnail(url=ctx.guild.icon_url)
+            newEmbed.set_thumbnail(url=ctx.guild.icon.url)
             newEmbed.add_field(
                 name="Rule 1",
                 value="Follow Discord TOS and Guidlines",

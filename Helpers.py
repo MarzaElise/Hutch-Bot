@@ -1,6 +1,7 @@
 # the utilities file which has all the helper functions, custom exceptions and subclasses like Context
 import asyncio
 import contextlib
+from dataclasses import dataclass
 import io
 import os
 import random
@@ -147,7 +148,7 @@ class Context(commands.Context):
         em.set_footer(
             text=f"Requested by {self.author}", icon_url=self.author.avatar.url
         )
-        em.set_thumbnail(url=self.guild.icon_url)
+        em.set_thumbnail(url=self.guild.icon.url)
         if heading:
             em.title = heading
         if desc:
@@ -528,6 +529,8 @@ class CustomRoleConverter(commands.Converter):
             "Role with the id '{}' was not found".format(argument)
         )
 
+@dataclass
+class ParseEmbedFlags: ...
 
 def get_data_from_options(ctx: Context, **options: dict):
     bot: commands.Bot = ctx.bot
@@ -551,7 +554,7 @@ def get_data_from_options(ctx: Context, **options: dict):
     thumbnail = options.get("thumbnail", None)
     author = options.get("author", None)
     author = author or ctx.author
-    thumbnail = thumbnail or guild.icon_url
+    thumbnail = thumbnail or guild.icon.url
 
     __attrs__ = [title, desc, _image, __foot]
 
@@ -597,7 +600,7 @@ def get_data_from_options(ctx: Context, **options: dict):
     if author:
         ret["author"] = {}
         ret["author"]["name"] = f"{author}"
-        ret["author"]["icon_url"] = str(author.avatar.url)
+        ret["author"]["icon.url"] = str(author.avatar.url)
     em: Embed = Embed.from_dict(ret)
     return em
 

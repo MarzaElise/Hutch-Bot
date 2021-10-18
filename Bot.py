@@ -259,7 +259,7 @@ class MyBot(commands.Bot):
                 name="Config",
                 value="You have don't have to waste time configuring since this is a pre-configured bot!",
             )
-            em.set_thumbnail(url=guild.icon_url)
+            em.set_thumbnail(url=guild.icon.url)
             em.set_footer(
                 text="Please make sure this bot has `embed_links` permission in all the channels"
             )

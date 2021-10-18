@@ -175,7 +175,7 @@ class Fun(commands.Cog):
         )
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
         em.set_footer(text=f"Use '{ctx.prefix}dm opt out' command to opt out")
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         if can:
             confirmed = await ctx.confirm(
                 f"Are you sure you want to send this DM to {member}",
@@ -234,7 +234,7 @@ class Fun(commands.Cog):
         em.set_author(
             name=ctx.author.display_name, icon_url=ctx.author.avatar.url
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         em.add_field(name="Question:", value=question, inline=False)
         em.add_field(name="Answer:", value=answer, inline=False)
         await ctx.reply(embed=em)
@@ -345,7 +345,7 @@ class Fun(commands.Cog):
                         name="Binary:", value=data["binary"], inline=False
                     )
                     em.set_footer(text=f"Requested by {ctx.author}")
-                    em.set_thumbnail(url=ctx.guild.icon_url)
+                    em.set_thumbnail(url=ctx.guild.icon.url)
                     em.set_author(
                         name=ctx.author.display_name,
                         icon_url=ctx.author.avatar.url,
@@ -419,7 +419,7 @@ class Fun(commands.Cog):
                 ]
             )
             em.set_footer(text=f"Requested by {ctx.author}")
-            em.set_thumbnail(url=ctx.guild.icon_url)
+            em.set_thumbnail(url=ctx.guild.icon.url)
             return await ctx.send(
                 content="provided image could not be found! Please make sure image name is one of the below categories",
                 embed=em,

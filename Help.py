@@ -74,7 +74,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         em.set_author(
             name=self.context.author, icon_url=self.context.author.avatar.url
         )
-        em.set_thumbnail(url=self.context.guild.icon_url)
+        em.set_thumbnail(url=self.context.guild.icon.url)
         em.add_field(name="Navigation", value=f"{nav}\n\n", inline=False)
         em.add_field(
             name="Bugs:",
@@ -114,7 +114,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
 
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         em.set_footer(
             text=self.get_ending_note(), icon_url=ctx.author.avatar.url
         )
@@ -187,7 +187,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                 em = diskord.Embed(color=random.choice(colors))
                 em.title = getattr(cog, "qualified_name", "No Category")
                 em.description = cog.description if cog else "\n"
-                em.set_thumbnail(url=ctx.guild.icon_url)
+                em.set_thumbnail(url=ctx.guild.icon.url)
                 em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
                 em.set_footer(
                     text="<> - Required | [] - Optional",
@@ -239,7 +239,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         em.title = command.qualified_name.title()
         em.description = command.help
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-        em.set_thumbnail(url=self.context.guild.icon_url)
+        em.set_thumbnail(url=self.context.guild.icon.url)
         em.set_footer(
             text="<> - Required | [] - Optional",
             icon_url=ctx.author.avatar.url,
@@ -294,7 +294,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             em = diskord.Embed(color=random.choice(colors))
             em.title = f"{cog.qualified_name} Commands"
             em.description = cog.description
-            em.set_thumbnail(url=self.context.guild.icon_url)
+            em.set_thumbnail(url=self.context.guild.icon.url)
             em.set_author(name=self.context.author)
             em.set_footer(
                 text=self.get_ending_note(),
@@ -342,7 +342,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                 description=group.help,
                 color=random.choice(colors),
             )
-            em.set_thumbnail(url=ctx.guild.icon_url)
+            em.set_thumbnail(url=ctx.guild.icon.url)
             em.set_footer(
                 text=self.get_ending_note(), icon_url=ctx.author.avatar.url
             )

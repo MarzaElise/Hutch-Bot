@@ -214,7 +214,7 @@ class Dev(commands.Cog):
         em = diskord.Embed(
             color=diskord.Color.random(), timestamp=ctx.message.created_at
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         em.add_field(name="Bot Version", value=version(), inline=False)
         em.add_field(
             name="Total Users:", value=len(self.bot.users), inline=False
@@ -260,7 +260,7 @@ class Dev(commands.Cog):
         em.set_author(
             name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         await ctx.send(embed=em)
 
     @changelogs.command(
@@ -281,7 +281,7 @@ class Dev(commands.Cog):
         em.set_author(
             name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         await ctx.send(embed=em)
 
     @commands.command(
