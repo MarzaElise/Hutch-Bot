@@ -34,7 +34,6 @@ def version():
 inv_url = oauth_url(
     client_id=799973356685361154,
     permissions=diskord.Permissions.all(),
-    guild=None,
     redirect_uri=None,
 )
 
@@ -237,10 +236,10 @@ class Dev(commands.Cog):
         em.add_field(
             name="Useful Links", value=" | ".join(links), inline=False
         )
-        em.set_author(name=self.bot.user, icon_url=self.bot.user.avatar_url)
+        em.set_author(name=self.bot.user, icon_url=self.bot.user.avatar.url)
         em.set_footer(
             text=f"Send {self.bot.config.ME} nitro for making this bot :)",
-            icon_url=ctx.author.avatar_url,
+            icon_url=ctx.author.avatar.url,
         )
         await ctx.send(embed=em)
 
@@ -259,7 +258,7 @@ class Dev(commands.Cog):
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
         em.set_author(
-            name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url
+            name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
         em.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=em)
@@ -280,7 +279,7 @@ class Dev(commands.Cog):
         em.title = f"Changelogs for version {version()}"
         em.description = f">>> {l}"
         em.set_author(
-            name=f"{self.bot.user}", icon_url=self.bot.user.avatar_url
+            name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
         em.set_thumbnail(url=ctx.guild.icon_url)
         await ctx.send(embed=em)

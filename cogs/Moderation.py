@@ -167,7 +167,7 @@ class Moderation(commands.Cog):
                 )
                 em.set_author(
                     name=ctx.author.display_name,
-                    icon_url=ctx.author.avatar_url,
+                    icon_url=ctx.author.avatar.url,
                 )
                 em.set_thumbnail(url=ctx.guild.icon_url)
                 em.add_field(
@@ -241,7 +241,7 @@ class Moderation(commands.Cog):
                         )
                         .set_author(
                             name=ctx.author.display_name,
-                            icon_url=ctx.author.avatar_url,
+                            icon_url=ctx.author.avatar.url,
                         )
                         .set_thumbnail(url=ctx.guild.icon_url)
                         .add_field(
@@ -319,7 +319,7 @@ class Moderation(commands.Cog):
                 title="Rules", color=random.choice(colors)
             )
             newEmbed.set_author(
-                name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+                name=ctx.author.display_name, icon_url=ctx.author.avatar.url
             )
             newEmbed.set_thumbnail(url=ctx.guild.icon_url)
             newEmbed.add_field(
@@ -451,9 +451,9 @@ class Moderation(commands.Cog):
             em.set_author(
                 name=f"{member}",
                 url=f"https://discord.com/users/{member.id}",
-                icon_url=member.avatar_url,
+                icon_url=member.avatar.url,
             )
-            em.set_thumbnail(url=member.avatar_url)
+            em.set_thumbnail(url=member.avatar.url)
             em.add_field(name="Joined at:", value=joined, inline=True)
             em.add_field(name="Created at:", value=created, inline=True)
             em.add_field(name="ID:", value=member.id, inline=True)

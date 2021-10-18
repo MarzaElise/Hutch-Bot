@@ -143,9 +143,9 @@ class Context(commands.Context):
         Custom function that returns a standard embed similar to ctx.embed but you cannot use some embed kwargs
         """
         em = diskord.Embed(timestamp=self.message.created_at, color=col)
-        em.set_author(name=self.author, icon_url=self.author.avatar_url)
+        em.set_author(name=self.author, icon_url=self.author.avatar.url)
         em.set_footer(
-            text=f"Requested by {self.author}", icon_url=self.author.avatar_url
+            text=f"Requested by {self.author}", icon_url=self.author.avatar.url
         )
         em.set_thumbnail(url=self.guild.icon_url)
         if heading:
@@ -191,7 +191,7 @@ class Context(commands.Context):
         default.update(kwargs)
         return_embed = self.Embed(*args, **default)
         return_embed.set_footer(
-            icon_url=self.author.avatar_url, text=f"Requested by {self.author}"
+            icon_url=self.author.avatar.url, text=f"Requested by {self.author}"
         )
         return return_embed
 
@@ -202,10 +202,10 @@ class Context(commands.Context):
             title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
-        em.set_author(name=self.author, icon_url=self.author.avatar_url)
+        em.set_author(name=self.author, icon_url=self.author.avatar.url)
         em.set_footer(
             text="If this was a mistake, please contact Marcus | Bot Dev#4438",
-            icon_url=self.author.avatar_url,
+            icon_url=self.author.avatar.url,
         )
         return await self.send(embed=em)
 
@@ -216,14 +216,14 @@ class Context(commands.Context):
             title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
-        em.set_author(name=self.author, icon_url=self.author.avatar_url)
+        em.set_author(name=self.author, icon_url=self.author.avatar.url)
         if (
             not description
             == "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
         ):
             em.set_footer(
                 text="If this was a mistake, please contact Marcus | Bot Dev#4438",
-                icon_url=self.author.avatar_url,
+                icon_url=self.author.avatar.url,
             )
         return em
 
@@ -403,10 +403,10 @@ class Context(commands.Context):
         )
         reactions = ["✅", "❌"]
         em.timestamp = self.message.created_at
-        em.set_author(name=self.author, icon_url=self.author.avatar_url)
+        em.set_author(name=self.author, icon_url=self.author.avatar.url)
         em.set_footer(
             text=f"You Have {timeout} seconds to react",
-            icon_url=self.author.avatar_url,
+            icon_url=self.author.avatar.url,
         )
         msg = await self.send(embed=em)
         for reac in reactions:
@@ -528,7 +528,7 @@ def get_data_from_options(ctx: Context, **options: dict):
     if author:
         ret["author"] = {}
         ret["author"]["name"] = f"{author}"
-        ret["author"]["icon_url"] = str(author.avatar_url)
+        ret["author"]["icon_url"] = str(author.avatar.url)
     em: Embed = Embed.from_dict(ret)
     return em
 

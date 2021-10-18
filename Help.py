@@ -69,10 +69,10 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
         em.set_footer(
             text=self.get_ending_note(),
-            icon_url=self.context.author.avatar_url,
+            icon_url=self.context.author.avatar.url,
         )
         em.set_author(
-            name=self.context.author, icon_url=self.context.author.avatar_url
+            name=self.context.author, icon_url=self.context.author.avatar.url
         )
         em.set_thumbnail(url=self.context.guild.icon_url)
         em.add_field(name="Navigation", value=f"{nav}\n\n", inline=False)
@@ -113,10 +113,10 @@ class CustomHelp(commands.MinimalHelpCommand):
             inline=False,
         )
 
-        em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.set_footer(
-            text=self.get_ending_note(), icon_url=ctx.author.avatar_url
+            text=self.get_ending_note(), icon_url=ctx.author.avatar.url
         )
         self.add_link(em, entity)
         return em
@@ -188,10 +188,10 @@ class CustomHelp(commands.MinimalHelpCommand):
                 em.title = getattr(cog, "qualified_name", "No Category")
                 em.description = cog.description if cog else "\n"
                 em.set_thumbnail(url=ctx.guild.icon_url)
-                em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+                em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
                 em.set_footer(
                     text="<> - Required | [] - Optional",
-                    icon_url=ctx.author.avatar_url,
+                    icon_url=ctx.author.avatar.url,
                 )
                 if cog:
                     filtered = cog.get_commands()
@@ -238,11 +238,11 @@ class CustomHelp(commands.MinimalHelpCommand):
         em = diskord.Embed(color=random.choice(colors))
         em.title = command.qualified_name.title()
         em.description = command.help
-        em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
         em.set_thumbnail(url=self.context.guild.icon_url)
         em.set_footer(
             text="<> - Required | [] - Optional",
-            icon_url=ctx.author.avatar_url,
+            icon_url=ctx.author.avatar.url,
         )
         em.add_field(
             name="Usage:",
@@ -265,7 +265,7 @@ class CustomHelp(commands.MinimalHelpCommand):
         )
         em.set_footer(
             text=self.get_ending_note(),
-            icon_url=self.context.author.avatar_url,
+            icon_url=self.context.author.avatar.url,
         )
         _embeds.append(em)
         Pag = Paginator(self.context, embeds=_embeds)
@@ -298,7 +298,7 @@ class CustomHelp(commands.MinimalHelpCommand):
             em.set_author(name=self.context.author)
             em.set_footer(
                 text=self.get_ending_note(),
-                icon_url=self.context.author.avatar_url,
+                icon_url=self.context.author.avatar.url,
             )
             for command in chunk:
                 qual_name = str(command.qualified_name).title()
@@ -344,9 +344,9 @@ class CustomHelp(commands.MinimalHelpCommand):
             )
             em.set_thumbnail(url=ctx.guild.icon_url)
             em.set_footer(
-                text=self.get_ending_note(), icon_url=ctx.author.avatar_url
+                text=self.get_ending_note(), icon_url=ctx.author.avatar.url
             )
-            em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+            em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
             for cmd in chunk:
                 em.add_field(
                     name=str(cmd.qualified_name).title(),
@@ -386,6 +386,6 @@ class CustomHelp(commands.MinimalHelpCommand):
             )
             em.set_footer(
                 text="If this was a mistake please contact Marcus | Bot Dev#4438",
-                icon_url=ctx.author.avatar_url,
+                icon_url=ctx.author.avatar.url,
             )
             return await ctx.send(embed=em)

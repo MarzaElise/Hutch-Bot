@@ -179,7 +179,7 @@ class MyBot(commands.Bot):
             except Exception as e:
                 # raise e
                 print(
-                    f"ERROR: [{ext}] \n{traceback.format_exception(type(e), e, e.__traceback__)[-1]}"
+                    f"ERROR: [{ext}] \n{''.join(traceback.format_exception(type(e), e, e.__traceback__))}"
                 )
                 # minimal info is enough to know what happened in most cases.
                 # I can just change this whenever I want to see the entire exception
@@ -354,7 +354,7 @@ class MyBot(commands.Bot):
             )
             em.set_footer(
                 text=f"If this was a mistake please contact {self.config.ME}",
-                icon_url=ctx.author.avatar_url,
+                icon_url=ctx.author.avatar.url,
             )
             return await ctx.send(embed=em)
 

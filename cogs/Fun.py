@@ -173,7 +173,7 @@ class Fun(commands.Cog):
         em = diskord.Embed(
             description=f"> {text_to_dm}", color=random.choice(colors)
         )
-        em.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
+        em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
         em.set_footer(text=f"Use '{ctx.prefix}dm opt out' command to opt out")
         em.set_thumbnail(url=ctx.guild.icon_url)
         if can:
@@ -232,7 +232,7 @@ class Fun(commands.Cog):
         answer = random.choice(responses)
         em = diskord.Embed(color=random.choice(colors))
         em.set_author(
-            name=ctx.author.display_name, icon_url=ctx.author.avatar_url
+            name=ctx.author.display_name, icon_url=ctx.author.avatar.url
         )
         em.set_thumbnail(url=ctx.guild.icon_url)
         em.add_field(name="Question:", value=question, inline=False)
@@ -348,7 +348,7 @@ class Fun(commands.Cog):
                     em.set_thumbnail(url=ctx.guild.icon_url)
                     em.set_author(
                         name=ctx.author.display_name,
-                        icon_url=ctx.author.avatar_url,
+                        icon_url=ctx.author.avatar.url,
                     )
                     await ctx.reply(embed=em)
             except Exception as e:
