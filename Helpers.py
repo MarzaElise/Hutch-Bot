@@ -534,7 +534,7 @@ class ParseEmbedFlags:
 
     title: str = None
     description: str = None
-    colour: str = "0xFF0000"
+    colour: str = None
     author: diskord.Member = None
     footer: str = None
     thumbnail: str = None
@@ -554,9 +554,9 @@ class ParseEmbedFlags:
             raise EmbedCreationError("Only one of `color` or `colour` should be provided")
         if all([self.thumb, self.thumbnail]):
             raise EmbedCreationError("Please only provide one of `thumb` or `thumbnail` not both")
-        if all(self.img, self.image):
+        if all([self.img, self.image]):
             raise EmbedCreationError("You cannot provide both `img` and `image`. Provide only one of them")
-        if all(self.foot, self.footer):
+        if all([self.foot, self.footer]):
             raise EmbedCreationError("Provide only one of either `foot` or `footer`")
         if not any(
             [self.title, self.desc, self.description, self.image, self.footer, self.foot, self.img]
@@ -571,8 +571,9 @@ class ParseEmbedFlags:
             self.author = ctx.author
         if not thumbnail_:
             thumbnail_ = ctx.guild.icon.url
-        if color_:
-            color_ = int(color_, 16)
+        if not color_:
+            color_ = "0xFF0000"
+        color_ = int(color_, 16)
 
         self.thumbnail = thumbnail_
         self.color = color_
@@ -582,13 +583,14 @@ class ParseEmbedFlags:
         self.validate()
 
     def embed_dict(self, ctx):
+
+        self.set_defaults(ctx)
         description_ = self.description or self.desc
         image_ = self.image or self.img
         color_ = self.color or self.colour
         footer_ = self.footer or self.foot
         thumbnail_ = self.thumb or self.thumbnail
 
-        self.set_defaults(ctx)
 
         # actual creating dict part
         if self.title:
@@ -606,7 +608,7 @@ class ParseEmbedFlags:
         if self.author:
             self.final["author"] = {
                 'name': f"{self.author}",
-                'icon.url': self.author.avatar.url,
+                'icon_url': self.author.avatar.url,
             }
         return self.final
 

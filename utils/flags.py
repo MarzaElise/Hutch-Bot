@@ -5,7 +5,7 @@ class EmbedFlags(commands.FlagConverter, case_insensitive=True):
 
     title: str = None
     description: str = None
-    colour: str = "0xFF0000"
+    colour: str = None
     author: diskord.Member = None
     footer: str = None
     thumbnail: str = None

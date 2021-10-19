@@ -12,8 +12,9 @@ from diskord.ext.commands import BucketType
 from diskord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
-from utils import *
-from utils import Cache
+# from utils import *
+from utils import Cache, EmbedFlags
+from Helpers import *
 
 # os.chdir("../launcher.py")
 
