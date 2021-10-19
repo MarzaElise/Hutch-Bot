@@ -530,77 +530,96 @@ class CustomRoleConverter(commands.Converter):
         )
 
 @dataclass
-class ParseEmbedFlags: ...
+class ParseEmbedFlags:
 
-def get_data_from_options(ctx: Context, **options: dict):
-    bot: commands.Bot = ctx.bot
+    title: str = None
+    description: str = None
+    colour: str = "0xFF0000"
+    author: diskord.Member = None
+    footer: str = None
+    thumbnail: str = None
+    image: str = None
+
+    # aliases
+    foot: str = None
+    color: str = None
+    img: str = None
+    desc: str = None
+    thumb: str = None
+
+    def validate(self):
+        if all([self.desc, self.description]):
+            raise EmbedCreationError("Provide only one of `desc` or `description`")
+        if all([self.color, self.colour]):
+            raise EmbedCreationError("Only one of `color` or `colour` should be provided")
+        if all([self.thumb, self.thumbnail]):
+            raise EmbedCreationError("Please only provide one of `thumb` or `thumbnail` not both")
+        if all(self.img, self.image):
+            raise EmbedCreationError("You cannot provide both `img` and `image`. Provide only one of them")
+        if all(self.foot, self.footer):
+            raise EmbedCreationError("Provide only one of either `foot` or `footer`")
+        if not any(
+            [self.title, self.desc, self.description, self.image, self.footer, self.foot, self.img]
+        ):
+            raise EmbedCreationError("None of `title` `description` `image` `footer` was given. Provide at least one of them")
+    def set_defaults(self, ctx):
+
+        color_ = self.color or self.colour
+        thumbnail_ = self.thumb or self.thumbnail
+
+        if not self.author:
+            self.author = ctx.author
+        if not thumbnail_:
+            thumbnail_ = ctx.guild.icon.url
+        if color_:
+            color_ = int(color_, 16)
+
+        self.thumbnail = thumbnail_
+        self.color = color_
+
+    def __post_init__(self):
+        self.final = {}
+        self.validate()
+
+    def embed_dict(self, ctx):
+        description_ = self.description or self.desc
+        image_ = self.image or self.img
+        color_ = self.color or self.colour
+        footer_ = self.footer or self.foot
+        thumbnail_ = self.thumb or self.thumbnail
+
+        self.set_defaults(ctx)
+
+        # actual creating dict part
+        if self.title:
+            self.final["title"] = self.title
+        if description_:
+            self.final["description"] = description_
+        if image_:
+            self.final["image"] = {'url': image_}
+        if color_:
+            self.final["color"] = self.color
+        if footer_:
+            self.final["footer"] = {'text': footer_}
+        if thumbnail_:
+            self.final["thumbnail"] = {'url': self.thumbnail}
+        if self.author:
+            self.final["author"] = {
+                'name': f"{self.author}",
+                'icon.url': self.author.avatar.url,
+            }
+        return self.final
+
+
+
+def get_data_from_options(ctx: Context, **options):
+
     guild: diskord.Guild = ctx.guild
-    title = options.get("title", None)
-    desc = options.get("desc", None)
+    
+    flags_ = ParseEmbedFlags(**options)
 
-    img = options.get("img", None)
-    _image = options.get("image", img)
+    ret = flags_.embed_dict(ctx)
 
-    colour = options.get("colour", None)
-    __col = None
-    if colour:
-        if isinstance(colour, list):
-            colour = "".join(colour)
-        __col = int(colour, 16)
-
-    _footer = options.get("footer", None)
-    __foot = _footer
-
-    thumbnail = options.get("thumbnail", None)
-    author = options.get("author", None)
-    author = author or ctx.author
-    thumbnail = thumbnail or guild.icon.url
-
-    __attrs__ = [title, desc, _image, __foot]
-
-    __all__ = [title, desc, _image, __col, __foot, thumbnail, author]
-
-    if (
-        (title is None)
-        and (desc is None)
-        and (_image is None)
-        and (__foot is None)
-    ):
-        raise EmbedCreationError(
-            "You should at least provide a title to create an embed"
-        )
-
-    ret = {}
-
-    if title:
-        if isinstance(title, list):
-            title = " ".join(title)
-        ret["title"] = title
-    if desc:
-        if isinstance(desc, list):
-            desc = " ".join(desc)
-        ret["description"] = desc
-    if _image:
-        if isinstance(_image, list):
-            _image = " ".join(_image)
-        ret["image"] = {}
-        ret["image"]["url"] = _image
-    if __col:
-        if isinstance(__col, list):
-            __col = " ".join(__col)
-        ret["color"] = __col
-    if __foot:
-        if isinstance(__foot, list):
-            __foot = " ".join(__foot)
-        ret["footer"] = {}
-        ret["footer"]["text"] = __foot
-    if thumbnail:
-        ret["thumbnail"] = {}
-        ret["thumbnail"]["url"] = str(thumbnail)
-    if author:
-        ret["author"] = {}
-        ret["author"]["name"] = f"{author}"
-        ret["author"]["icon.url"] = str(author.avatar.url)
     em: Embed = Embed.from_dict(ret)
     return em
 

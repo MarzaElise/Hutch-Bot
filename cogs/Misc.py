@@ -98,7 +98,7 @@ class Misc(commands.Cog):
             name="Join the support server",
             value="[Link Here](https://discord.gg/5nzgEWSnEG)",
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         em.set_author(
             name=self.bot.config.ME, url="https://discord.gg/ZhMPxJ6gM2"
         )
@@ -123,7 +123,7 @@ class Misc(commands.Cog):
             icon_url="https://www.youtube.com/channel/UC3e6sBmEMCpsbr6V2QJTgpQ",
             url="https://discord.gg/ZhMPxJ6gM2",
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         em.add_field(
             name="Add me to your server",
             value=f"[Click This Link]({url})",
@@ -157,7 +157,7 @@ class Misc(commands.Cog):
         em.set_footer(
             text=f"Send {self.bot.config.ME} Nitro for spending time on making this"
         )
-        em.set_thumbnail(url=ctx.guild.icon_url)
+        em.set_thumbnail(url=ctx.guild.icon.url)
         await ctx.reply(embed=em)
 
     @commands.command(
@@ -329,7 +329,7 @@ class Misc(commands.Cog):
             em = diskord.Embed(
                 title="Translation", color=random.choice(colors)
             )
-            em.set_thumbnail(url=ctx.guild.icon_url)
+            em.set_thumbnail(url=ctx.guild.icon.url)
             em.set_footer(text=f"Translation requested by {ctx.author}")
             em.add_field(name="Text:", value=text, inline=False)
             em.add_field(name="Source:", value=result.src)
@@ -363,7 +363,7 @@ class Misc(commands.Cog):
         \nSurround values with quotation marks like this to use multiple word\n
         Example: `-flag \"multiple words\"`. All arguments are optional
         """
-        em = get_data_from_options(ctx, **options)
+        em = get_data_from_options(ctx, **options.__dict__)
         await ctx.send(
             content="Please note that there might be some bugs so please make sure to report them",
             embed=em,
