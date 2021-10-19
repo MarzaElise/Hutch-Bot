@@ -113,7 +113,9 @@ class MyBot(commands.Bot):
             "name": "help",
             "help": "Shows help about a command or a category",
             "aliases": ["helps"],
-            "cooldown": commands.CooldownMapping.from_cooldown(1, 5, commands.BucketType.channel),
+            "cooldown": commands.CooldownMapping.from_cooldown(
+                1, 5, commands.BucketType.channel
+            ),
             "brief": "5s",
         }
         # weird way of passing in token_type in params and running the bot

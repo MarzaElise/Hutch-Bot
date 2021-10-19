@@ -529,6 +529,7 @@ class CustomRoleConverter(commands.Converter):
             "Role with the id '{}' was not found".format(argument)
         )
 
+
 @dataclass
 class ParseEmbedFlags:
 
@@ -549,19 +550,40 @@ class ParseEmbedFlags:
 
     def validate(self):
         if all([self.desc, self.description]):
-            raise EmbedCreationError("Provide only one of `desc` or `description`")
+            raise EmbedCreationError(
+                "Provide only one of `desc` or `description`"
+            )
         if all([self.color, self.colour]):
-            raise EmbedCreationError("Only one of `color` or `colour` should be provided")
+            raise EmbedCreationError(
+                "Only one of `color` or `colour` should be provided"
+            )
         if all([self.thumb, self.thumbnail]):
-            raise EmbedCreationError("Please only provide one of `thumb` or `thumbnail` not both")
+            raise EmbedCreationError(
+                "Please only provide one of `thumb` or `thumbnail` not both"
+            )
         if all([self.img, self.image]):
-            raise EmbedCreationError("You cannot provide both `img` and `image`. Provide only one of them")
+            raise EmbedCreationError(
+                "You cannot provide both `img` and `image`. Provide only one of them"
+            )
         if all([self.foot, self.footer]):
-            raise EmbedCreationError("Provide only one of either `foot` or `footer`")
+            raise EmbedCreationError(
+                "Provide only one of either `foot` or `footer`"
+            )
         if not any(
-            [self.title, self.desc, self.description, self.image, self.footer, self.foot, self.img]
+            [
+                self.title,
+                self.desc,
+                self.description,
+                self.image,
+                self.footer,
+                self.foot,
+                self.img,
+            ]
         ):
-            raise EmbedCreationError("None of `title` `description` `image` `footer` was given. Provide at least one of them")
+            raise EmbedCreationError(
+                "None of `title` `description` `image` `footer` was given. Provide at least one of them"
+            )
+
     def set_defaults(self, ctx):
 
         color_ = self.color or self.colour
@@ -591,33 +613,31 @@ class ParseEmbedFlags:
         footer_ = self.footer or self.foot
         thumbnail_ = self.thumb or self.thumbnail
 
-
         # actual creating dict part
         if self.title:
             self.final["title"] = self.title
         if description_:
             self.final["description"] = description_
         if image_:
-            self.final["image"] = {'url': image_}
+            self.final["image"] = {"url": image_}
         if color_:
             self.final["color"] = self.color
         if footer_:
-            self.final["footer"] = {'text': footer_}
+            self.final["footer"] = {"text": footer_}
         if thumbnail_:
-            self.final["thumbnail"] = {'url': self.thumbnail}
+            self.final["thumbnail"] = {"url": self.thumbnail}
         if self.author:
             self.final["author"] = {
-                'name': f"{self.author}",
-                'icon_url': self.author.avatar.url,
+                "name": f"{self.author}",
+                "icon_url": self.author.avatar.url,
             }
         return self.final
-
 
 
 def get_data_from_options(ctx: Context, **options):
 
     guild: diskord.Guild = ctx.guild
-    
+
     flags_ = ParseEmbedFlags(**options)
 
     ret = flags_.embed_dict(ctx)

@@ -1,6 +1,7 @@
 from diskord.ext import commands
 import diskord
 
+
 class EmbedFlags(commands.FlagConverter, case_insensitive=True):
 
     title: str = None

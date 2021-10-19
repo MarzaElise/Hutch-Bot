@@ -15,15 +15,17 @@ argument = namedtuple("argument", "args kwargs")
 
 def command(**kwargs):
     def inner(func):
-        cls = kwargs.get('cls', FlagCommand)
+        cls = kwargs.get("cls", FlagCommand)
         return cls(func, **kwargs)
+
     return inner
 
 
 def group(**kwargs):
     def inner(func):
-        cls = kwargs.get('cls', FlagGroup)
+        cls = kwargs.get("cls", FlagGroup)
         return cls(func, **kwargs)
+
     return inner
 
 
@@ -34,19 +36,22 @@ def add_flag(*flag_names, **kwargs):
         else:
             nfunc = func
 
-        if not hasattr(nfunc, '_def_parser'):
+        if not hasattr(nfunc, "_def_parser"):
             nfunc._def_parser = _parser.DontExitArgumentParser()
         nfunc._def_parser.add_argument(*flag_names, **kwargs)
         return func
+
     return inner
 
 
 class FlagCommand(commands.Command):
     async def _parse_flag_arguments(self, ctx):
-        if not hasattr(self.callback, '_def_parser'):
+        if not hasattr(self.callback, "_def_parser"):
             return
         arg = ctx.view.read_rest()
-        namespace = self.callback._def_parser.parse_args(shlex.split(arg), ctx=ctx)
+        namespace = self.callback._def_parser.parse_args(
+            shlex.split(arg), ctx=ctx
+        )
         ctx.kwargs.update(vars(namespace))
 
     @property
@@ -56,7 +61,7 @@ class FlagCommand(commands.Command):
 
         params = self.clean_params
         if not params:
-            return ''
+            return ""
 
         result = []
         for name, param in params.items():
@@ -65,69 +70,86 @@ class FlagCommand(commands.Command):
             if param.default is not param.empty:
                 # We don't want None or '' to trigger the [name=value] case and instead it should
                 # do [name] since [name=None] or [name=] are not exactly useful for the user.
-                should_print = param.default if isinstance(param.default, str) else param.default is not None
+                should_print = (
+                    param.default
+                    if isinstance(param.default, str)
+                    else param.default is not None
+                )
                 if should_print:
-                    result.append('[%s=%s]' % (name, param.default) if not greedy else
-                                  '[%s=%s]...' % (name, param.default))
+                    result.append(
+                        "[%s=%s]" % (name, param.default)
+                        if not greedy
+                        else "[%s=%s]..." % (name, param.default)
+                    )
                     continue
                 else:
-                    result.append('[%s]' % name)
+                    result.append("[%s]" % name)
 
             elif param.kind == param.VAR_POSITIONAL:
-                result.append('[%s...]' % name)
+                result.append("[%s...]" % name)
             elif greedy:
-                result.append('[%s]...' % name)
+                result.append("[%s]..." % name)
             elif self._is_typing_optional(param.annotation):
-                result.append('[%s]' % name)
+                result.append("[%s]" % name)
             elif param.kind == param.VAR_KEYWORD:
                 pass
             else:
-                result.append('<%s>' % name)
+                result.append("<%s>" % name)
 
-        return ' '.join(result)
+        return " ".join(result)
 
     @property
     def signature(self):
         result = self.old_signature
         to_append = [result]
-        parser = self.callback._def_parser  # type: _parser.DontExitArgumentParser
+        parser = (
+            self.callback._def_parser
+        )  # type: _parser.DontExitArgumentParser
 
         for action in parser._actions:
             # in argparse, options are done before positionals
             #  so we need to loop over it twice unfortunately
             if action.option_strings:
                 name = action.dest.upper()
-                flag = action.option_strings[0].lstrip('-').replace('-', '_')
-                k = '-' if len(flag) == 1 else '--'
-                should_print = action.default is not None and action.default != ''
+                flag = action.option_strings[0].lstrip("-").replace("-", "_")
+                k = "-" if len(flag) == 1 else "--"
+                should_print = (
+                    action.default is not None and action.default != ""
+                )
                 if action.required:
                     if should_print:
-                        to_append.append('<%s%s %s=%s>' % (k, flag, name, action.default))
+                        to_append.append(
+                            "<%s%s %s=%s>" % (k, flag, name, action.default)
+                        )
                     else:
-                        to_append.append('<%s%s %s>' % (k, flag, name))
+                        to_append.append("<%s%s %s>" % (k, flag, name))
                 else:
                     if should_print:
-                        to_append.append('[%s%s %s=%s]' % (k, flag, name, action.default))
+                        to_append.append(
+                            "[%s%s %s=%s]" % (k, flag, name, action.default)
+                        )
                     else:
-                        to_append.append('[%s%s %s]' % (k, flag, name))
+                        to_append.append("[%s%s %s]" % (k, flag, name))
 
         for action in parser._actions:
             # here we do the positionals
             if not action.option_strings:
                 name = action.dest
-                should_print = action.default is not None and action.default != ''
-                if action.nargs in ('*', '?'):  # optional narg types
+                should_print = (
+                    action.default is not None and action.default != ""
+                )
+                if action.nargs in ("*", "?"):  # optional narg types
                     if should_print:
-                        to_append.append('[%s=%s]' % (name, action.default))
+                        to_append.append("[%s=%s]" % (name, action.default))
                     else:
-                        to_append.append('[%s]' % name)
+                        to_append.append("[%s]" % name)
                 else:
                     if should_print:
-                        to_append.append('<%s=%s>' % (name, action.default))
+                        to_append.append("<%s=%s>" % (name, action.default))
                     else:
-                        to_append.append('<%s>' % name)
+                        to_append.append("<%s>" % name)
 
-        return ' '.join(to_append)
+        return " ".join(to_append)
 
     async def _parse_arguments(self, ctx):
         ctx.args = [ctx] if self.cog is None else [self.cog, ctx]
@@ -163,7 +185,9 @@ class FlagCommand(commands.Command):
                 if self.rest_is_raw:
                     converter = self._get_converter(param)
                     argument = view.read_rest()
-                    kwargs[name] = await self.do_conversion(ctx, converter, argument, param)
+                    kwargs[name] = await self.do_conversion(
+                        ctx, converter, argument, param
+                    )
                 else:
                     kwargs[name] = await self.transform(ctx, param)
                 break
@@ -180,7 +204,9 @@ class FlagCommand(commands.Command):
 
         if not self.ignore_extra:
             if not view.eof:
-                raise commands.TooManyArguments('Too many arguments passed to ' + self.qualified_name)
+                raise commands.TooManyArguments(
+                    "Too many arguments passed to " + self.qualified_name
+                )
 
 
 class FlagGroup(FlagCommand, commands.Group):

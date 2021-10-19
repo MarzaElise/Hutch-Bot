@@ -6,15 +6,13 @@ import diskord
 import wikipedia as wiki
 from BaseFile import *
 from Bot import MyBot
-import flags as flags
 from diskord.ext import commands
 from diskord.ext.commands import BucketType
 from diskord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
-# from utils import *
+from utils import *
 from utils import Cache, EmbedFlags
-from Helpers import *
 
 # os.chdir("../launcher.py")
 
@@ -360,13 +358,12 @@ class Misc(commands.Cog):
     @commands.cooldown(1, 10, BucketType.user)
     async def embed(self, ctx: Context, *, options: EmbedFlags):
         """
-        Make youself a custom embed by providing flags using `-flag` or `--flag`\n
-        \nSurround values with quotation marks like this to use multiple word\n
-        Example: `-flag \"multiple words\"`. All arguments are optional
+        Make youself a custom embed by providing flags using `flag: value` syntax\n
+        Example: `h!embed title: Title Text desc: Description Text`
         """
         em = get_data_from_options(ctx, **options.__dict__)
         await ctx.send(
-            content="Please note that there might be some bugs so please make sure to report them",
+            # content="Please note that there might be some bugs so please make sure to report them",
             embed=em,
         )
 
