@@ -1,6 +1,5 @@
 class Cache(dict):
 
-    # not used right now. hope i use it after i fully move to tortoise
     # this class has some retarded methods like add_key but only i use it so not much of a problem
 
     @classmethod
@@ -14,7 +13,7 @@ class Cache(dict):
         # deleting the 9: 10 key value pair
         if isinstance(key, list):
             for actual in key:
-                self.add_key(actual, value)
+                self[actual] = value
         else:
             self[key] = value
         return self

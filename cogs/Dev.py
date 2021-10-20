@@ -1,4 +1,3 @@
-import asyncio
 import os
 import random
 import sys
@@ -8,21 +7,14 @@ from io import StringIO
 from typing import List
 
 import diskord
-import humanize
-import psutil
 from BaseFile import *
 from Bot import MyBot
-from diskord import Message
 from diskord.ext import *
 from diskord.ext.commands import BucketType
 from diskord.ext.commands.cooldowns import CooldownMapping
 from diskord.utils import *
-from utils.helpers import *
+from utils import *
 from jishaku.modules import package_version
-
-
-class MemberBlacklisted(commands.CommandError):
-    pass
 
 
 def version():

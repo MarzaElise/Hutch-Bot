@@ -3,7 +3,6 @@ import random
 from typing import *
 from BaseFile import *
 import typing
-import aiosqlite
 import diskord
 from better_profanity import *
 from diskord.ext import *
@@ -11,11 +10,7 @@ from diskord.utils import *
 from utils.helpers import *
 from diskord.ext.commands import BucketType
 from Bot import MyBot
-import os
-from data import Database
-import traceback
-import datetime
-from diskord.ext.commands.errors import BotMissingPermissions
+from diskord.ext.commands import BotMissingPermissions
 
 # os.chdir("../launcher.py")
 
@@ -81,12 +76,7 @@ class Moderation(commands.Cog):
                 if (message.author.id != self.bot.owner_id) and (
                     message.author.id != message.guild.owner_id
                 ):
-                    if message.guild.id not in [
-                        841721684876328961,
-                        681882711945641997,
-                        804592931586572298,
-                        710534717652336732,
-                    ]:
+                    if message.guild.id not in self.bot.testing_guilds:
                         return True
         return False
 
@@ -108,34 +98,34 @@ class Moderation(commands.Cog):
         if (
             message.mention_everyone
             and message.guild.id not in self.bot.testing_guilds
+        ) and not message.author.guild_permissions.mention_everyone:
+            try:
+                message.author.kick(
+                    reason="Automoderator: Mentioning @ everyone or @ here without permissions | ToS violation"
+                )
+                await message.channel.send(
+                    f"{message.author.mention} was kicked for mentioning everyone or here without permissions | ToS violation"
+                )
+            except:
+                pass
+        if (
+            message.mentions
+            and len(message.mentions) > 5
+            and (message.guild and message.guild.id not in self.bot.testing_guilds)
         ):
-            if not message.author.guild_permissions.mention_everyone:
-                try:
-                    message.author.kick(
-                        reason="Automoderator: Mentioning @ everyone or @ here without permissions | ToS violation"
-                    )
-                    await message.channel.send(
-                        f"{message.author.mention} was kicked for mentioning everyone or here without permissions | ToS violation"
-                    )
-                except:
-                    pass
-        if message.mentions and len(message.mentions) > 5:
-            if (
-                message.guild
-                and message.guild.id not in self.bot.testing_guilds
-            ):
-                try:
-                    await message.author.send(
-                        f"You were kicked from the server for mentioning too many people!"
-                    )
-                    await message.author.kick(
-                        reason="Automoderator: Mass Mentioning"
-                    )
-                    await message.channel.send(
-                        f"{message.author.mention} was kicked for mass mentioning"
-                    )
-                except:
-                    pass
+            try:
+                await message.author.send(
+                    'You were kicked from the server for mentioning too many people!'
+                )
+
+                await message.author.kick(
+                    reason="Automoderator: Mass Mentioning"
+                )
+                await message.channel.send(
+                    f"{message.author.mention} was kicked for mass mentioning"
+                )
+            except:
+                pass
 
     @commands.command(help="Kick someone from the server", brief="0s")
     @commands.has_permissions(kick_members=True)
@@ -189,7 +179,7 @@ class Moderation(commands.Cog):
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
     def can_ban(
-        self, ctx: Context, member: Union[diskord.Member, diskord.User]
+        self, ctx: Context, member: Union[diskord.Member, diskord.User], *, send = False
     ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:

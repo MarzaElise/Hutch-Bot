@@ -12,7 +12,6 @@ from diskord.utils import *
 from googletrans import Translator
 from googletrans.models import Translated
 from utils import *
-from utils import Cache, EmbedFlags
 import warnings
 
 # os.chdir("../launcher.py")

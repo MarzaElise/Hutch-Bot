@@ -1,20 +1,18 @@
 import asyncio
 import json
-import os
 import random
 import typing
 
-import aiohttp
 import asyncpraw
 import diskord
 from BaseFile import *
 from Bot import MyBot
 from config import get_passwords
 from diskord import *
-from diskord.ext import commands, tasks
+from diskord.ext import commands
 from diskord.ext.commands import *
 from diskord.utils import *
-from utils.helpers import *
+from utils import *
 
 # os.chdir("../launcher.py")
 

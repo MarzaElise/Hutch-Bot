@@ -1,20 +1,17 @@
 # the utilities file which has all the helper functions, custom exceptions and subclasses like Context
-import asyncio
 import contextlib
 import io
-import os
 import random
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Sequence
 
-import aiohttp
 import diskord
 import diskord.utils
 import requests
-from diskord import abc
 from diskord.embeds import EmptyEmbed
 from diskord.ext import commands
-import flags
+from dataclasses import dataclass
 from diskord.utils import parse_time
+from .exceptions import *
 
 
 def url_exists(url: str):
@@ -24,14 +21,6 @@ def url_exists(url: str):
     response = requests.get(url)
     code = str(response.status_code)
     return code.startswith("2") or code.startswith("3")
-
-
-class NotDocumented(commands.CommandError):
-    pass
-
-
-class EmbedCreationError(commands.CommandError):
-    pass
 
 
 class Embed(diskord.Embed):
@@ -197,32 +186,31 @@ class Context(commands.Context):
 
     async def to_error(self, description: str = None):
         if not description:
-            description = "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
+            description = f"Unknown Error Occured and my owner has been notified of it, please contact {self.bot.config.ME} if this continues"
         em = self.Embed(
             title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar.url)
         em.set_footer(
-            text="If this was a mistake, please contact Marcus | Bot Dev#4438",
+            text=f"If this was a mistake, please contact {self.bot.config.ME}",
             icon_url=self.author.avatar.url,
         )
         return await self.send(embed=em)
 
     def error(self, description: str = None):
         if not description:
-            description = "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
+            description = f"Unknown Error Occured and my owner has been notified of it, please contact {self.bot.config.ME} if this continues"
         em = self.Embed(
             title="Error!", description=description, color=diskord.Color.red()
         )
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar.url)
         if (
-            not description
-            == "Unknown Error Occured and my owner has been notified of it, please contact Marcus | Bot Dev#4438 if this continues"
+            "Unknown Error Occured" not in description
         ):
             em.set_footer(
-                text="If this was a mistake, please contact Marcus | Bot Dev#4438",
+                text=f"If this was a mistake, please contact {self.bot.config.ME}",
                 icon_url=self.author.avatar.url,
             )
         return em
@@ -235,14 +223,16 @@ class Context(commands.Context):
         embed: diskord.Embed = None,
         file: diskord.File = None,
         files: List[diskord.File] = None,
+        stickers: Sequence[Union[diskord.GuildSticker, diskord.StickerItem]] = None,
         delete_after: float = None,
         nonce: int = None,
         allowed_mentions: diskord.AllowedMentions = None,
         reference: Union[diskord.MessageReference, diskord.Message] = None,
         mention_author: bool = False,
+        view: diskord.ui.View = None
         # dump: bool = False,
     ):
-        r"""|coro|
+        """|coro|
 
         Sends a message to the destination with the content given.
 
@@ -251,23 +241,26 @@ class Context(commands.Context):
         be provided.
 
         To upload a single file, the ``file`` parameter should be used with a
-        single :class:`~diskord.File` object. To upload multiple files, the ``files``
-        parameter should be used with a :class:`list` of :class:`~diskord.File` objects.
+        single :class:`~discord.File` object. To upload multiple files, the ``files``
+        parameter should be used with a :class:`list` of :class:`~discord.File` objects.
+        **Specifying both parameters will lead to an exception**.
 
-        If the ``embed`` parameter is provided, it must be of type :class:`~diskord.Embed` and
-        it must be a rich embed type.
+        To upload a single embed, the ``embed`` parameter should be used with a
+        single :class:`~discord.Embed` object. To upload multiple embeds, the ``embeds``
+        parameter should be used with a :class:`list` of :class:`~discord.Embed` objects.
+        **Specifying both parameters will lead to an exception**.
 
         Parameters
         ------------
-        content: :class:`str`
+        content: Optional[:class:`str`]
             The content of the message to send.
         tts: :class:`bool`
             Indicates if the message should be sent using text-to-speech.
-        embed: :class:`~diskord.Embed`
+        embed: :class:`~discord.Embed`
             The rich embed for the content.
-        file: :class:`~diskord.File`
+        file: :class:`~discord.File`
             The file to upload.
-        files: List[:class:`~diskord.File`]
+        files: List[:class:`~discord.File`]
             A list of files to upload. Must be a maximum of 10.
         nonce: :class:`int`
             The nonce to use for sending this message. If the message was successfully sent,
@@ -276,46 +269,59 @@ class Context(commands.Context):
             If provided, the number of seconds to wait in the background
             before deleting the message we just sent. If the deletion fails,
             then it is silently ignored.
-        allowed_mentions: :class:`~diskord.AllowedMentions`
+        allowed_mentions: :class:`~discord.AllowedMentions`
             Controls the mentions being processed in this message. If this is
-            passed, then the object is merged with :attr:`~diskord.Client.allowed_mentions`.
+            passed, then the object is merged with :attr:`~discord.Client.allowed_mentions`.
             The merging behaviour only overrides attributes that have been explicitly passed
-            to the object, otherwise it uses the attributes set in :attr:`~diskord.Client.allowed_mentions`.
-            If no object is passed at all then the defaults given by :attr:`~diskord.Client.allowed_mentions`
+            to the object, otherwise it uses the attributes set in :attr:`~discord.Client.allowed_mentions`.
+            If no object is passed at all then the defaults given by :attr:`~discord.Client.allowed_mentions`
             are used instead.
 
             .. versionadded:: 1.4
 
-        reference: Union[:class:`~diskord.Message`, :class:`~diskord.MessageReference`]
-            A reference to the :class:`~diskord.Message` to which you are replying, this can be created using
-            :meth:`~diskord.Message.to_reference` or passed directly as a :class:`~diskord.Message`. You can control
-            whether this mentions the author of the referenced message using the :attr:`~diskord.AllowedMentions.replied_user`
+        reference: Union[:class:`~discord.Message`, :class:`~discord.MessageReference`, :class:`~discord.PartialMessage`]
+            A reference to the :class:`~discord.Message` to which you are replying, this can be created using
+            :meth:`~discord.Message.to_reference` or passed directly as a :class:`~discord.Message`. You can control
+            whether this mentions the author of the referenced message using the :attr:`~discord.AllowedMentions.replied_user`
             attribute of ``allowed_mentions`` or by setting ``mention_author``.
 
             .. versionadded:: 1.6
 
         mention_author: Optional[:class:`bool`]
-            If set, overrides the :attr:`~diskord.AllowedMentions.replied_user` attribute of ``allowed_mentions``.
+            If set, overrides the :attr:`~discord.AllowedMentions.replied_user` attribute of ``allowed_mentions``.
 
             .. versionadded:: 1.6
+        view: :class:`discord.ui.View`
+            A Discord UI View to add to the message.
+        embeds: List[:class:`~discord.Embed`]
+            A list of embeds to upload. Must be a maximum of 10.
+
+            .. versionadded:: 2.0
+        stickers: Sequence[Union[:class:`~discord.GuildSticker`, :class:`~discord.StickerItem`]]
+            A list of stickers to upload. Must be a maximum of 3.
+
+            .. versionadded:: 2.0
 
         Raises
         --------
-        ~diskord.HTTPException
+        ~discord.HTTPException
             Sending the message failed.
-        ~diskord.Forbidden
+        ~discord.Forbidden
             You do not have the proper permissions to send the message.
-        ~diskord.InvalidArgument
+        ~discord.InvalidArgument
             The ``files`` list is not of the appropriate size,
             you specified both ``file`` and ``files``,
-            or the ``reference`` object is not a :class:`~diskord.Message`
-            or :class:`~diskord.MessageReference`.
+            or you specified both ``embed`` and ``embeds``,
+            or the ``reference`` object is not a :class:`~discord.Message`,
+            :class:`~discord.MessageReference` or :class:`~discord.PartialMessage`.
 
         Returns
         ---------
-        :class:`~diskord.Message`
+        :class:`~discord.Message`
             The message that was sent.
         """
+        if not nonce:
+            nonce = random.randint(1, 100_000_000)
         if (str(content)) and (self.bot.http.token in str(content)):
             content.replace(str(self.bot.http.token), "[token]")
         if (str(content)) and (len(str(content)) > 2000):
@@ -325,16 +331,15 @@ class Context(commands.Context):
                 files.append(new_file)
             elif file:
                 files = [file, new_file]
-            elif not file:
+            else:
                 file = new_file
             if file and files:
                 files.append(file)
                 file = None
         if content == " ":
             content = "** **"
-        if not reference:
-            if self.message.reference:
-                reference = self.message.reference
+        if not reference and self.message.reference:
+            reference = self.message.reference
         with contextlib.suppress(diskord.HTTPException, diskord.Forbidden):
             sent: diskord.Message = await super().send(
                 content=content,
@@ -342,11 +347,13 @@ class Context(commands.Context):
                 embed=embed,
                 file=file,
                 files=files,
+                stickers=stickers,
                 delete_after=delete_after,
                 nonce=nonce,
                 allowed_mentions=allowed_mentions,
                 reference=reference,
                 mention_author=mention_author,
+                view=view
             )
             if sent.nonce:
                 self.last_msg = sent
@@ -357,7 +364,8 @@ class Context(commands.Context):
         """
         Reply to a user's message [takes in the same args and kwargs as ctx.send]
         """
-        dump: bool = kwargs.get("dump", False)
+        if not kwargs["nonce"]:
+            kwargs["nonce"] = random.randint(1, 100_000_000)
         file: diskord.File = kwargs.get("file", None)
         files: List[diskord.File] = kwargs.get("files", None)
         if (str(content)) and (len(str(content)) > 2000):
@@ -378,16 +386,14 @@ class Context(commands.Context):
             )
             if sent.nonce:
                 self.last_msg = sent
-                return sent
-            return None
+            return sent
         except diskord.HTTPException:
             pass
         except diskord.NotFound:
             sent: diskord.Message = await self.send(content=content, **kwargs)
             if sent.nonce:
                 self.last_msg = sent
-                return sent
-            return None
+            return sent
 
     async def confirm(
         self,

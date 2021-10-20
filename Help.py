@@ -1,4 +1,3 @@
-import os
 import random
 import re
 import traceback
@@ -10,7 +9,6 @@ from diskord import *
 from diskord.ext import *
 from paginator import Paginator
 from diskord.utils import oauth_url
-from dpymenus import BaseMenu, Page, PaginatedMenu
 
 from Helpers import *
 
