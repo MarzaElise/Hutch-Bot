@@ -13,6 +13,7 @@ from googletrans import Translator
 from googletrans.models import Translated
 from utils import *
 from utils import Cache, EmbedFlags
+import warnings
 
 # os.chdir("../launcher.py")
 
@@ -47,7 +48,6 @@ inv_url = oauth_url(
         manage_messages=True,
         read_message_history=True,
     ),
-    redirect_uri=None,
 )
 
 
@@ -60,6 +60,20 @@ class Misc(commands.Cog):
         self.__cog_description__ = "Hutch Bot Miscellaneous Category"
         self.session = bot.session
         self.invite_cache = Cache()
+        self.targets = {
+            "discord": "https://discordpy.readthedocs.io/en/latest",
+            "python": "https://docs.python.org/3",
+            "master": "https://diskord.readthedocs.io/en/master",
+            "diskord": "https://diskord.readthedocs.io/en/latest",
+        }
+        self.aliases = {
+            ("discord", "discord.py", "discordpy", "dpy"): "discord",
+            ("py", "py3", "python3", "python"): "python",
+            ("master", "diskord-master"): "master",
+            ("diskord", "dis", "kord"): "diskord",
+            # too many aliases? idk pls change this before using
+        }
+        self.rtfm_cache = Cache()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -338,22 +352,6 @@ class Misc(commands.Cog):
         except Exception as e:
             return await ctx.reply(e)
 
-    # @flags.add_flag("--colour", type=str, default=None, nargs="*")
-    # @flags.add_flag("-colour", type=str, default=None, nargs="*")
-    # @flags.add_flag("--title", type=str, default=None, nargs="*")
-    # @flags.add_flag("-title", type=str, default=None, nargs="*")
-    # @flags.add_flag("-footer", type=str, default=None, nargs="*")
-    # @flags.add_flag("--footer", type=str, default=None, nargs="*")
-    # @flags.add_flag("-thumbnail", type=str, default=None)
-    # @flags.add_flag("--thumbnail", type=str, default=None)
-    # @flags.add_flag("-img", type=str, default=None, nargs="*")
-    # @flags.add_flag("--img", type=str, default=None, nargs="*")
-    # @flags.add_flag("--image", type=str, default=None, nargs="*")
-    # @flags.add_flag("-image", type=str, default=None, nargs="*")
-    # @flags.add_flag("--desc", type=str, default=None, nargs="*")
-    # @flags.add_flag("-desc", type=str, default=None, nargs="*")
-    # @flags.add_flag("-author", type=diskord.Member, default=None)
-    # @flags.add_flag("--author", type=diskord.Member, default=None)
     @commands.command(aliases=["em"], brief="10s")
     @commands.cooldown(1, 10, BucketType.user)
     async def embed(self, ctx: Context, *, options: EmbedFlags):
@@ -424,6 +422,78 @@ class Misc(commands.Cog):
                 return await ctx.to_error("Message already deleted")
         return await ctx.to_error(
             "Can only delete messages sent by the bot through this command"
+        )
+
+    # following stuff are copied and modified from
+    # https://github.com/MarzaElise/Robocord/blob/main/cogs/rtfm.py
+    # they were written by me tho
+
+    async def build(self, target) -> None:
+        url = self.targets[target]
+        req = await self.session.get(url + "/objects.inv")
+        if req.status != 200:
+            warnings.warn(
+                Warning(
+                    f"Received response with status code {req.status} when trying to build RTFM cache for {target} through {url}/objects.inv"
+                )
+            )
+            raise commands.CommandError("Failed to build RTFM cache")
+        self.cache[target] = rtfm.SphinxObjectFileReader(
+            await req.read()
+        ).parse_object_inv(url)
+
+    @commands.command(
+        aliases=["read the fucking docs", "read the docs", "rtfd"], brief="0s"
+    )
+    async def rtfm(self, ctx: Context, docs: str, *, term=None):
+        """
+        Returns the top 10 best matches of documentation links for searching the given term in the given docs
+        Returns the entire documentation link if no term given
+        """
+        docs = docs.lower()
+        target: str = None
+        for aliases, target_name in self.aliases.items():
+            if docs in aliases:
+                target: str = target_name
+
+        if not target:
+            lis = "\n".join(
+                f"{index}. **{value}**"
+                for index, value in list(self.targets.keys())
+            )
+
+            return await ctx.reply(
+                embed=ctx.error(
+                    title="Invalid Documentation",
+                    description=f"Documentation {docs} is invalid. Must be one of \n{lis}",
+                )
+            )
+        if not term:
+            return await ctx.reply(self.targets[target])
+
+        cache = self.cache.get(target)
+        if not cache:
+            await ctx.trigger_typing()
+            await self.build(target)
+            cache = self.cache.get(target)
+
+        results = rtfm.finder(
+            term, list(cache.items()), key=lambda x: x[0], lazy=False
+        )[:10]
+
+        if not results:
+            return await ctx.reply(
+                f"No results found when searching for {term} in {docs}"
+            )
+
+        await ctx.reply(
+            embed=diskord.Embed(
+                title=f"Best matches for {term} in {docs}",
+                description="\n".join(
+                    f"[`{key}`]({url})" for key, url in results
+                ),
+                color=diskord.Color.dark_theme(),
+            )
         )
 
 
