@@ -72,7 +72,7 @@ class Misc(commands.Cog):
             ("diskord", "dis", "kord"): "diskord",
             # too many aliases? idk pls change this before using
         }
-        self.rtfm_cache = Cache()
+        self.cache = Cache()
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -457,16 +457,12 @@ class Misc(commands.Cog):
 
         if not target:
             lis = "\n".join(
-                f"{index}. **{value}**"
-                for index, value in list(self.targets.keys())
+                f"**{index}. {value}**"
+                for index, value in enumerate(list(self.targets.keys()), 1)
             )
 
-            return await ctx.reply(
-                embed=ctx.error(
-                    title="Invalid Documentation",
-                    description=f"Documentation {docs} is invalid. Must be one of \n{lis}",
-                )
-            )
+            return await ctx.to_error(f"Documentation {docs} is invalid. Must be one of \n{lis}")
+
         if not term:
             return await ctx.reply(self.targets[target])
 

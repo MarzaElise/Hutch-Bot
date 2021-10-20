@@ -364,7 +364,7 @@ class Context(commands.Context):
         """
         Reply to a user's message [takes in the same args and kwargs as ctx.send]
         """
-        if not kwargs["nonce"]:
+        if not kwargs.get("nonce"):
             kwargs["nonce"] = random.randint(1, 100_000_000)
         file: diskord.File = kwargs.get("file", None)
         files: List[diskord.File] = kwargs.get("files", None)
