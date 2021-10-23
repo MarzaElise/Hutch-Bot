@@ -330,12 +330,11 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 5, BucketType.member)
     async def binary(self, ctx: Context, *, text: str):
         """Turns a text into a binary, just 1s and 0s"""
-        text = text.replace(" ", "-")
-        await ctx.trigger_typing()
         async with self.bot.session as cs:
             try:
                 async with cs.get(
-                    f"https://some-random-api.ml/binary?text={text}"
+                    f"https://some-random-api.ml/binary",
+                    params={"text" : "text"}
                 ) as r:
                     data = await r.json()
                     em = diskord.Embed(
@@ -379,7 +378,7 @@ class Fun(commands.Cog):
     async def web(self, ctx: Context):
         """Sends a random website link"""
         async with self.bot.session as cs:
-            async with cs.get("") as res:
+            async with cs.get("https://randomness-api.herokuapp.com/website") as res:
                 data = dict(await res.json())
         chosen = json.loads(data.get("website", random.choice(website)))
         await ctx.reply()
@@ -423,7 +422,7 @@ class Fun(commands.Cog):
             async with self.bot.session as cs:
                 try:
                     async with cs.get(
-                        f"https://some-random-api.ml/img/{image_name}"
+                        f"https://some-random-api.ml/img/{image_name.strip()}"
                     ) as r:
                         data = await r.json()
                         embed = diskord.Embed(
