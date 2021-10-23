@@ -86,7 +86,7 @@ class Fun(commands.Cog):
 
     def __init__(self, bot: MyBot):
         self.bot = bot
-
+        self.reddit_cache = Cache()
         self.__cog_description__ = "Hutch Bot Fun Category"
 
     @commands.Cog.listener()
@@ -484,39 +484,41 @@ class Fun(commands.Cog):
             except Exception as e:
                 return await ctx.reply(e)
 
+    async def get_post(self, sub: str):
+        subreddit_var = await reddit.subreddit(sub, fetch=True)
+        posts = self.reddit_cache.get(sub)
+        if not posts:
+            posts = []
+            top = subreddit_var.top(limit=50)
+            async for submission in top:
+                posts.append(submission)
+            self.reddit_cache.insert(sub, posts)
+        return random.choice(posts)
+
     @commands.command(
         aliases=["r", "red"],
         help="Sends an image from a given subreddit, Defaults to r/memes.\nRemove the r/ part when using the command",
         brief="5s",
     )
     @commands.cooldown(1, 5, BucketType.member)
-    async def reddit(self, ctx: Context, sub_reddit: str = None):
+    async def reddit(self, ctx: Context, *, sub_reddit: str = None):
         """Sends an image from a given subreddit, Defaults to `r/memes`.remember to remove the r/ part when using the command"""
         if not sub_reddit:
             sub_reddit = "memes"
-        await ctx.trigger_typing()
-        try:
-            subreddit_var = await reddit.subreddit(sub_reddit)
-            await subreddit_var.load()
-            if subreddit_var.over18 and not ctx.channel.is_nsfw():
-                return await ctx.to_error(
-                    "The given subreddit is NSFW, please provide a non-NSFW subreddit"
-                )
-            else:
-                all_submissions = []
-                top = subreddit_var.top(limit=50)
-                async for submission in top:
-                    all_submissions.append(submission)
-                random_submission = random.choice(all_submissions)
-                name = random_submission.title
-                url = random_submission.url
-                em = diskord.Embed(
-                    title=name, color=random.choice(colors), url=url
-                )
-                em.set_image(url=url)
-                await ctx.reply(embed=em)
-        except Exception as e:
-            return await ctx.reply(e)
+        subreddit_var = await reddit.subreddit(sub_reddit, fetch=True)
+        if subreddit_var.over18 and not ctx.channel.is_nsfw():
+            return await ctx.to_error(
+                "The given subreddit is NSFW, please provide a non-NSFW subreddit"
+            )
+        else:
+            selected = self.get_post(sub_reddit)
+            name = selected.title
+            url = selected.url
+            em = diskord.Embed(
+                title=name, color=random.choice(colors), url=url
+            )
+            em.set_image(url=url)
+            await ctx.reply(embed=em)
 
     @commands.command(
         aliases=["polls", "p"],
