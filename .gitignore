@@ -9,6 +9,16 @@ tests
 cogs/__pycache__
 TODO
 
+# temp stuff
+delete.*
+*.org
+
+# images
+*.jpg
+*.jpeg
+*.png
+*.webp
+
 # database
 *.sqlite
 *.sqlite3
