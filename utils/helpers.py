@@ -206,9 +206,7 @@ class Context(commands.Context):
         )
         em.timestamp = self.message.created_at
         em.set_author(name=self.author, icon_url=self.author.avatar.url)
-        if (
-            "Unknown Error Occured" not in description
-        ):
+        if "Unknown Error Occured" not in description:
             em.set_footer(
                 text=f"If this was a mistake, please contact {self.bot.config.ME}",
                 icon_url=self.author.avatar.url,
@@ -223,7 +221,9 @@ class Context(commands.Context):
         embed: diskord.Embed = None,
         file: diskord.File = None,
         files: List[diskord.File] = None,
-        stickers: Sequence[Union[diskord.GuildSticker, diskord.StickerItem]] = None,
+        stickers: Sequence[
+            Union[diskord.GuildSticker, diskord.StickerItem]
+        ] = None,
         delete_after: float = None,
         nonce: int = None,
         allowed_mentions: diskord.AllowedMentions = None,
@@ -353,7 +353,7 @@ class Context(commands.Context):
                 allowed_mentions=allowed_mentions,
                 reference=reference,
                 mention_author=mention_author,
-                view=view
+                view=view,
             )
             if sent.nonce:
                 self.last_msg = sent

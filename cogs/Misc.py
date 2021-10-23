@@ -461,7 +461,9 @@ class Misc(commands.Cog):
                 for index, value in enumerate(list(self.targets.keys()), 1)
             )
 
-            return await ctx.to_error(f"Documentation {docs} is invalid. Must be one of \n{lis}")
+            return await ctx.to_error(
+                f"Documentation {docs} is invalid. Must be one of \n{lis}"
+            )
 
         if not term:
             return await ctx.reply(self.targets[target])

@@ -12,6 +12,7 @@ class EmbedCreationError(commands.CommandError):
 class MemberBlacklisted(commands.CommandError):
     pass
 
+
 class CannotDmMember(commands.CommandError):
     pass
 

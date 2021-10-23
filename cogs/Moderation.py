@@ -111,11 +111,14 @@ class Moderation(commands.Cog):
         if (
             message.mentions
             and len(message.mentions) > 5
-            and (message.guild and message.guild.id not in self.bot.testing_guilds)
+            and (
+                message.guild
+                and message.guild.id not in self.bot.testing_guilds
+            )
         ):
             try:
                 await message.author.send(
-                    'You were kicked from the server for mentioning too many people!'
+                    "You were kicked from the server for mentioning too many people!"
                 )
 
                 await message.author.kick(
@@ -179,7 +182,11 @@ class Moderation(commands.Cog):
                 await ctx.send(f"Succesfully kicked **{user.mention}**")
 
     def can_ban(
-        self, ctx: Context, member: Union[diskord.Member, diskord.User], *, send = False
+        self,
+        ctx: Context,
+        member: Union[diskord.Member, diskord.User],
+        *,
+        send=False,
     ):
         """Helper function that returns True if we can ban a member without raising any errors with Permissions"""
         if not ctx.guild:

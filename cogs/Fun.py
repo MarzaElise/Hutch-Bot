@@ -72,7 +72,9 @@ def can_dm(mem: diskord.Member):  # TODO: move to db
     members = alr_opted.keys()
     if member in members:
         if alr_opted[member] == True:
-            raise CannotDmMember("Specified member has opted out of the DM command")
+            raise CannotDmMember(
+                "Specified member has opted out of the DM command"
+            )
         elif alr_opted[member] == False:
             return True
     elif member not in members:
@@ -98,7 +100,9 @@ class Fun(commands.Cog):
             dic = json.load(f)
         if member_id in dic.keys():
             if dic[str(member_id)] == True:
-                raise AlreadyOptedOut("You have already opted out of the DM command")
+                raise AlreadyOptedOut(
+                    "You have already opted out of the DM command"
+                )
         dic[str(member_id)] = True
         with open("./assets/opt_out.json", "w+") as f:
             json.dump(dic, f, indent=4)
@@ -108,7 +112,9 @@ class Fun(commands.Cog):
         with open("./assets/opt_out.json", "r") as f:  # TODO: move to db
             alr_opted = json.load(f)
         if member_id not in alr_opted.keys():
-            raise AlreadyOptedIn(f"You are currently opted into the DM command")
+            raise AlreadyOptedIn(
+                f"You are currently opted into the DM command"
+            )
         elif alr_opted[member_id] == False:
             raise AlreadyOptedIn("You are currently opted into the DM command")
         elif alr_opted[member_id] == True:
@@ -134,7 +140,9 @@ class Fun(commands.Cog):
     )
     @commands.cooldown(1, 20, BucketType.member)
     @commands.guild_only()
-    async def dm(self, ctx: Context, member: diskord.Member, *, text_to_dm: str):
+    async def dm(
+        self, ctx: Context, member: diskord.Member, *, text_to_dm: str
+    ):
         """DM a user of your choice with a message"""
         if member.bot:
             return await ctx.to_error("you cannot DM a bot")
@@ -143,10 +151,14 @@ class Fun(commands.Cog):
                 "You must be opted in to the DM command to send DMs through the bot"
             )
         if ctx.guild.id in [681882711945641997, 841721684876328961]:
-            return await ctx.to_error("This command is disabled due to the rules")
+            return await ctx.to_error(
+                "This command is disabled due to the rules"
+            )
         can = can_dm(member)
         message: diskord.Message = ctx.message
-        em = diskord.Embed(description=f"> {text_to_dm}", color=random.choice(colors))
+        em = diskord.Embed(
+            description=f"> {text_to_dm}", color=random.choice(colors)
+        )
         em.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
         em.set_footer(text=f"Use '{ctx.prefix}dm opt out' command to opt out")
         em.set_thumbnail(url=ctx.guild.icon.url)
@@ -205,7 +217,9 @@ class Fun(commands.Cog):
         await ctx.trigger_typing()
         answer = random.choice(responses)
         em = diskord.Embed(color=random.choice(colors))
-        em.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar.url)
+        em.set_author(
+            name=ctx.author.display_name, icon_url=ctx.author.avatar.url
+        )
         em.set_thumbnail(url=ctx.guild.icon.url)
         em.add_field(name="Question:", value=question, inline=False)
         em.add_field(name="Answer:", value=answer, inline=False)
@@ -273,7 +287,7 @@ class Fun(commands.Cog):
 
         params = {
             "message": message,
-            "plan" : "mega" # free premium plan for life xD
+            "plan": "mega",  # free premium plan for life xD
             "server": "main",
             "uid": user_id,
             "name": "Hutch bot",
@@ -313,13 +327,18 @@ class Fun(commands.Cog):
                 and m.author == ctx.author
                 and m.content not in {"quit", "exit"}
             )
+
         while True:
             try:
-                message = await self.bot.wait_for("message", check=check, timeout=15)
+                message = await self.bot.wait_for(
+                    "message", check=check, timeout=15
+                )
             except asyncio.TimeoutError:
                 return await ctx.send("Exitting...")
             else:
-                response = await self.get_response(message.content, str(message.author.id))
+                response = await self.get_response(
+                    message.content, str(message.author.id)
+                )
                 await ctx.reply(response)
 
     @commands.command(
@@ -333,8 +352,8 @@ class Fun(commands.Cog):
         async with self.bot.session as cs:
             try:
                 async with cs.get(
-                    f"https://some-random-api.ml/binary",
-                    params={"text" : "text"}
+                    "https://some-random-api.ml/binary",
+                    params={"text": "text"},
                 ) as r:
                     data = await r.json()
                     em = diskord.Embed(
@@ -343,7 +362,9 @@ class Fun(commands.Cog):
                         color=random.choice(colors),
                     )
                     em.add_field(name="Text:", value=text, inline=False)
-                    em.add_field(name="Binary:", value=data["binary"], inline=False)
+                    em.add_field(
+                        name="Binary:", value=data["binary"], inline=False
+                    )
                     em.set_footer(text=f"Requested by {ctx.author}")
                     em.set_thumbnail(url=ctx.guild.icon.url)
                     em.set_author(
@@ -353,7 +374,9 @@ class Fun(commands.Cog):
                     await ctx.reply(embed=em)
             except Exception as e:
                 em = diskord.Embed(description=e)
-                await ctx.reply("I could not convert it to binary :(", embed=em)
+                await ctx.reply(
+                    "I could not convert it to binary :(", embed=em
+                )
 
     @commands.command(
         aliases=["facts", "funfact"], help="Sends a random fact", brief="5s"
@@ -363,7 +386,9 @@ class Fun(commands.Cog):
         """Sends a random fact"""
         await ctx.trigger_typing()
         async with self.bot.session as cs:
-            async with cs.get("https://randomness-api.herokuapp.com/fact") as res:
+            async with cs.get(
+                "https://randomness-api.herokuapp.com/fact"
+            ) as res:
                 data = dict(await res.json())
         fact = json.loads(data.get("fact", random.choice(random_facts)))
         await ctx.reply(fact)
@@ -378,7 +403,9 @@ class Fun(commands.Cog):
     async def web(self, ctx: Context):
         """Sends a random website link"""
         async with self.bot.session as cs:
-            async with cs.get("https://randomness-api.herokuapp.com/website") as res:
+            async with cs.get(
+                "https://randomness-api.herokuapp.com/website"
+            ) as res:
                 data = dict(await res.json())
         chosen = json.loads(data.get("website", random.choice(website)))
         await ctx.reply()
@@ -409,7 +436,10 @@ class Fun(commands.Cog):
         if image_name not in categories:
             em = diskord.Embed(title="Categories", color=random.choice(colors))
             em.description = "\n".join(
-                [f"`{i}` -> Sends a random image of a `{i}`" for i in categories]
+                [
+                    f"`{i}` -> Sends a random image of a `{i}`"
+                    for i in categories
+                ]
             )
             em.set_footer(text=f"Requested by {ctx.author}")
             em.set_thumbnail(url=ctx.guild.icon.url)
@@ -433,7 +463,9 @@ class Fun(commands.Cog):
                 except Exception as e:
                     return await ctx.send(e)
 
-    @commands.command(aliases=["memey"], help="Sends a random meme", brief="5s")
+    @commands.command(
+        aliases=["memey"], help="Sends a random meme", brief="5s"
+    )
     @commands.cooldown(1, 5, BucketType.member)
     async def meme(self, ctx: Context):
         """Sends a random meme"""
@@ -478,7 +510,9 @@ class Fun(commands.Cog):
                 random_submission = random.choice(all_submissions)
                 name = random_submission.title
                 url = random_submission.url
-                em = diskord.Embed(title=name, color=random.choice(colors), url=url)
+                em = diskord.Embed(
+                    title=name, color=random.choice(colors), url=url
+                )
                 em.set_image(url=url)
                 await ctx.reply(embed=em)
         except Exception as e:
@@ -496,7 +530,9 @@ class Fun(commands.Cog):
             await ctx.to_error("You need more than one option to make a poll!")
             return
         if len(options) > 5:
-            await ctx.to_error("You cannot make a poll for more than 5 options!")
+            await ctx.to_error(
+                "You cannot make a poll for more than 5 options!"
+            )
             return
 
         if (
@@ -518,6 +554,7 @@ class Fun(commands.Cog):
             await react_message.add_reaction(reaction)
         embed.set_footer(text="Poll ID: {}".format(react_message.id))
         await react_message.edit(embed=embed)
+
 
 def setup(bot: commands.Bot):
     bot.add_cog(Fun(bot))
