@@ -519,22 +519,5 @@ class Fun(commands.Cog):
         embed.set_footer(text="Poll ID: {}".format(react_message.id))
         await react_message.edit(embed=embed)
 
-    @commands.command(help="NSFW command UwU :eyes:", brief="10s")
-    @commands.cooldown(1, 10, BucketType.member)
-    @commands.guild_only()
-    async def nsfw(self, ctx: Context):
-        ch: diskord.TextChannel = ctx.channel
-        if ch.is_nsfw():
-            return await ctx.send(
-                "you know, https://pornhub.com/ exists for a reason. "
-                "if its blocked in ur region then use "
-                "https://reddit.com/r/nsfw/. get some help nub"
-            )
-        else:
-            return await ctx.send(
-                "Did you know that NSFW outside NSFW channels is against discord ToS?"
-            )
-
-
 def setup(bot: commands.Bot):
     bot.add_cog(Fun(bot))
