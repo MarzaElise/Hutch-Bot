@@ -8,6 +8,7 @@ main.py
 tests
 cogs/__pycache__
 TODO
+.mypy_cache
 
 # temp stuff
 delete.*
