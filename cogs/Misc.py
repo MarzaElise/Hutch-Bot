@@ -70,7 +70,6 @@ class Misc(commands.Cog):
             ("py", "py3", "python3", "python"): "python",
             ("master", "diskord-master"): "master",
             ("diskord", "dis", "kord"): "diskord",
-            # too many aliases? idk pls change this before using
         }
         self.cache = Cache()
 
@@ -442,7 +441,7 @@ class Misc(commands.Cog):
         ).parse_object_inv(url)
 
     @commands.command(
-        aliases=["read the fucking docs", "read the docs", "rtfd"], brief="0s"
+        aliases=["rtfd"], brief="0s"
     )
     async def rtfm(self, ctx: Context, docs: str, *, term=None):
         """
