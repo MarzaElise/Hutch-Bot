@@ -36,7 +36,7 @@ import diskord
 from diskord import *
 from diskord.ext import commands, tasks
 from diskord.ext.commands import core
-from discord.ext.paginator import Paginator
+
 from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -91,7 +91,6 @@ def get_config(token_type: str = "TOKEN_2"):
     if ("BOT_TOKEN" not in dat.keys()) or (dat["BOT_TOKEN"] is None):
         dat["BOT_TOKEN"] = get_token(token_type)
     conf = Config(**dat)
-    print(conf.OWNER_IDS, conf.ME)
     return conf
 
 
@@ -203,7 +202,7 @@ class MyBot(commands.Bot):
         print("{0.name} is Running!".format(self.user))
         print("-" * 50)
         if self.is_ready():
-            print("Cache Ready:", self.owner_id)
+            print("Cache Ready:", " ".join(self.owner_ids))
             print("-" * 50)
         await report_to_logs(
             self,
