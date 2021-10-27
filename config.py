@@ -25,7 +25,7 @@ class Config(BaseModel):
     BOT_TOKEN: str = None
     DEFAULT_PREFIX: str = None
     EXTENSIONS: List[str] = None
-    OWNER_ID: int = None
+    OWNER_IDS: List[int] = None
     ME: Optional[str] = "Marcus | Bot Dev#4438"
 
 

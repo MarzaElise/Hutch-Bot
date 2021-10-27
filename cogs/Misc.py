@@ -457,7 +457,9 @@ class Misc(commands.Cog):
         if not target:
             new = []
             for index, value in enumerate(list(self.targets.keys()), 1):
-                lis = [key for key, val in self.aliases.items() if val == value][0]
+                lis = [
+                    key for key, val in self.aliases.items() if val == value
+                ][0]
                 temp = " ".join([f"*`{k}`*" for k in lis])
                 new.append(f"**{index}. {value}** - {temp}")
             lis = "\n".join(new)
@@ -487,7 +489,9 @@ class Misc(commands.Cog):
         await ctx.reply(
             embed=diskord.Embed(
                 title=f"Best matches for {term} in {target}",
-                description="\n".join(f"[`{key}`]({url})" for key, url in results),
+                description="\n".join(
+                    f"[`{key}`]({url})" for key, url in results
+                ),
                 color=diskord.Color.dark_theme(),
             )
         )

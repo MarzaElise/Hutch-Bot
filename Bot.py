@@ -85,20 +85,13 @@ def get_token(TOKEN_TYPE: str = None):
     return token
 
 
-class Config(BaseModel):
-    BOT_TOKEN: str = None
-    DEFAULT_PREFIX: str = None
-    EXTENSIONS: List[str] = None
-    OWNER_ID: int = None
-    ME: Optional[str] = "Marcus | Bot Dev#4438"
-
-
 def get_config(token_type: str = "TOKEN_2"):
     with open("./assets/secrets.json", "r+") as f:
         dat = json.load(f)
     if ("BOT_TOKEN" not in dat.keys()) or (dat["BOT_TOKEN"] is None):
         dat["BOT_TOKEN"] = get_token(token_type)
     conf = Config(**dat)
+    print(conf.OWNER_IDS, conf.ME)
     return conf
 
 
@@ -125,7 +118,7 @@ class MyBot(commands.Bot):
             intents=diskord.Intents.all(),
             help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
-            owner_id=self.config.OWNER_ID,
+            owner_ids=self.config.OWNER_IDS,
             strip_after_prefix=True,
             case_insensitive=True,
         )
