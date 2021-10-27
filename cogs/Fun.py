@@ -339,7 +339,7 @@ class Fun(commands.Cog):
                 response = await self.get_response(
                     message.content, str(message.author.id)
                 )
-                await message.reply(response)
+                await message.reply(response, allowed_mentions=diskord.AllowedMentions.none())
 
     @commands.command(
         aliases=["turnbinary", "b"],
