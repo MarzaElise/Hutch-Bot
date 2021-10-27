@@ -77,12 +77,13 @@ class Dev(commands.Cog):
         name="reload", help="Reaload all the cogs of this bot", brief="0s"
     )
     @commands.is_owner()
-    async def _reload(self, ctx: Context):
+    async def _reload(self, ctx: Context, *, extension: str = None):
         """Reloads all the cogs of this bot"""
         reloaded = []
         exceptions = []
+        to_reload = self.bot.initial_ext if not extension else [extension]
         # reloading  all the cogs
-        for ext in self.bot.initial_ext:
+        for ext in to_reload:
             try:
                 self.bot.reload_extension(ext)
                 reloaded.append(ext)
@@ -94,12 +95,12 @@ class Dev(commands.Cog):
                 # so just the error would be enough
                 exceptions.append(f"```py\n{trace}\n```")
 
-        reload_ = "Success" if len(exceptions) == 0 else "Unsuccesfull :("
+        reload_ = "Success" if not exceptions else "Unsuccesfull :("
         em = diskord.Embed(title=reload_, color=random.choice(colors))
         em.add_field(
             name="Reloaded Extensions", value="\n".join(reloaded), inline=False
         )
-        if len(exceptions) > 0:
+        if exceptions:
             for tb in exceptions:
                 em.add_field(name="Error:", value=tb, inline=True)
         await ctx.send(embed=em)
@@ -244,11 +245,11 @@ class Dev(commands.Cog):
     async def changelogs(self, ctx: Context):
         """View the latest changlogs of the bot"""
         with open("./CHANGELOGS.txt", "r+") as f:
-            logs = f.readlines()
+            logs = [line.replace("----", "<:blank:902856217980964872>" * 4) for line  in f.readlines()]
         l = "".join(logs)
         em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
-        em.description = f">>> {l}"
+        em.description = l
         em.set_author(
             name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
@@ -265,11 +266,11 @@ class Dev(commands.Cog):
             f.write(new_logs)
         await ctx.send("Succesfully wrote new change logs. New Changelogs:")
         with open("./CHANGELOGS.txt", "r+") as f:
-            logs = f.readlines()
+            logs = [line.replace("----", "<:blank:902856217980964872>" * 4) for line  in f.readlines()]
         l = "".join(logs)
         em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
-        em.description = f">>> {l}"
+        em.description = l
         em.set_author(
             name=f"{self.bot.user}", icon_url=self.bot.user.avatar.url
         )
