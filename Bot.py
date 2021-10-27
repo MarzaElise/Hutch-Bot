@@ -68,18 +68,12 @@ def version():
 
 
 def get_all_tokens():
-    secrets = Tokens(_env_file=".env")
-    return secrets
+    return Tokens(_env_file=".env")
 
 
 def get_token(TOKEN_TYPE: str = None):
     TOKENS = get_all_tokens()
-    if TOKEN_TYPE == "TOKEN_2":
-        token = TOKENS.TOKEN_2
-    # elif TOKEN_TYPE == "ME":
-    #     token = os.getenv("ME")
-    else:
-        token = TOKENS.TOKEN
+    token = TOKENS.TOKEN_2 if TOKEN_TYPE == "TOKEN_2" else TOKENS.TOKEN
     if not token:
         raise TypeError("No Token detected")
     return token
@@ -90,8 +84,7 @@ def get_config(token_type: str = "TOKEN_2"):
         dat = json.load(f)
     if ("BOT_TOKEN" not in dat.keys()) or (dat["BOT_TOKEN"] is None):
         dat["BOT_TOKEN"] = get_token(token_type)
-    conf = Config(**dat)
-    return conf
+    return Config(**dat)
 
 
 class MyBot(commands.Bot):
@@ -179,10 +172,9 @@ class MyBot(commands.Bot):
                 # I can just change this whenever I want to see the entire exception
 
     def prefix(self, bot, message: diskord.Message):
-        ret = [self.config.DEFAULT_PREFIX, "H!"]
         # if message.author.id == self.owner_id: # causes chaos. :bruh:
         #     ret.append("")  # empty prefix for me
-        return ret
+        return [self.config.DEFAULT_PREFIX, "H!"]
 
     async def get_context(self, message: diskord.Message, *, cls=Context):
         ctx: Context = await super().get_context(message, cls=Context)
