@@ -99,7 +99,8 @@ class SphinxObjectFileReader:
                 key = key.replace("diskord.ext.commands.", "").replace(
                     "diskord.", ""
                 )
-
+            if projname == "jishaku":
+                key = key.replace("jishaku.", "")
             result[f"{prefix}{key}"] = os.path.join(url, location)
 
         return result

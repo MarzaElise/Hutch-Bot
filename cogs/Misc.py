@@ -61,15 +61,17 @@ class Misc(commands.Cog):
         self.invite_cache = Cache()
         self.targets = {
             "discord": "https://discordpy.readthedocs.io/en/latest",
-            "python": "https://docs.python.org/3",
-            "master": "https://diskord.readthedocs.io/en/master",
+            "jishaku": "https://jishaku.readthedocs.io/en/latest/",
             "diskord": "https://diskord.readthedocs.io/en/latest",
+            "master": "https://diskord.readthedocs.io/en/master",
+            "python": "https://docs.python.org/3",
         }
         self.aliases = {
             ("discord", "discord.py", "discordpy", "dpy"): "discord",
             ("py", "py3", "python3", "python"): "python",
             ("master", "diskord-master"): "master",
             ("diskord", "dis", "kord"): "diskord",
+            ("jsk", "jishaku"): "jishaku",
         }
         self.cache = Cache()
 
@@ -440,9 +442,7 @@ class Misc(commands.Cog):
             await req.read()
         ).parse_object_inv(url)
 
-    @commands.command(
-        aliases=["rtfd"], brief="0s"
-    )
+    @commands.command(aliases=["rtfd", "docs"], brief="0s")
     async def rtfm(self, ctx: Context, docs: str, *, term=None):
         """
         Returns the top 10 best matches of documentation links for searching the given term in the given docs
@@ -455,13 +455,15 @@ class Misc(commands.Cog):
                 target: str = target_name
 
         if not target:
-            lis = "\n".join(
-                f"**{index}. {value}**"
-                for index, value in enumerate(list(self.targets.keys()), 1)
-            )
+            new = []
+            for index, value in enumerate(list(self.targets.keys()), 1):
+                lis = [key for key, val in self.aliases.items() if val == value][0]
+                temp = " ".join([f"*`{k}`*" for k in lis])
+                new.append(f"**{index}. {value}** - {temp}")
+            lis = "\n".join(new)
 
             return await ctx.to_error(
-                f"Documentation {docs} is invalid. Must be one of \n{lis}"
+                f"Documentation `{docs}` is invalid. Must be one of \n{lis}"
             )
 
         if not term:
@@ -479,15 +481,13 @@ class Misc(commands.Cog):
 
         if not results:
             return await ctx.reply(
-                f"No results found when searching for {term} in {docs}"
+                f"No results found when searching for **{term}** in **{target}**"
             )
 
         await ctx.reply(
             embed=diskord.Embed(
-                title=f"Best matches for {term} in {docs}",
-                description="\n".join(
-                    f"[`{key}`]({url})" for key, url in results
-                ),
+                title=f"Best matches for {term} in {target}",
+                description="\n".join(f"[`{key}`]({url})" for key, url in results),
                 color=diskord.Color.dark_theme(),
             )
         )
