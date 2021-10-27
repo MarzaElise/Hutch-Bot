@@ -194,7 +194,7 @@ class MyBot(commands.Bot):
         print("{0.name} is Running!".format(self.user))
         print("-" * 50)
         if self.is_ready():
-            print("Cache Ready:", " ".join(self.owner_ids))
+            print("Cache Ready:", " ".join(str(i) for i in self.owner_ids))
             print("-" * 50)
         await report_to_logs(
             self,
