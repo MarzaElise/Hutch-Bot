@@ -1,0 +1,11 @@
+diskord
+git+https://github.com/diskord-dev/jishaku
+requests
+aiohttp
+pydantic
+python-dotenv
+tortoise-orm
+asyncpraw
+aiogoogletrans
+google-trans-new
+googletrans
