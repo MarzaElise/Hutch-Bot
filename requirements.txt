@@ -9,3 +9,6 @@ asyncpraw
 aiogoogletrans
 google-trans-new
 googletrans
+DiscordUtils
+wikipedia
+better-profanity
