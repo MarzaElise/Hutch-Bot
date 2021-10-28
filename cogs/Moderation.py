@@ -73,7 +73,7 @@ class Moderation(commands.Cog):
                 and (message.channel.id not in non_automod_channels)
                 and (not message.mention_everyone)
             ):
-                if (message.author.id != self.bot.owner_id) and (
+                if (message.author.id not in self.bot.owner_ids) and (
                     message.author.id != message.guild.owner_id
                 ):
                     if message.guild.id not in self.bot.testing_guilds:
