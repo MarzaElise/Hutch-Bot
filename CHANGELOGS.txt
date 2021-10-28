@@ -1,20 +1,18 @@
 **New Commands**:
----- Redo -> reply to one of **your** previous message to reinvoke a command. ||[not documented]||
----- Delete -> delete a message sent by the bot. Helpful when the bot unexpectedly sends something unwanted.
----- Source -> view the source of a specific command. Will be adding checks later.
+---- RTFM -> Searched for a specific term in the given documentation. Only a limited number of documentation are supported
 
 **Updated**:
----- Whois -> Reformatted the whois command.
----- Help -> Reformatted the entire command and added documentation links to it
----- More error handling 
-----    -> Now the bot handles errors that occur when trying to send text with more than 2000 characters and stuff
+---- Embed -> Flags are now passed as `flag: value` instead of the previous `--flag value` syntax
+---- chat -> You can now continuesly talk instead of doing the command each time and AI response is now customized.
+---- NSFW -> Removed entirely due to personal reasons and being pointless
+
+**Caching**:
+---- Bot now caches the invites created during specific commands in order to not spam that server's logs
 
 **Extra**:
----- The official documentation of the bot is now released at https://hutch-bot.readthedocs.io
----- This update took longer than I expected since I was doing the documentation
----- Bot's source is now open for everyone to view at <https://github.com/MarzaElise/Hutch-Bot>
----- Warn commands that were under testing will be removed soon in the next update.
----- Will be moving blacklist data and dm command opt out data to database :pog_shake:
----- Since redo command is added now, you no longer can edit the message to reinvoke a command. That method is now restrcited to only me
-
-||sorry for taking too long||
+---- Hutch Bot now uses the diskord module.
+---- Will be moving to DBs in the following versions
+---- No buttons or slash commands are available as of now
+---- Bot is now at version 3.6
+---- Documentation will be updated soon <:soontm:903212928730292264>
+---- Source code could be viewed at <https://github.com/MarzaElise/Hutch-Bot>
