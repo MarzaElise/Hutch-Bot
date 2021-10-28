@@ -18,9 +18,7 @@ import warnings
 
 
 def version():
-    with open(
-        r"./VERSION.txt", "r+"
-    ) as f:
+    with open(r"./VERSION.txt", "r+") as f:
         lines = f.read()
     return lines or "Not Found"
 

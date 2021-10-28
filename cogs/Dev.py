@@ -245,7 +245,10 @@ class Dev(commands.Cog):
     async def changelogs(self, ctx: Context):
         """View the latest changlogs of the bot"""
         with open("./CHANGELOGS.txt", "r+") as f:
-            logs = [line.replace("----", "<:blank:902856217980964872>" * 4) for line  in f.readlines()]
+            logs = [
+                line.replace("----", "<:blank:902856217980964872>" * 4)
+                for line in f.readlines()
+            ]
         l = "".join(logs)
         em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"
@@ -266,7 +269,10 @@ class Dev(commands.Cog):
             f.write(new_logs)
         await ctx.send("Succesfully wrote new change logs. New Changelogs:")
         with open("./CHANGELOGS.txt", "r+") as f:
-            logs = [line.replace("----", "<:blank:902856217980964872>" * 4) for line  in f.readlines()]
+            logs = [
+                line.replace("----", "<:blank:902856217980964872>" * 4)
+                for line in f.readlines()
+            ]
         l = "".join(logs)
         em = diskord.Embed(color=random.choice(colors))
         em.title = f"Changelogs for version {version()}"

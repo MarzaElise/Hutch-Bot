@@ -18,6 +18,7 @@ from diskord.utils import parse_time
 
 print("Unwanted import:", __file__)
 
+
 def url_exists(url: str):
     """
     Helper function to make sure a URL exists and returns a status code in the 2xx-3xx range

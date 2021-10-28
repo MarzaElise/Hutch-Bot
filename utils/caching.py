@@ -31,7 +31,7 @@ class Cache(dict):
         if key in self.keys():
             return self[key]
         # key doesnt exist so create it
-        return self.add_key(key, value)
+        return self.insert(key, value)
 
     def contains(self, key) -> bool:
         return key in self.keys()
@@ -57,6 +57,11 @@ class Cache(dict):
 
     def __str__(self):
         return f"Cache({super().__str__()})"
+
+    def __getitem__(self, key):
+        if not self.contains(key):
+            self.insert(key, {})
+        return super().__getitem__(key)
 
 
 def create_new_cache(initial_data: dict = None):
