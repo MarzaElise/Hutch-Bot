@@ -14,9 +14,9 @@ import requests
 from diskord import abc
 from diskord.embeds import EmptyEmbed
 from diskord.ext import commands
-import flags
 from diskord.utils import parse_time
 
+print("Unwanted import:", __file__)
 
 def url_exists(url: str):
     """

@@ -10,7 +10,7 @@ from diskord.ext import *
 from paginator import Paginator
 from diskord.utils import oauth_url
 
-from Helpers import *
+from utils.helpers import *
 
 # os.chdir("./launcher.py")
 
