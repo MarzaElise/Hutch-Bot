@@ -19,7 +19,7 @@ import warnings
 
 def version():
     with open(
-        r"E:\Marcus\Coding\Python\DiscordBot\Hutch_Bot\VERSION.txt", "r+"
+        r"./VERSION.txt", "r+"
     ) as f:
         lines = f.read()
     return lines or "Not Found"
