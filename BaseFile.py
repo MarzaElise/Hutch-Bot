@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 import Bot
 from data import Database
-from Helpers import Context
+from utils.helpers import Context
 
 
 def version():
