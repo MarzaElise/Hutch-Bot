@@ -4,8 +4,8 @@ from typing import *
 from BaseFile import *
 import typing
 import diskord
-from better_profanity import *
-from diskord.ext import *
+from better_profanity import profanity
+from diskord.ext import commands
 from diskord.utils import *
 from utils.helpers import *
 from diskord.ext.commands import BucketType
@@ -64,21 +64,21 @@ class Moderation(commands.Cog):
 
     def profanity_filter(self, message: diskord.Message):
         profanity.load_censor_words(whitelist_words=white_listed)
-        if (
-            profanity.contains_profanity(message.content)
-            and len(message.role_mentions) == 0
-        ):
-            if (
-                (message.guild)
-                and (message.channel.id not in non_automod_channels)
-                and (not message.mention_everyone)
-            ):
-                if (message.author.id not in self.bot.owner_ids) and (
-                    message.author.id != message.guild.owner_id
-                ):
-                    if message.guild.id not in self.bot.testing_guilds:
-                        return True
-        return False
+        if not profanity.contains_profanity(message.content):
+            return False
+        if len(message.role_mentions) > 0 or message.mention_everyone:
+            return False
+        if not message.guild:
+            return False
+        if message.channel.id in non_automod_channels:
+            return False
+        if message.author.id in self.bot.owner_ids:
+            return False
+        if  message.author.id == message.guild.owner_id:
+            return False
+        if message.guild.id in self.bot.testing_guilds:
+            return False
+        return True
 
     @commands.Cog.listener()
     async def on_message(self, message: diskord.Message):
