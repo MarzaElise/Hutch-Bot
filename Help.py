@@ -383,7 +383,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                 title=title, description=str(error), color=diskord.Color.red()
             )
             em.set_footer(
-                text="If this was a mistake please contact Marcus | Bot Dev#4438",
+                text=f"If this was a mistake please contact {ctx.bot.config.ME}",
                 icon_url=ctx.author.avatar.url,
             )
             return await ctx.send(embed=em)
