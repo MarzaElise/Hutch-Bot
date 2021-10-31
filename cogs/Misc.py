@@ -405,8 +405,8 @@ class Misc(commands.Cog):
                 "Reply to the message you want to delete"
             )
         try:
-            message: diskord.Message = self.get_message_from_reference(
-                ctx.reference.messsage_id, from_cache=True
+            message: diskord.Message = await self.get_message_from_reference(
+                ctx, from_cache=True
             )
         except (diskord.HTTPException, diskord.Forbidden):
             return await ctx.to_error("Retreiving the message failed")
