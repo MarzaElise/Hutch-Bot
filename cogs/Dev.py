@@ -208,23 +208,26 @@ class Dev(commands.Cog):
             color=diskord.Color.random(), timestamp=ctx.message.created_at
         )
         em.set_thumbnail(url=ctx.guild.icon.url)
-        em.add_field(name="Bot Version", value=version(), inline=False)
+        em.add_field(name="Bot Version", value=version(), inline=True)
         em.add_field(
-            name="Total Users:", value=len(self.bot.users), inline=False
+            name="Total Users:", value=len(self.bot.users), inline=True
         )
         em.add_field(
-            name="Total Servers:", value=len(self.bot.guilds), inline=False
+            name="Total Servers:", value=len(self.bot.guilds), inline=True
+        )
+        em.add_field(
+            name="Total Commands:", value=len(self.bot.get_all_commands()), inline=True
         )
         em.add_field(
             name="Library:",
-            value=f'diskord, version {package_version("diskord")}',
-            inline=False,
+            value=f'diskord v{package_version("diskord")}',
+            inline=True,
         )
         url = oauth(ctx)
         links = [
             f"[Bot Invite]({url})",
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
-            "[Official Documentation][https://hutch-bot.readthedocs.io/en/latest]",
+            "[Official Documentation](https://hutch-bot.readthedocs.io/en/latest)",
         ]
         em.add_field(
             name="Useful Links", value=" | ".join(links), inline=False
