@@ -274,7 +274,7 @@ class MyBot(commands.Bot):
         if (
             (before.content != after.content)
             and (author.bot == False)
-            and (after.author.id == self.owner_id)
+            and (after.author.id in self.owner_ids)
         ):
             await self.invoke(ctx)
 
