@@ -20,7 +20,7 @@ def url_exists(url: str):
     """
     response = requests.get(url)
     code = str(response.status_code)
-    return code.startswith("2") or code.startswith("3")
+    return code.startswith("2") #or code.startswith("3")
 
 
 class Embed(diskord.Embed):

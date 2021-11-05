@@ -35,18 +35,32 @@ colors = [
 
 class CustomHelp(commands.MinimalHelpCommand):
     def __init__(self, bot, **options):
+        super().__init__(**options)
         self.show_hidden = True
         self.verify_checks = False
         self.bot = bot
         # self.cog = bot.get_cog("Misc")
-        super().__init__(**options)
 
     def get_docs_for(self, entity=None):
-        ctx: Context = self.context
-        docs = ctx.bot.get_docs(entity, error=False)
-        if entity == False or docs == False:
-            return "https://hutch-bot.readthedocs.io"
-        return docs
+        base = "https://hutch-bot.readthedocs.io"
+        if not entity:
+            name = "/home"
+        if isinstance(entity, commands.Cog):
+            name = "/commands/" + str(entity.qualified_name).lower()
+        if isinstance(entity, (commands.Command, commands.Group)):
+            cmd = str(entity.qualified_name).lower().replace(" ", "-")
+            if not entity.cog:
+                return False
+            category = entity.cog.qualified_name.lower()
+            name = "/commands" + f"/{category}" + f"/#{cmd}"
+        final = base + name
+        return final
+        # return False
+        # ctx: Context = self.context
+        # docs = ctx.bot.get_docs(entity, error=False)
+        # if (not entity) or (not docs):
+        #     return "https://hutch-bot.readthedocs.io"
+        # return docs
 
     def get_opening_note(self):
         return super().get_opening_note()
@@ -128,9 +142,10 @@ class CustomHelp(commands.MinimalHelpCommand):
             guild=ctx.guild,
         )
         links = [
-            f"[Bot Invite]({url})",
+            f"[Invite]({url})",
             "[Support Server](https://discord.gg/NVHJcGdWBC)",
             f"[Official Documentation]({docs})",
+            "[Support Me](https://ko-fi.com/markus4438)"
         ]
         embed.add_field(
             name="Useful Links", value=" | ".join(links), inline=False
@@ -206,6 +221,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                         #         name=command.qualified_name.title(),
                         #         value=f"`{ctx.prefix}help embed`",
                         #     )
+                    em.add_field(name="Documentation", value=f"[Link]({self.get_docs_for(cog)})", inline=False)
                 if len(em.fields) >= 5:
                     _embeds.append(em)
             Pag = Paginator(self.context, embeds=_embeds)
@@ -257,9 +273,10 @@ class CustomHelp(commands.MinimalHelpCommand):
             )
 
         em.add_field(name="Cooldown", value=command.brief, inline=False)
+        # self.add_link(em, command)
         em.add_field(
             name="Documentation",
-            value=f"Please view the [official documentation]({self.get_docs_for(command)}) for more info",
+            value=f"[Link]({self.get_docs_for(command)})"
         )
         em.set_footer(
             text=self.get_ending_note(),
@@ -310,6 +327,7 @@ class CustomHelp(commands.MinimalHelpCommand):
                     value=command.help if command.help else "No Help Found",
                     inline=False,
                 )
+            self.add_link(em, cog)
             _embeds.append(em)
         Pag = Paginator(self.context, embeds=_embeds)
         if len(_embeds) > 1:
@@ -350,6 +368,10 @@ class CustomHelp(commands.MinimalHelpCommand):
                     name=str(cmd.qualified_name).title(),
                     value=cmd.help,
                     inline=False,
+                )
+                em.add_field(
+                    name="Documentation",
+                    value=f"[Link]({self.get_docs_for(group)})"
                 )
             _embeds.append(em)
 
