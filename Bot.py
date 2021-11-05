@@ -401,6 +401,7 @@ class MyBot(commands.Bot):
                 raise NotDocumented(
                     "No entity was given to get the documentation link for. Are you sure you spelt it correctly?"
                 )
+            
             name = "/home"
         if isinstance(entity, commands.Cog):
             name = "/commands/" + str(entity.qualified_name).lower()
@@ -415,13 +416,7 @@ class MyBot(commands.Bot):
             category = entity.cog.qualified_name.lower()
             name = "/commands" + f"/{category}" + f"/#{cmd}"
         final = base + name
-        if url_exists(final):
-            return final
-        if error:
-            raise NotDocumented(
-                f"{entity.qualified_name} was not found in the documentation."
-            )
-        return False
+        return final
 
     async def get_message(
         self, channel_id: int, msg_id: int, formatted: bool = True
