@@ -65,6 +65,7 @@ class Paginator:
                 reaction, user = await self.ctx.bot.wait_for(
                     "reaction_add", check=check, timeout=self.timeout
                 )
+                await self.try_delete_reaction(message, reaction)
                 if str(reaction.emoji) == "⏹️":
                     await message.delete()
                     break
@@ -87,3 +88,11 @@ class Paginator:
                 with suppress(diskord.Forbidden, diskord.HTTPException):
                     for b in self._buttons:
                         await message.remove_reaction(b, self.ctx.bot.user)
+
+    async def try_delete_reaction(self, message: diskord.Message, emoji: diskord.Emoji): 
+        if not message.channel.permissions_for(self.ctx.me).manage_messages:
+            return False
+        try:
+            await message.remove_reaction(emoji, self.ctx.author)
+        except Exception: # idgaf lel
+            return False
