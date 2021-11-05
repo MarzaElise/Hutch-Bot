@@ -66,28 +66,35 @@ class Paginator:
                     "reaction_add", check=check, timeout=self.timeout
                 )
                 await self.try_delete_reaction(message, reaction)
-                if str(reaction.emoji) == "⏹️":
+                embed = self.get_embed(reaction)
+                if not embed:
                     await message.delete()
                     break
-                if str(reaction.emoji) == "▶️" and self.current != len(
-                    self.embeds
-                ):
-                    self.current += 1
-                    await message.edit(embed=self.embeds[self.current - 1])
-                if str(reaction.emoji) == "◀️" and self.current > 1:
-                    self.current -= 1
-                    await message.edit(embed=self.embeds[self.current - 1])
-                if str(reaction.emoji) == "⏩":
-                    self.current = len(self.embeds)
-                    await message.edit(embed=self.embeds[self.current - 1])
-                if str(reaction.emoji) == "⏪":
-                    self.current = 1
-                    await message.edit(embed=self.embeds[self.current - 1])
+                else:
+                    await message.edit(embed=embed)
 
             except Exception as e:
                 with suppress(diskord.Forbidden, diskord.HTTPException):
                     for b in self._buttons:
                         await message.remove_reaction(b, self.ctx.bot.user)
+
+    def get_embed(self, reaction: diskord.Reaction):
+        if str(reaction.emoji) == "⏹️":
+            return None
+        if str(reaction.emoji) == "▶️" and self.current != len(
+            self.embeds
+        ):
+            self.current += 1
+            return self.embeds[self.current - 1]
+        if str(reaction.emoji) == "◀️" and self.current > 1:
+            self.current -= 1
+            return self.embeds[self.current - 1]
+        if str(reaction.emoji) == "⏩":
+            self.current = len(self.embeds)
+            return self.embeds[self.current - 1]
+        if str(reaction.emoji) == "⏪":
+            self.current = 1
+            return self.embeds[self.current - 1]
 
     async def try_delete_reaction(self, message: diskord.Message, emoji: diskord.Emoji): 
         if not message.channel.permissions_for(self.ctx.me).manage_messages:
