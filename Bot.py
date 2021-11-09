@@ -108,6 +108,7 @@ class MyBot(commands.Bot):
         super().__init__(
             command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
             intents=diskord.Intents.all(),
+            allowed_mentions=diskord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=True),
             help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
             owner_ids=self.config.OWNER_IDS,
