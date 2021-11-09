@@ -408,7 +408,7 @@ class Misc(commands.Cog):
             )
         try:
             message: diskord.Message = self.get_message_from_reference(
-                ctx.reference.message_id, from_cache=True
+                ctx, from_cache=True
             )
         except (diskord.HTTPException, diskord.Forbidden):
             return await ctx.to_error("Retreiving the message failed")
