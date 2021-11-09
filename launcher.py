@@ -4,7 +4,7 @@ from BaseFile import *
 from Bot import MyBot
 
 
-def main(TOKEN: str = "TOKEN_2"):
+def main(TOKEN: str = "TOKEN"):
     try:
         bot = MyBot(TOKEN)
         change_status.start(bot)
@@ -15,4 +15,5 @@ def main(TOKEN: str = "TOKEN_2"):
 
 
 if __name__ == "__main__":
-    main("TOKEN_2")
+    # main("TOKEN_2")
+    main()
