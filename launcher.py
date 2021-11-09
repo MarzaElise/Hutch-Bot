@@ -4,12 +4,7 @@ from BaseFile import *
 from Bot import MyBot
 
 
-def main(TOKEN: str = "TOKEN_2"):
-    bot = MyBot(TOKEN)
-    change_status.start(bot)
-    if TOKEN == "TOKEN_2":
-        bot.command_prefix = ">"
-        print(f"\n[INFO]: Running Test bot with {bot.command_prefix} prefix")
+def main(TOKEN: str = "TOKEN"):
     try:
         bot.run(bot.config.BOT_TOKEN)
     except Exception as e:
@@ -18,4 +13,5 @@ def main(TOKEN: str = "TOKEN_2"):
 
 
 if __name__ == "__main__":
-    main("TOKEN_2")
+    # main("TOKEN_2")
+    main()
