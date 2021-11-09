@@ -5,6 +5,11 @@ from Bot import MyBot
 
 
 def main(TOKEN: str = "TOKEN"):
+    bot = MyBot(TOKEN)
+    change_status.start(bot)
+    if TOKEN == "TOKEN_2":
+        bot.command_prefix = ">"
+        print("[INFO]: Running Test bot with > prefix")
     try:
         bot.run(bot.config.BOT_TOKEN)
     except Exception as e:
