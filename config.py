@@ -52,5 +52,4 @@ def get_config(token_type: str = "TOKEN_2"):
         dat = json.load(f)
     if ("BOT_TOKEN" not in dat.keys()) or (dat["BOT_TOKEN"] is None):
         dat["BOT_TOKEN"] = get_token(token_type)
-    conf = Config(**dat)
-    return conf
+    return Config(**dat)
