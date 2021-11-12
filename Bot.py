@@ -67,17 +67,6 @@ def version():
     return lines or "3.4.1"
 
 
-def get_all_tokens():
-    return Tokens(_env_file=".env")
-
-
-def get_token(TOKEN_TYPE: str = None):
-    TOKENS = get_all_tokens()
-    token = TOKENS.TOKEN_2 if TOKEN_TYPE == "TOKEN_2" else TOKENS.TOKEN
-    if not token:
-        raise TypeError("No Token detected")
-    return token
-
 class MyBot(commands.Bot):
     def __init__(self, token_type="TOKEN_2"):
         self.config = get_config(token_type)

@@ -28,24 +28,16 @@ class Config(BaseModel):
     OWNER_IDS: List[int] = None
     ME: Optional[str] = "Marcus | Bot Dev#4438"
 
-
 def get_all_tokens():
-    secrets = Tokens(_env_file=".env")
-    return secrets
+    return Tokens(_env_file=".env")
 
 
 def get_token(TOKEN_TYPE: str = None):
     TOKENS = get_all_tokens()
-    if TOKEN_TYPE == "TOKEN_2":
-        token = TOKENS.TOKEN_2
-    # elif TOKEN_TYPE == "ME":
-    #     token = os.getenv("ME")
-    else:
-        token = TOKENS.TOKEN
+    token = TOKENS.TOKEN_2 if TOKEN_TYPE == "TOKEN_2" else TOKENS.TOKEN
     if not token:
         raise TypeError("No Token detected")
     return token
-
 
 def get_config(token_type: str = "TOKEN_2"):
     with open("./assets/secrets.json", "r+") as f:
