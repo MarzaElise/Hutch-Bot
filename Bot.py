@@ -78,15 +78,6 @@ def get_token(TOKEN_TYPE: str = None):
         raise TypeError("No Token detected")
     return token
 
-
-def get_config(token_type: str = "TOKEN_2"):
-    with open("./assets/secrets.json", "r+") as f:
-        dat = json.load(f)
-    if ("BOT_TOKEN" not in dat.keys()) or (dat["BOT_TOKEN"] is None):
-        dat["BOT_TOKEN"] = get_token(token_type)
-    return Config(**dat)
-
-
 class MyBot(commands.Bot):
     def __init__(self, token_type="TOKEN_2"):
         self.config = get_config(token_type)
