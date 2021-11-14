@@ -33,11 +33,10 @@ from typing import *
 
 import aiohttp
 import diskord
+from DiscordUtils import *
 from diskord import *
 from diskord.ext import commands, tasks
 from diskord.ext.commands import core
-
-from DiscordUtils import *
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
@@ -88,7 +87,9 @@ class MyBot(commands.Bot):
         super().__init__(
             command_prefix=self.prefix,  # [self.config.DEFAULT_PREFIX, "H!"],
             intents=diskord.Intents.all(),
-            allowed_mentions=diskord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=True),
+            allowed_mentions=diskord.AllowedMentions(
+                everyone=False, roles=False, users=True, replied_user=True
+            ),
             help_command=help_obj,
             description="Hutch Bot - A moderation bot with many fun commands and essential moderation commands",
             owner_ids=self.config.OWNER_IDS,
@@ -163,8 +164,7 @@ class MyBot(commands.Bot):
 
     async def on_ready(self):
         self.logs: List[diskord.TextChannel] = [
-            self.get_channel(_id)
-            for _id in [847931426938945597, 845739412867514442]
+            self.get_channel(_id) for _id in [847931426938945597, 845739412867514442]
         ]
         print("\n")
         print("-" * 50)
@@ -189,9 +189,7 @@ class MyBot(commands.Bot):
         ctx: Context = await self.get_context(message, cls=Context)
         channel: diskord.TextChannel = message.channel
 
-        if (f"<@!{self.user.id}>" in message.content) and (
-            len(message.mentions) == 1
-        ):
+        if (f"<@!{self.user.id}>" in message.content) and (len(message.mentions) == 1):
             await ctx.send(
                 f"Hello :wave:, my prefix is {self.config.DEFAULT_PREFIX}. You can do `{self.config.DEFAULT_PREFIX}help` to get some help!"
             )
@@ -206,25 +204,45 @@ class MyBot(commands.Bot):
         embed.description = f"```py\n{tb}\n```"
         if len(tb) > 2000:
             file = diskord.File(io.StringIO(tb), str(event_method))
-            embed = (
-                None  # we dont need an embed if we are going to send a file
-            )
+            embed = None  # we dont need an embed if we are going to send a file
 
         await report_to_logs(self, content=None, embed=embed, file=file)
 
+    def get_guild_stats(self, guild: diskord.Guild, embed: diskord.Embed = None):
+        if not embed:
+            embed = diskord.Embed()
+        embed.add_field(name="Name", value=guild.name, inline=False)
+        embed.add_field(name="Members", value=guild.member_count, inline=False)
+        embed.add_field(name="Owner", value=f"{guild.owner}")
+        embed.set_thumbnail(url=guild.icon.url)
+        embed.add_field(name="Invite", value=self.invite_cache.get(guild.id), inline=False)
+        embed.set_footer(text=guild.id)
+        return embed
+
     async def on_guild_join(self, guild: diskord.Guild):
-        embed = diskord.Embed(
-            title="Joined New Server",
-            description=f"{guild.name} | {guild.member_count}",
-        )
+
+        try:
+            inv = await guild.text_channels[0].create_invite(
+                max_uses=1,
+                unique=False,
+                reason="Requested by bot developer",
+            )
+            self.invite_cache.insert(guild.id, inv)
+        except Exception:
+            pass
+
+
+        em = diskord.Embed(title="Joined a new Server")
+        embed = self.get_guild_stats(guild, em)
         await report_to_logs(self, content=None, embed=embed)
         channel = random.choice(guild.text_channels)
         if channel.permissions_for(guild.me).embed_links:
             em = diskord.Embed(title="Thank you for adding me!")
-            em.add_field(name="Prefix", value="h!")
+            em.add_field(name="Prefix", value="h!", inline=False)
             em.add_field(
                 name="Config",
                 value="You have don't have to waste time configuring since this is a pre-configured bot!",
+                inline=False
             )
             em.set_thumbnail(url=guild.icon.url)
             em.set_footer(
@@ -247,9 +265,7 @@ class MyBot(commands.Bot):
     async def logout(self):
         return await self.close()
 
-    async def on_message_edit(
-        self, before: diskord.Message, after: diskord.Message
-    ):
+    async def on_message_edit(self, before: diskord.Message, after: diskord.Message):
         author: diskord.User = after.author
         ctx: Context = await self.get_context(after, cls=Context)
         if (
@@ -283,9 +299,7 @@ class MyBot(commands.Bot):
         if ctx.author.id == self.owner_id:
             ctx.command.reset_cooldown(ctx)
 
-    async def on_command_error(
-        self, ctx: Context, error: commands.CommandError
-    ):
+    async def on_command_error(self, ctx: Context, error: commands.CommandError):
 
         if isinstance(error, commands.CommandNotFound):
             matches = difflib.get_close_matches(
@@ -329,9 +343,7 @@ class MyBot(commands.Bot):
         traceback.print_exception(type(error), error, error.__traceback__)
         error_em = await ctx.to_error()
 
-        trace = traceback.format_exception(
-            type(error), error, error.__traceback__
-        )
+        trace = traceback.format_exception(type(error), error, error.__traceback__)
         tb = "".join(trace)
         # _1, _2, _3 = trace[-3], trace[-2], trace[-1]
         err = tb[
@@ -361,9 +373,7 @@ class MyBot(commands.Bot):
 
     def get_docs(
         self,
-        entity: Optional[
-            Union[commands.Command, commands.Group, commands.Cog]
-        ] = None,
+        entity: Optional[Union[commands.Command, commands.Group, commands.Cog]] = None,
         *,
         error=True,
     ) -> str:
@@ -382,7 +392,7 @@ class MyBot(commands.Bot):
                 raise NotDocumented(
                     "No entity was given to get the documentation link for. Are you sure you spelt it correctly?"
                 )
-            
+
             name = "/home"
         if isinstance(entity, commands.Cog):
             name = "/commands/" + str(entity.qualified_name).lower()
