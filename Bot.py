@@ -231,7 +231,6 @@ class MyBot(commands.Bot):
         except Exception:
             pass
 
-
         em = diskord.Embed(title="Joined a new Server")
         embed = self.get_guild_stats(guild, em)
         await report_to_logs(self, content=None, embed=embed)
@@ -253,7 +252,7 @@ class MyBot(commands.Bot):
             for channel in guild.text_channels:
                 if channel.permissions_for(guild.me).send_messages:
                     await channel.send(
-                        "Thanks for adding!\nPlease make sure I have `embed_links` permission to work properly!"
+                        "Thanks for adding!\nPlease make sure I have `embed_links` permission in all channels to work properly!"
                     )
                     break
             return
