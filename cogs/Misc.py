@@ -57,6 +57,7 @@ class Misc(commands.Cog):
         self.__cog_description__ = "Hutch Bot Miscellaneous Category"
         self.session = bot.session
         self.invite_cache = Cache()
+        bot.invite_cache = self.invite_cache
         self.targets = {
             "discord": "https://discordpy.readthedocs.io/en/latest",
             "jishaku": "https://jishaku.readthedocs.io/en/latest/",
