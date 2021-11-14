@@ -18,5 +18,5 @@ def main(TOKEN: str = "TOKEN"):
 
 
 if __name__ == "__main__":
-    # main("TOKEN_2")
-    main()
+    main("TOKEN_2")
+    # main()
