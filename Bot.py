@@ -257,6 +257,12 @@ class MyBot(commands.Bot):
                     break
             return
 
+    async def on_guild_leave(self, guild: diskord.Guild):
+        em = diskord.Embed(title="Left Server", color=diskord.Colour.red())
+        self.get_guild_stats(guild, em)
+        await report_to_logs(content=None, embed=em)
+
+
     async def close(self):
         await self.session.close()
         return await super().close()
