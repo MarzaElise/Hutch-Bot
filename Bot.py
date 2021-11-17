@@ -271,7 +271,7 @@ class MyBot(commands.Bot):
         return await self.close()
 
     async def on_message_edit(self, before: diskord.Message, after: diskord.Message):
-        author: diskord.User = after.author
+        author: Union[diskord.User, diskord.Member] = after.author
         ctx: Context = await self.get_context(after, cls=Context)
         if (
             (before.content != after.content)
