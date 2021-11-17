@@ -7,18 +7,21 @@ async def init():
     """
     calls Tortoise.init with our models from /models
     """
-    file_list = [
-        f"models.{file.split('.')[0]}"  # .split('.') returns ['file', 'extension']
-        for file in os.listdir("./models")
-        if not file.startswith("_")
-    ]
-    # i will be updating that dir often so this is easy
-    # if there is a better and/or easier way, plse tell me :thanks:
-
     await Tortoise.init(
         # db_url="sqlite://databases/main.sqlite",
         db_url="sqlite://:memory:",  # testing lololololololololol
-        modules={"models": file_list},
+        modules={"models": ["models"]},
     )
     # Generate the schema
     await Tortoise.generate_schemas()
+    await main()
+
+async def main():
+    guild = await models.GuildModel.create(id=1, name="test")
+    member = await models.MemberModel.create(id=2, is_blacklisted=True, guild=guild)
+    # print(await member.get_or_none(guild=guild))
+    print(await (await member.get(guild=guild)).guild)
+    # print(await (await guild.get(id=1)).guild)
+if __name__ == '__main__':
+    run_async(init())
+    # run_async(main())
