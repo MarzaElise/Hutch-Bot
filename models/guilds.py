@@ -13,6 +13,7 @@ class GuildModel(Model):
         description="boolean field to mark if a guild with this id is blacklisted or not",
     )
     member: fields.ForeignKeyRelation["MemberModel"]
+    automod_enabled = fields.BooleanField(default=True, description="Determines if automoderation should be enabled")    
 
     class Meta:
         table = "Guilds"
