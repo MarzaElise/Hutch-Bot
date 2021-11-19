@@ -9,6 +9,7 @@ tests
 cogs/__pycache__
 TODO
 .mypy_cache
+tortoise_stuff.py
 
 # temp stuff
 delete.*
