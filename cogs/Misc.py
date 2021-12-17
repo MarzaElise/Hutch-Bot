@@ -229,7 +229,7 @@ class Misc(commands.Cog):
         await ctx.trigger_typing()
         em = diskord.Embed(title="Servers the bot is in:")
         for guild in self.bot.guilds:
-            if self.bot.owner_id == ctx.author.id:
+            if ctx.author.id in self.bot.owner_ids:
                 try:
                     inv = await self.get_invite(guild)
                     em.add_field(
